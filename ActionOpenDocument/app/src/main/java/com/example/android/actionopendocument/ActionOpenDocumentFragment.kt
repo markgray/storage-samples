@@ -39,12 +39,40 @@ import java.io.IOException
  */
 class ActionOpenDocumentFragment : Fragment() {
 
+    /**
+     * [PdfRenderer] we use to render the PDF.
+     */
     private lateinit var pdfRenderer: PdfRenderer
+
+    /**
+     * The current [PdfRenderer.Page] PDF document page we are rendering.
+     */
     private lateinit var currentPage: PdfRenderer.Page
+
+    /**
+     * This is the page number of the PDF page that we were displaying before being stopped for an
+     * orientation change which is saved in [onSaveInstanceState] and restored in [onViewCreated],
+     * but a logic error somewhere causes the [currentPage] page being displayed to start again at 0
+     * TODO: fix it so that the correct page is displayed on restart?
+     */
     private var currentPageNumber: Int = INITIAL_PAGE_INDEX
 
+    /**
+     * The [ImageView] in our layout file with ID [R.id.image] that we use to display the [Bitmap]
+     * of the PDF page we are currently rendering.
+     */
     private lateinit var pdfPageView: ImageView
+
+    /**
+     * The [Button] in our layout file with ID [R.id.previous] (labeled "Previous") that when clicked
+     * moves back one page in the PDF document.
+     */
     private lateinit var previousButton: Button
+
+    /**
+     * The [Button] in our layout file with ID [R.id.next] (labeled "Next") that when clicked moves
+     * forward one page in the PDF document.
+     */
     private lateinit var nextButton: Button
 
     val pageCount get() = pdfRenderer.pageCount
