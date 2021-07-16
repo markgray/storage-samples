@@ -142,7 +142,17 @@ class ActionOpenDocumentFragment : Fragment() {
      * restored in to the [View]. This gives subclasses a chance to initialize themselves once
      * they know their view hierarchy has been completely created. The fragment's view hierarchy
      * is not however attached to its parent at this point. First we call our super's implementation
-     * of `onViewCreated`
+     * of `onViewCreated`. We initialize our [Button] field [previousButton] by finding the view
+     * with ID [R.id.previous] and immediately use the [apply] extension function to set its
+     * [View.OnClickListener] to a lambda which calls our [showPage] method to have it display the
+     * page before the page index of our [PdfRenderer.Page] field [currentPage]. We initialize our
+     * [Button] field [nextButton] by finding the view with ID [R.id.next] and immediately use the
+     * [apply] extension function to set its [View.OnClickListener] to a lambda which calls our
+     * [showPage] method to have it display the page after the page index of our [PdfRenderer.Page]
+     * field [currentPage]. Finally, if our [Bundle] parameter [savedInstanceState] is not `null`
+     * we retrieve the [Int] stored under the key [CURRENT_PAGE_INDEX_KEY] and set our field
+     * [currentPageNumber] to it, defaulting to [INITIAL_PAGE_INDEX] if this is the first time we
+     * are running.
      *
      * @param view The [View] returned by [onCreateView].
      * @param savedInstanceState If non-`null`, this fragment is being re-constructed from a
@@ -168,6 +178,10 @@ class ActionOpenDocumentFragment : Fragment() {
             ?: INITIAL_PAGE_INDEX
     }
 
+    /**
+     * Called when the [Fragment] is visible to the user. This is generally tied to Activity.onStart
+     * of the containing Activity's lifecycle.
+     */
     override fun onStart() {
         super.onStart()
 
