@@ -75,14 +75,32 @@ class ActionOpenDocumentFragment : Fragment() {
      */
     private lateinit var nextButton: Button
 
+    /**
+     * The number of pages in the document.
+     */
     val pageCount get() = pdfRenderer.pageCount
 
     companion object {
+        /**
+         * The key under which the [String] value of the document URI we are supposed to display is
+         * stored in the argument [Bundle] this [ActionOpenDocumentFragment] is passed.
+         */
         private const val DOCUMENT_URI_ARGUMENT =
             "com.example.android.actionopendocument.args.DOCUMENT_URI_ARGUMENT"
 
+        /**
+         * Creates a new instance of [ActionOpenDocumentFragment] whose arguments [Bundle] contains
+         * the [String] value of our [Uri] parameter [documentUri]. We contruct a new instance of
+         * [ActionOpenDocumentFragment] and immediately use the [apply] extension function to set
+         * its construction arguments to a [Bundle] holding the [String] value of our [Uri] parameter
+         * [documentUri] stored under the key [DOCUMENT_URI_ARGUMENT].
+         *
+         * @param documentUri the [Uri] we should use to access the PDF file we are to display.
+         * @return a new instance of [ActionOpenDocumentFragment] whose arguments [Bundle] contains
+         * the [String] value of our [Uri] parameter [documentUri] stored under the key
+         * [DOCUMENT_URI_ARGUMENT]
+         */
         fun newInstance(documentUri: Uri): ActionOpenDocumentFragment {
-
             return ActionOpenDocumentFragment().apply {
                 arguments = Bundle().apply {
                     putString(DOCUMENT_URI_ARGUMENT, documentUri.toString())
@@ -91,6 +109,26 @@ class ActionOpenDocumentFragment : Fragment() {
         }
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view. This will be called between
+     * [onCreate] and [onViewCreated]. It is recommended to _only_ inflate the layout in this method
+     * and move logic that operates on the returned [View] to [onViewCreated]. We return the [View]
+     * that our [LayoutInflater] parameter [inflater] inflates from the layout file with resource ID
+     * [R.layout.fragment_pdf_renderer_basic] using our [ViewGroup] parameter [container] for its
+     * `LayoutParams` without attaching to it. This [View] consists of a vertical `LinearLayout`
+     * holding the [ImageView] we use to display pages from our PDF document above a horizontal
+     * `LinearLayout` holding two [Button]s the user can use to move the page number displayed up
+     * and down.
+     *
+     * @param inflater The [LayoutInflater] object that can be used to inflate any views in the
+     * fragment.
+     * @param container If non-`null`, this is the parent [ViewGroup] that the fragment's UI will be
+     * attached to. The fragment should not add the view itself, but this can be used to generate
+     * the `LayoutParams` of the view.
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return Return the [View] for the fragment's UI, or `null`.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -99,6 +137,17 @@ class ActionOpenDocumentFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_pdf_renderer_basic, container, false)
     }
 
+    /**
+     * Called immediately after [onCreateView] has returned, but before any saved state has been
+     * restored in to the [View]. This gives subclasses a chance to initialize themselves once
+     * they know their view hierarchy has been completely created. The fragment's view hierarchy
+     * is not however attached to its parent at this point. First we call our super's implementation
+     * of `onViewCreated`
+     *
+     * @param view The [View] returned by [onCreateView].
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed from a
+     * previous saved state as given here.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
