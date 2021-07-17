@@ -180,12 +180,21 @@ class ActionOpenDocumentFragment : Fragment() {
 
     /**
      * Called when the [Fragment] is visible to the user. This is generally tied to Activity.onStart
-     * of the containing Activity's lifecycle.
+     * of the containing Activity's lifecycle. First we call our super's implementation of `onStart`.
+     * We try to initialize our [Uri] variable `val documentUri` by tring to retrieve the [String]
+     * stored under the key [DOCUMENT_URI_ARGUMENT] in the arguments [Bundle] supplied when the
+     * fragment was instantiated (if any) and converting that [String] to a [Uri] returning to the
+     * caller if the any result in our chain of commands is `null`. If we succeed in initializing
+     * `documentUri` to a [Uri] we execute a `try` block intended to catch and log [IOException]
+     * wherein we call our [openRenderer] method with the `FragmentActivity` this fragment is
+     * currently associated with as the [Context], and `documentUri` as the [Uri] of the PDF file
+     * to open. Then we call our [showPage] method to have it render the [currentPageNumber] page
+     * in the PDF file to our display.
      */
     override fun onStart() {
         super.onStart()
 
-        val documentUri = arguments?.getString(DOCUMENT_URI_ARGUMENT)?.toUri() ?: return
+        val documentUri: Uri = arguments?.getString(DOCUMENT_URI_ARGUMENT)?.toUri() ?: return
         try {
             openRenderer(activity, documentUri)
             showPage(currentPageNumber)
@@ -194,6 +203,12 @@ class ActionOpenDocumentFragment : Fragment() {
         }
     }
 
+    /**
+     * Called when the `Fragment` is no longer started. This is generally tied to Activity.onStop
+     * of the containing Activity's lifecycle. First we call our super's implementation of `onStop`,
+     * then wrapped in a `try` block intended to catch and log [IOException] we call our method
+     * [closeRenderer] to have it close the [PdfRenderer] field [pdfRenderer] and related resources.
+     */
     override fun onStop() {
         super.onStop()
         try {
@@ -203,6 +218,14 @@ class ActionOpenDocumentFragment : Fragment() {
         }
     }
 
+    /**
+     * Called to ask the fragment to save its current dynamic state, so it can later be reconstructed
+     * in a new instance if its process is restarted. If a new instance of the fragment later needs
+     * to be created, the data you place in the [Bundle] here will be available in the Bundle given
+     * to [onCreate], [onCreateView], and [onViewCreated].
+     *
+     * @param outState [Bundle] in which to place your saved state.
+     */
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(CURRENT_PAGE_INDEX_KEY, currentPage.index)
         super.onSaveInstanceState(outState)
