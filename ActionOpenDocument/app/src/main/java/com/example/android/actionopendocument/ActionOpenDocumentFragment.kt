@@ -16,12 +16,14 @@
 
 package com.example.android.actionopendocument
 
+import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createBitmap
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -222,7 +224,10 @@ class ActionOpenDocumentFragment : Fragment() {
      * Called to ask the fragment to save its current dynamic state, so it can later be reconstructed
      * in a new instance if its process is restarted. If a new instance of the fragment later needs
      * to be created, the data you place in the [Bundle] here will be available in the Bundle given
-     * to [onCreate], [onCreateView], and [onViewCreated].
+     * to [onCreate], [onCreateView], and [onViewCreated]. We store the page index of the page that
+     * our [PdfRenderer.Page] field [currentPage] is rendering under the key [CURRENT_PAGE_INDEX_KEY]
+     * in our [Bundle] parameter [outState] then call our super's implementation of
+     * `onSaveInstanceState`.
      *
      * @param outState [Bundle] in which to place your saved state.
      */
@@ -232,7 +237,19 @@ class ActionOpenDocumentFragment : Fragment() {
     }
 
     /**
-     * Sets up a [PdfRenderer] and related resources.
+     * Sets up a [PdfRenderer] and related resources. If our [Context] parameter [context] is `null`
+     * we return having done nothing. Otherwise we use [context] to retrieve a [ContentResolver]
+     * instance for our application's package and call its [ContentResolver.openFileDescriptor]
+     * method to open a raw file descriptor to access data under our [Uri] parameter [documentUri]
+     * for read mode, returning if this is `null` or using it to initialize our [ParcelFileDescriptor]
+     * variable `val fileDescriptor` if it is not. We then initialize our [PdfRenderer] field
+     * [pdfRenderer] to a new instance using `fileDescriptor` as the Seekable file descriptor for it
+     * to read from. Finally we initialize our [PdfRenderer.Page] field [currentPage] to the page
+     * that the [PdfRenderer.openPage] method returns for the index [currentPageNumber].
+     *
+     * @param context the [Context] of the `FragmentActivity` this fragment is currently associated
+     * with that we use to retrieve a [ContentResolver] instance for our application's package.
+     * @param documentUri the [Uri] pointing to a PDF document for us to render.
      */
     @Throws(IOException::class)
     private fun openRenderer(context: Context?, documentUri: Uri) {
@@ -243,7 +260,8 @@ class ActionOpenDocumentFragment : Fragment() {
          * of the [FileDescriptor], and, if we did use `use`, it would be auto-closed at the
          * end of the block, preventing us from rendering additional pages.
          */
-        val fileDescriptor = context.contentResolver.openFileDescriptor(documentUri, "r") ?: return
+        val fileDescriptor: ParcelFileDescriptor =
+            context.contentResolver.openFileDescriptor(documentUri, "r") ?: return
 
         // This is the PdfRenderer we use to render the PDF.
         pdfRenderer = PdfRenderer(fileDescriptor)
@@ -251,7 +269,9 @@ class ActionOpenDocumentFragment : Fragment() {
     }
 
     /**
-     * Closes the [PdfRenderer] and related resources.
+     * Closes the [PdfRenderer] and related resources. First we call the [PdfRenderer.Page.close]
+     * method of our field [currentPage] to close the page we are displaying, then we call the
+     * [PdfRenderer.close] method of our field [pdfRenderer] to close the renderer.
      *
      * @throws IOException When the PDF file cannot be closed.
      */
@@ -262,15 +282,22 @@ class ActionOpenDocumentFragment : Fragment() {
     }
 
     /**
-     * Shows the specified page of PDF to the screen.
+     * Shows the specified page of PDF to the screen. The way [PdfRenderer] works is that it allows
+     * for "opening" a page with the method [PdfRenderer.openPage], which takes a (0 based) page
+     * number to open. This returns a [PdfRenderer.Page] object, which represents the content of
+     * this page. There are two ways to render the content of a [PdfRenderer.Page]:
+     *  - [PdfRenderer.Page.RENDER_MODE_FOR_PRINT] Mode to render the content for printing.
+     *  - [PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY] Mode to render the content for display on a screen.
      *
-     * The way [PdfRenderer] works is that it allows for "opening" a page with the method
-     * [PdfRenderer.openPage], which takes a (0 based) page number to open. This returns
-     * a [PdfRenderer.Page] object, which represents the content of this page.
-     *
-     * There are two ways to render the content of a [PdfRenderer.Page].
-     * [PdfRenderer.Page.RENDER_MODE_FOR_PRINT] and [PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY].
-     * Since we're displaying the data on the screen of the device, we'll use the later.
+     * Since we're displaying the data on the screen of the device, we'll use the later. If our
+     * [Int] parameter [index] is less than 0, or greater than or equal to the number of pages in
+     * the document that our [PdfRenderer] field [pdfRenderer] is rendering we return having done
+     * nothing. Otherwise we call the [PdfRenderer.Page.close] method of our field [currentPage] to
+     * close the page we are displaying, then we set [currentPage] to the [PdfRenderer.Page] that
+     * the [PdfRenderer.openPage] method of [pdfRenderer] returns when it opens the page whose index
+     * is our [Int] parameter [index]. Next we initialize our [Bitmap] variable `val bitmap` to a
+     * to an `ARGB_8888` [Bitmap] whose width is the width of [currentPage] and whose height is the
+     * height of [currentPage].
      *
      * @param index The page index.
      */
@@ -281,7 +308,8 @@ class ActionOpenDocumentFragment : Fragment() {
         currentPage = pdfRenderer.openPage(index)
 
         // Important: the destination bitmap must be ARGB (not RGB).
-        val bitmap = createBitmap(currentPage.width, currentPage.height, Bitmap.Config.ARGB_8888)
+        val bitmap: Bitmap =
+            createBitmap(currentPage.width, currentPage.height, Bitmap.Config.ARGB_8888)
 
         currentPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
         pdfPageView.setImageBitmap(bitmap)
