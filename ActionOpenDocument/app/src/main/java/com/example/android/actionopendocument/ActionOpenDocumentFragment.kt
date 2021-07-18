@@ -299,6 +299,22 @@ class ActionOpenDocumentFragment : Fragment() {
      * to an `ARGB_8888` [Bitmap] whose width is the width of [currentPage] and whose height is the
      * height of [currentPage].
      *
+     * We call the [PdfRenderer.Page.render] method of [currentPage] to have it render itself to our
+     * [Bitmap] variable `bitmap` using the render mode [PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY].
+     * We then call the [ImageView.setImageBitmap] method of our field [pdfPageView] to have it set
+     * `bitmap` as the content of the [ImageView].
+     *
+     * We initialize our [Int] variable `val pageCount` to the number of pages in the document that
+     * [PdfRenderer] field [pdfRenderer] is holding then proceed to enable the [Button] field
+     * [previousButton] if [index] is not equal to 0, and enable the [Button] field [nextButton] if
+     * [index] plus 1 is less than `pageCount`. Finally we set the title associated with this activity
+     * to the string formed by using the format [String] with ID [R.string.app_name_with_index] to
+     * format [index] plus 1 and `pageCount` into its decimal placeholders (the result is like so:
+     *
+     *     "aodViewer  1/42"
+     *
+     * where 1 is [index] plus 1 and 42 is `pageCount`.
+     *
      * @param index The page index.
      */
     private fun showPage(index: Int) {
@@ -314,7 +330,7 @@ class ActionOpenDocumentFragment : Fragment() {
         currentPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
         pdfPageView.setImageBitmap(bitmap)
 
-        val pageCount = pdfRenderer.pageCount
+        val pageCount: Int = pdfRenderer.pageCount
         previousButton.isEnabled = (0 != index)
         nextButton.isEnabled = (index + 1 < pageCount)
         activity?.title = getString(R.string.app_name_with_index, index + 1, pageCount)
@@ -327,6 +343,13 @@ class ActionOpenDocumentFragment : Fragment() {
 private const val CURRENT_PAGE_INDEX_KEY =
     "com.example.android.actionopendocument.state.CURRENT_PAGE_INDEX_KEY"
 
+/**
+ * TAG used for logging
+ */
 private const val TAG = "ActionOpenDocumentFragment"
+
+/**
+ * Default starting page index to display.
+ */
 private const val INITIAL_PAGE_INDEX = 0
 
