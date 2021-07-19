@@ -32,6 +32,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.fragment.app.commitNow
 import androidx.fragment.app.transaction
 
 const val DOCUMENT_FRAGMENT_TAG = "com.example.android.actionopendocument.tags.DOCUMENT_FRAGMENT"
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity() {
             openDocumentPicker()
         }
 
+        if (savedInstanceState != null) return
         getSharedPreferences(TAG, Context.MODE_PRIVATE).let { sharedPreferences ->
             if (sharedPreferences.contains(LAST_OPENED_URI_KEY)) {
                 val documentUri =
@@ -145,8 +147,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         val fragment = ActionOpenDocumentFragment.newInstance(documentUri)
-        supportFragmentManager.transaction {
-            add(R.id.container, fragment, DOCUMENT_FRAGMENT_TAG)
+        supportFragmentManager.commitNow {
+            replace(R.id.container, fragment, DOCUMENT_FRAGMENT_TAG)
         }
 
         // Document is open, so get rid of the call to action view.
