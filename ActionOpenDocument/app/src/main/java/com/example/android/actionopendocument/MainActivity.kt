@@ -35,6 +35,9 @@ import androidx.core.net.toUri
 import androidx.fragment.app.commitNow
 import androidx.fragment.app.transaction
 
+/**
+ * TAG used for our fragment [ActionOpenDocumentFragment]
+ */
 const val DOCUMENT_FRAGMENT_TAG = "com.example.android.actionopendocument.tags.DOCUMENT_FRAGMENT"
 
 /**
@@ -42,8 +45,23 @@ const val DOCUMENT_FRAGMENT_TAG = "com.example.android.actionopendocument.tags.D
  */
 class MainActivity : AppCompatActivity() {
 
+    /**
+     * This is the `ConstraintLayout` with ID [R.id.no_document_view] in our UI which holds the
+     * "Open File" [Button] which when clicked calls our [openDocumentPicker] method to allow the
+     * user to pick a file to view, as well as a `ImageView` holding an icon drawable and a
+     * `TextView` with the text: "Click "open" to view the contents of a PDF." Its visibility is set
+     * to GONE and its `FrameLayout` parent [ViewGroup] is used to hold [ActionOpenDocumentFragment]
+     * once a file is chosen to be displayed.
+     */
     private lateinit var noDocumentView: ViewGroup
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut
+     * down then this [Bundle] contains the data it most recently supplied in [onSaveInstanceState].
+     * Note: Otherwise it is `null`.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_real)
