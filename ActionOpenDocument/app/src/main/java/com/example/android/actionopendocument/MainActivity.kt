@@ -126,7 +126,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * This hook is called whenever an item in your options menu is selected.
+     * This hook is called whenever an item in your options menu is selected. We branch on the
+     * `itemId` of our [MenuItem] parameter [item]:
+     *  - [R.id.action_info] labeled "Info": we display an [AlertDialog] describing what this demo
+     *  does, then return `true` to consume the event here.
+     *  - [R.id.action_open] labeled "Open...": we call our method [openDocumentPicker] to allow the
+     *  user to choose a PDF file to display, then return `true` to consume the event here.
+     *  - all other `itemId`s we return the value returned by our super's implementation of
+     *  `onOptionsItemSelected`.
      *
      * @param item The [MenuItem] that was selected.
      * @return Return `false` to allow normal menu processing to proceed, `true` to consume it here.
