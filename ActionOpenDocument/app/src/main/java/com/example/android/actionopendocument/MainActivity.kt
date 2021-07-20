@@ -25,6 +25,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -56,7 +57,29 @@ class MainActivity : AppCompatActivity() {
     private lateinit var noDocumentView: ViewGroup
 
     /**
-     * Called when the activity is starting.
+     * Called when the activity is starting. First we call our super's implementation of `onCreate`,
+     * then we set our content view to our layout file [R.layout.activity_main_real]. This layout
+     * consists of a `FrameLayout` root view holding a `ConstraintLayout` displaying our startup
+     * UI, which is replaced by an [ActionOpenDocumentFragment] once the user has selected a PDF
+     * file to view.
+     *
+     * Next we initialize our [ViewGroup] field [noDocumentView] by finding the view with the ID
+     * [R.id.no_document_view] (the `ConstraintLayout` mentioned above), then find the [Button] with
+     * ID [R.id.open_file] (labeled "Open File") and set its [View.OnClickListener] to a lambda
+     * which call our method [openDocumentPicker] to have it launch an [Intent.ACTION_OPEN_DOCUMENT]
+     * activity to allow the user to pick a PDF to display.
+     *
+     * If our [Bundle] parameter [savedInstanceState] is not `null` we are being restarted after a
+     * configuration change and the system will take care of restoring [ActionOpenDocumentFragment]
+     * so we just return. Otherwise we call the [getSharedPreferences] method to retrieve a handle
+     * to a [SharedPreferences] with the name [TAG] and apply the [let] extension function to it
+     * to have it check the [SharedPreferences] for data stored under the key [LAST_OPENED_URI_KEY]
+     * and if data is found use the [String] stored under that key to create an [Uri] to initialize
+     * our variable `val documentUri` which we then pass to our method [openDocument] to have it
+     * construct an instance of [ActionOpenDocumentFragment] to display that file in place of the
+     * `ConstraintLayout` with ID [R.id.no_document_view] that our [ViewGroup] field [noDocumentView]
+     * points to. If our [SharedPreferences] does not contain data under the key [LAST_OPENED_URI_KEY]
+     * we leave things as they are.
      *
      * @param savedInstanceState If the activity is being re-initialized after previously being shut
      * down then this [Bundle] contains the data it most recently supplied in [onSaveInstanceState].
@@ -74,18 +97,40 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState != null) return
         getSharedPreferences(TAG, Context.MODE_PRIVATE).let { sharedPreferences ->
             if (sharedPreferences.contains(LAST_OPENED_URI_KEY)) {
-                val documentUri =
+                val documentUri: Uri =
                     sharedPreferences.getString(LAST_OPENED_URI_KEY, null)?.toUri() ?: return@let
                 openDocument(documentUri)
             }
         }
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu. You should place your menu
+     * items in to the [Menu] parameter [menu]. This is only called once, the first time the options
+     * menu is displayed. To update the menu every time it is displayed, see [onPrepareOptionsMenu].
+     * We fetch a [MenuInflater] for our context and use it to inflate the menu layout file with ID
+     * [R.menu.main] into our [Menu] parameter [menu]. It holds two [MenuItem]s:
+     *  - [R.id.action_open] "Open..." calls our method [openDocumentPicker] to allow the user to
+     *  choose a PDF file to display.
+     *  - [R.id.action_info] "Info" displays an [AlertDialog] describing what this demo does.
+     *
+     * Finally we return `true` so that the [Menu] will be displayed.
+     *
+     * @param menu The options [Menu] in which you place your items.
+     * @return You must return `true` for the menu to be displayed, if you return `false` it will
+     * not be shown.
+     */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     *
+     * @param item The [MenuItem] that was selected.
+     * @return Return `false` to allow normal menu processing to proceed, `true` to consume it here.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_info -> {
