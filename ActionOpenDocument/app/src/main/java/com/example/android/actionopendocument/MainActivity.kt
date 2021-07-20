@@ -191,26 +191,26 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        private fun openDocumentPicker() {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                /**
-                 * It's possible to limit the types of files by mime-type. Since this
-                 * app displays pages from a PDF file, we'll specify `application/pdf`
-                 * in `type`.
-                 * See [Intent.setType] for more details.
-                 */
-                type = "application/pdf"
+    private fun openDocumentPicker() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            /**
+             * It's possible to limit the types of files by mime-type. Since this
+             * app displays pages from a PDF file, we'll specify `application/pdf`
+             * in `type`.
+             * See [Intent.setType] for more details.
+             */
+            type = "application/pdf"
 
-                /**
-                 * Because we'll want to use [ContentResolver.openFileDescriptor] to read
-                 * the data of whatever file is picked, we set [Intent.CATEGORY_OPENABLE]
-                 * to ensure this will succeed.
-                 */
-                addCategory(Intent.CATEGORY_OPENABLE)
-            }
-            resultLauncher.launch(intent)
+            /**
+             * Because we'll want to use [ContentResolver.openFileDescriptor] to read
+             * the data of whatever file is picked, we set [Intent.CATEGORY_OPENABLE]
+             * to ensure this will succeed.
+             */
+            addCategory(Intent.CATEGORY_OPENABLE)
         }
+        resultLauncher.launch(intent)
     }
+}
 
 private const val TAG = "MainActivity"
 private const val LAST_OPENED_URI_KEY =
