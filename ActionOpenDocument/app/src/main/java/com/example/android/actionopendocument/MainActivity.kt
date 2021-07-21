@@ -225,6 +225,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    /**
+     * Launches a [Intent.ACTION_OPEN_DOCUMENT] activity to allow the user to pick a PDF file to
+     * display. First we initialize our [Intent] variable `val intent` with a new instance whose
+     * action is [Intent.ACTION_OPEN_DOCUMENT] (Allows the user to select and return one or more
+     * existing documents, the system will display the various `DocumentsProvider` instances
+     * installed on the device, letting the user interactively navigate through them). We execute
+     * the [apply] extension function on this [Intent] in order to set its `type` to "application/pdf"
+     * and to add the category [Intent.CATEGORY_OPENABLE] (indicates that the intent only wants URIs
+     * that can be opened with [ContentResolver.openFileDescriptor]). Finally we call the method
+     * [ActivityResultLauncher.launch] of our field [resultLauncher] to have it launch the activity
+     * specified by `intent` and then to handle the [ActivityResult] returned to its callback in
+     * order to display the PDF file chosen by the user.
+     */
     private fun openDocumentPicker() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             /**
