@@ -30,11 +30,13 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commitNow
 
 /**
@@ -156,6 +158,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Constructs a new instance of [ActionOpenDocumentFragment] to display the PDF document that is
+     * accessible using our [Uri] parameter [documentUri] and adds it to our UI in the `FrameLayout`
+     * with resource ID [R.id.container]. First we save the [String] version of [documentUri] in the
+     * [SharedPreferences] field named [TAG] under the key [LAST_OPENED_URI_KEY]. Then we use the
+     * method [ActionOpenDocumentFragment.newInstance] to construct a new instance of
+     * [ActionOpenDocumentFragment] to retrieve and display the PDF file specified by our [Uri]
+     * parameter [documentUri] and use it to initialize our variable `val fragment`. We use the
+     * `FragmentManager.commitNow` extension method to have it run a lambda in a [FragmentTransaction]
+     * which is automatically committed, with the lambda consisting of a [FragmentTransaction.replace]
+     * command which replaces any existing fragment in the container with ID [R.id.container] with
+     * `fragment`, using [DOCUMENT_FRAGMENT_TAG] as the tag name for the fragment.
+     *
+     * Finally now that the document is open we set the visibility of our [ViewGroup] field
+     * [noDocumentView] which displays before we have a document to dispaly to GONE (just in
+     * case we have not already done so).
+     *
+     * @param documentUri the [Uri] that points to the PDF document we are supposed to display.
+     */
     private fun openDocument(documentUri: Uri) {
         /**
          * Save the document to [SharedPreferences]. We're able to do this, and use the
@@ -166,7 +187,7 @@ class MainActivity : AppCompatActivity() {
             putString(LAST_OPENED_URI_KEY, documentUri.toString())
         }
 
-        val fragment = ActionOpenDocumentFragment.newInstance(documentUri)
+        val fragment: ActionOpenDocumentFragment = ActionOpenDocumentFragment.newInstance(documentUri)
         supportFragmentManager.commitNow {
             replace(R.id.container, fragment, DOCUMENT_FRAGMENT_TAG)
         }
@@ -175,7 +196,20 @@ class MainActivity : AppCompatActivity() {
         noDocumentView.visibility = View.GONE
     }
 
-    private var resultLauncher: ActivityResultLauncher<Intent> =
+    /**
+     * The [ActivityResultLauncher] launcher used to start the activity specified by the [Intent]
+     * passed to its [ActivityResultLauncher.launch] method for the result returned by that activity,
+     * with the [ActivityResult] result returned by that activity handed to the lambda argument of
+     * [registerForActivityResult] for use by our activity. Our lamda callback argument checks to
+     * make sure that the `resultCode` of the [ActivityResult] `result` is [Activity.RESULT_OK] and
+     * if so initializes its [Intent] variable `val data` to the [Intent] in the the `data` property
+     * of `result`. It then accesses the [Uri] stored in the `data` property of that `data` [Intent]
+     * and uses the [also] extension function of that [Uri] to first take persistable URI permission
+     * grant that has been offered for that [Uri] using the [ContentResolver.takePersistableUriPermission]
+     * method, then it calls our [openDocument] method to have it open and display the PDF file pointed
+     * to by the [Uri] in a new instance of [ActionOpenDocumentFragment].
+     */
+    private val resultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 // There are no request codes
@@ -212,7 +246,14 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+/**
+ * File name of the [SharedPreferences] file that we use to store the [Uri] of that PDF file chosen.
+ */
 private const val TAG = "MainActivity"
+
+/**
+ * Key under which we store the [String] value of the [Uri] of the last PDF file chosen for display.
+ */
 private const val LAST_OPENED_URI_KEY =
     "com.example.android.actionopendocument.pref.LAST_OPENED_URI_KEY"
 
