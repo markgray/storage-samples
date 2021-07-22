@@ -92,6 +92,9 @@ class DirectoryFragment : Fragment() {
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
+        /**
+         * TODO: replace with non-deprecated code.
+         */
         super.onActivityCreated(savedInstanceState)
 
         viewModel.loadDirectory(directoryUri)
