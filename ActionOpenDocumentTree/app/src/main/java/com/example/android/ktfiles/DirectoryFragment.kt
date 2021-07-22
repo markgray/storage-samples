@@ -30,8 +30,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -54,7 +53,7 @@ class DirectoryFragment : Fragment() {
         directoryUri = arguments?.getString(ARG_DIRECTORY_URI)?.toUri()
             ?: throw IllegalArgumentException("Must pass URI of directory to open")
 
-        viewModel = ViewModelProviders.of(this)
+        viewModel = ViewModelProvider(this)
             .get(DirectoryFragmentViewModel::class.java)
 
         val view = inflater.inflate(R.layout.fragment_directory, container, false)
@@ -73,17 +72,17 @@ class DirectoryFragment : Fragment() {
 
         recyclerView.adapter = adapter
 
-        viewModel.documents.observe(viewLifecycleOwner, Observer { documents ->
+        viewModel.documents.observe(viewLifecycleOwner, { documents ->
             documents?.let { adapter.setEntries(documents) }
         })
 
-        viewModel.openDirectory.observe(viewLifecycleOwner, Observer { event ->
+        viewModel.openDirectory.observe(viewLifecycleOwner, { event ->
             event.getContentIfNotHandled()?.let { directory ->
                 (activity as? MainActivity)?.showDirectoryContents(directory.uri)
             }
         })
 
-        viewModel.openDocument.observe(viewLifecycleOwner, Observer { event ->
+        viewModel.openDocument.observe(viewLifecycleOwner, { event ->
             event.getContentIfNotHandled()?.let { document ->
                 openDocument(document)
             }
