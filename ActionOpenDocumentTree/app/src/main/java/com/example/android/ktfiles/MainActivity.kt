@@ -24,7 +24,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import com.example.android.ktfiles.databinding.ActivityMainBinding
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-        val openDirectoryButton = findViewById<FloatingActionButton>(R.id.fab_open_directory)
+        val openDirectoryButton = binding.fabOpenDirectory
         openDirectoryButton.setOnClickListener {
             openDirectory()
         }
