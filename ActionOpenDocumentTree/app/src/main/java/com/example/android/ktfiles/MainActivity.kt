@@ -31,8 +31,17 @@ import com.example.android.ktfiles.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
+    /**
+     * This is the [ActivityMainBinding] `ViewBinding` that is inflated from our layout file
+     * layout/activity_main.xml which allows us to access views within it as kotlin properties.
+     */
     private lateinit var binding: ActivityMainBinding
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
