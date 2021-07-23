@@ -26,8 +26,10 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.commit
 import com.example.android.ktfiles.databinding.ActivityMainBinding
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -38,7 +40,31 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     /**
-     * Called when the activity is starting.
+     * Called when the activity is starting.First we call our super's implementation of `onCreate`.
+     * Then we use the [ActivityMainBinding.inflate] method with the LayoutInflater instance that
+     * this Window retrieved from its Context to inflate our layout file [R.layout.activity_main]
+     * into an [ActivityMainBinding] instance which we use to initialize our field [binding], and
+     * set our content view to the outermost View in the associated layout file associated with
+     * [ActivityMainBinding]. Next we call the [setSupportActionBar] method with the
+     * [ActivityMainBinding.toolbar] property of [binding] to set that [Toolbar] to act as the
+     * ActionBar for this Activity window. We initialize our [FloatingActionButton] variable
+     * `val openDirectoryButton` to the [ActivityMainBinding.fabOpenDirectory] property of
+     * [binding] then set its [View.OnClickListener] to a lambda that calls our [openDirectory]
+     * method to have it launch an [Intent.ACTION_OPEN_DOCUMENT_TREE] activity to allow the user
+     * to choose a directory to work with.
+     *
+     * Finally we have the FragmentManager for interacting with fragments associated with this
+     * activity add a new lambda listener for changes to the fragment back stack which:
+     *  - Initializes its [Boolean] variable `val directoryOpen` to `true` if the number of entries
+     *  currently in the back stack of the FragmentManager is greater than 0.
+     *  - has this activity's ActionBar display home as an "up" affordance if `directoryOpen` is `true`
+     *  - has this activity's ActionBar include the application home affordance in the action bar if
+     *  `directoryOpen` is `true`
+     *  - if `directoryOpen` is `true` sets the visibility of `openDirectoryButton` to [View.GONE]
+     *  (the contents of a directory chosen by the user is being displayed).
+     *  - if `directoryOpen` is `false` sets the visibility of `openDirectoryButton` to [View.VISIBLE]
+     *  (no directory is being displayed so allow the user to click `openDirectoryButton` so they can
+     *  choose one).
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
@@ -48,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-        val openDirectoryButton = binding.fabOpenDirectory
+        val openDirectoryButton: FloatingActionButton = binding.fabOpenDirectory
         openDirectoryButton.setOnClickListener {
             openDirectory()
         }
