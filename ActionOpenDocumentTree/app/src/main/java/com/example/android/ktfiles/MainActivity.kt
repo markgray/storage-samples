@@ -17,10 +17,14 @@
 package com.example.android.ktfiles
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import com.example.android.ktfiles.databinding.ActivityMainBinding
@@ -60,18 +64,34 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == OPEN_DIRECTORY_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val directoryUri = data?.data ?: return
+    /**
+     * The [ActivityResultLauncher] launcher used to start the activity specified by the [Intent]
+     * passed to its [ActivityResultLauncher.launch] method for the result returned by that activity,
+     * with the [ActivityResult] result returned by that activity handed to the lambda argument of
+     * [registerForActivityResult] for use by our activity. Our lamda callback argument checks to
+     * make sure that the `resultCode` of the [ActivityResult] `result` is [Activity.RESULT_OK] and
+     * if so initializes its [Intent] variable `val data` to the [Intent] in the the `data` property
+     * of `result`. It then accesses the [Uri] stored in the `data` property of that `data` [Intent]
+     * and uses the [also] extension function of that [Uri] to first take persistable URI permission
+     * grant that has been offered for that [Uri] using the [ContentResolver.takePersistableUriPermission]
+     * method, then it calls our [showDirectoryContents] method to have it open and display the
+     * directory pointed to by the [Uri] in a new instance of [DirectoryFragment].
+     */
+    private val resultLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // There are no request codes
+                val data: Intent? = result.data
+                data?.data.also { directoryUri ->
 
-            contentResolver.takePersistableUriPermission(
-                directoryUri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-            showDirectoryContents(directoryUri)
+                    contentResolver.takePersistableUriPermission(
+                        directoryUri!!,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                    showDirectoryContents(directoryUri)
+                }
+            }
         }
-    }
 
     fun showDirectoryContents(directoryUri: Uri) {
         supportFragmentManager.commit {
@@ -84,8 +104,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun openDirectory() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        startActivityForResult(intent, OPEN_DIRECTORY_REQUEST_CODE)
+        resultLauncher.launch(intent)
     }
 }
-
-private const val OPEN_DIRECTORY_REQUEST_CODE = 0xf11e
