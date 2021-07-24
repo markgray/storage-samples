@@ -27,10 +27,17 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.commit
 import com.example.android.ktfiles.databinding.ActivityMainBinding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
+/**
+ * This is the starting point for our directory display demo. Its [FloatingActionButton] allows the
+ * user to launch a directory choser activity and then display the contents of the directory returned
+ * from that activity.
+ */
 class MainActivity : AppCompatActivity() {
 
     /**
@@ -94,6 +101,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * This method is called whenever the user chooses to navigate Up within your application's
+     * activity hierarchy from the action bar. We call the [FragmentManager.popBackStack] method
+     * of the [FragmentManager] for interacting with fragments associated with this activity to
+     * have it pop the top state off the back stack, and return `false` to indicate that this
+     * Activity was not finished.
+     *
+     * @return `true` if Up navigation completed successfully and this Activity was finished,
+     * `false` otherwise.
+     */
     override fun onSupportNavigateUp(): Boolean {
         supportFragmentManager.popBackStack()
         return false
@@ -128,15 +145,46 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    /**
+     * Called to have a new instance of [DirectoryFragment] constructed and added to our UI which
+     * will display the directory pointed to by our [Uri] parameter [directoryUri]. We use the
+     * [FragmentManager.commit] extension method on the [FragmentManager] for interacting with
+     * fragments associated with this activity to have it execute a lambda whose receiver is a
+     * [FragmentTransaction] then commit the [FragmentTransaction]. In the lambda we:
+     *  - Initialize our [String] variable `val directoryTag` to the string value of [directoryUri].
+     *  - Initialize our variable `val directoryFragment` to a new instance of [DirectoryFragment]
+     *  that is constructed to display [directoryUri].
+     *  - Execute the [FragmentTransaction.replace] method of our receiver to have it replace the
+     *  contents of the container with ID [R.id.fragment_container] with `directoryFragment` using
+     *  `directoryTag` as the fragment TAG.
+     *  - Execute the [FragmentTransaction.addToBackStack] method of our receiver to have it add
+     *  itself to the backstack with the name `directoryTag`.
+     *
+     * @param directoryUri the [Uri] returned from the [Intent.ACTION_OPEN_DOCUMENT_TREE] activity
+     * that our [openDirectory] method starts which points to the directory that the user chose to
+     * be displayed.
+     */
     fun showDirectoryContents(directoryUri: Uri) {
         supportFragmentManager.commit {
-            val directoryTag = directoryUri.toString()
+            val directoryTag: String = directoryUri.toString()
             val directoryFragment = DirectoryFragment.newInstance(directoryUri)
             replace(R.id.fragment_container, directoryFragment, directoryTag)
             addToBackStack(directoryTag)
         }
     }
 
+    /**
+     * Called to launch an activity which has registered an intent filter in its AndroidManifest for
+     * the action [Intent.ACTION_OPEN_DOCUMENT_TREE] in order to have the user select a directory to
+     * be displayed. We initialize our [Intent] variable `val intent` with a new instance whose
+     * action is [Intent.ACTION_OPEN_DOCUMENT_TREE] (Allows the user to pick a directory subtree.
+     * When invoked, the system will display the various DocumentsProvider instances installed on
+     * the device, letting the user navigate through them. Apps can fully manage documents within
+     * the returned directory.) We then call the [ActivityResultLauncher.launch] method of our
+     * [resultLauncher] field to have it launch the activity requested by `intent` for its result,
+     * which is then handled in the lambda argument of the [registerForActivityResult] method used
+     * to create [resultLauncher].
+     */
     private fun openDirectory() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         resultLauncher.launch(intent)
