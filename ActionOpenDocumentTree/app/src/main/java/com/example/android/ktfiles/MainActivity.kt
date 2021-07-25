@@ -37,6 +37,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
  * This is the starting point for our directory display demo. Its [FloatingActionButton] allows the
  * user to launch a directory choser activity and then display the contents of the directory returned
  * from that activity.
+ * TODO: Fix orientation change loss of "Up" affordance, use the code of addOnBackStackChangedListener
  */
 class MainActivity : AppCompatActivity() {
 
@@ -54,11 +55,11 @@ class MainActivity : AppCompatActivity() {
      * set our content view to the outermost View in the associated layout file associated with
      * [ActivityMainBinding]. Next we call the [setSupportActionBar] method with the
      * [ActivityMainBinding.toolbar] property of [binding] to set that [Toolbar] to act as the
-     * ActionBar for this Activity window. We initialize our [FloatingActionButton] variable
-     * `val openDirectoryButton` to the [ActivityMainBinding.fabOpenDirectory] property of
-     * [binding] then set its [View.OnClickListener] to a lambda that calls our [openDirectory]
-     * method to have it launch an [Intent.ACTION_OPEN_DOCUMENT_TREE] activity to allow the user
-     * to choose a directory to work with.
+     * ActionBar for this Activity window. We set the [View.OnClickListener] of the
+     * [FloatingActionButton] pointed to by the [ActivityMainBinding.fabOpenDirectory] property of
+     * [binding] to a lambda that calls our [openDirectory] method to have it launch an
+     * [Intent.ACTION_OPEN_DOCUMENT_TREE] activity to allow the user to choose a directory to
+     * work with.
      *
      * Finally we have the FragmentManager for interacting with fragments associated with this
      * activity add a new lambda listener for changes to the fragment back stack which:
@@ -67,11 +68,12 @@ class MainActivity : AppCompatActivity() {
      *  - has this activity's ActionBar display home as an "up" affordance if `directoryOpen` is `true`
      *  - has this activity's ActionBar include the application home affordance in the action bar if
      *  `directoryOpen` is `true`
-     *  - if `directoryOpen` is `true` sets the visibility of `openDirectoryButton` to [View.GONE]
-     *  (the contents of a directory chosen by the user is being displayed).
-     *  - if `directoryOpen` is `false` sets the visibility of `openDirectoryButton` to [View.VISIBLE]
-     *  (no directory is being displayed so allow the user to click `openDirectoryButton` so they can
-     *  choose one).
+     *  - if `directoryOpen` is `true` sets the visibility of the [FloatingActionButton]
+     *  `binding.fabOpenDirectory` to [View.GONE] (the contents of a directory chosen by the user
+     *  is already being displayed).
+     *  - if `directoryOpen` is `false` sets the visibility of the [FloatingActionButton]
+     *  `binding.fabOpenDirectory` to [View.VISIBLE] (no directory is being displayed so allow the
+     *  user to click the [FloatingActionButton] so they can choose one).
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
@@ -81,8 +83,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-        val openDirectoryButton: FloatingActionButton = binding.fabOpenDirectory
-        openDirectoryButton.setOnClickListener {
+        binding.fabOpenDirectory.setOnClickListener {
             openDirectory()
         }
 
@@ -94,9 +95,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             if (directoryOpen) {
-                openDirectoryButton.visibility = View.GONE
+                binding.fabOpenDirectory.visibility = View.GONE
             } else {
-                openDirectoryButton.visibility = View.VISIBLE
+                binding.fabOpenDirectory.visibility = View.VISIBLE
             }
         }
     }
