@@ -37,7 +37,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
  * This is the starting point for our directory display demo. Its [FloatingActionButton] allows the
  * user to launch a directory choser activity and then display the contents of the directory returned
  * from that activity.
- * TODO: Fix orientation change loss of "Up" affordance, use the code of addOnBackStackChangedListener
  */
 class MainActivity : AppCompatActivity() {
 
@@ -61,19 +60,16 @@ class MainActivity : AppCompatActivity() {
      * [Intent.ACTION_OPEN_DOCUMENT_TREE] activity to allow the user to choose a directory to
      * work with.
      *
-     * Finally we have the FragmentManager for interacting with fragments associated with this
-     * activity add a new lambda listener for changes to the fragment back stack which:
-     *  - Initializes its [Boolean] variable `val directoryOpen` to `true` if the number of entries
-     *  currently in the back stack of the FragmentManager is greater than 0.
-     *  - has this activity's ActionBar display home as an "up" affordance if `directoryOpen` is `true`
-     *  - has this activity's ActionBar include the application home affordance in the action bar if
-     *  `directoryOpen` is `true`
-     *  - if `directoryOpen` is `true` sets the visibility of the [FloatingActionButton]
-     *  `binding.fabOpenDirectory` to [View.GONE] (the contents of a directory chosen by the user
-     *  is already being displayed).
-     *  - if `directoryOpen` is `false` sets the visibility of the [FloatingActionButton]
-     *  `binding.fabOpenDirectory` to [View.VISIBLE] (no directory is being displayed so allow the
-     *  user to click the [FloatingActionButton] so they can choose one).
+     * Next we call our method [setUpButtons] to have it configure the "Up" affordance and the
+     * [FloatingActionButton] given the current state of the back stack (if we have a directory
+     * open in a [DirectoryFragment] there is an entry on the back stack when we start and we want
+     * the "Up" affordance visible and the [FloatingActionButton] GONE, otherwise we want the "Up"
+     * affordance GONE and the [FloatingActionButton] visible).
+     *
+     * Finally we have the [FragmentManager] for interacting with fragments associated with this
+     * activity add a new lambda listener for changes to the fragment back stack which calls our
+     * [setUpButtons] method to have it once again reconfigure our UI buttons for the new state
+     * of the back stack.
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
@@ -87,18 +83,41 @@ class MainActivity : AppCompatActivity() {
             openDirectory()
         }
 
-        supportFragmentManager.addOnBackStackChangedListener {
-            val directoryOpen = supportFragmentManager.backStackEntryCount > 0
-            supportActionBar?.let { actionBar ->
-                actionBar.setDisplayHomeAsUpEnabled(directoryOpen)
-                actionBar.setDisplayShowHomeEnabled(directoryOpen)
-            }
+        setUpButtons()
 
-            if (directoryOpen) {
-                binding.fabOpenDirectory.visibility = View.GONE
-            } else {
-                binding.fabOpenDirectory.visibility = View.VISIBLE
-            }
+        supportFragmentManager.addOnBackStackChangedListener {
+            setUpButtons()
+        }
+    }
+
+    /**
+     * Configures the "Up" affordance and the [FloatingActionButton] given the current state of the
+     * back stack (if we have a directory open in a [DirectoryFragment] there is an entry on the back
+     * stack and we want the "Up" affordance visible and the [FloatingActionButton] GONE, otherwise
+     * we want the "Up" affordance GONE and the [FloatingActionButton] visible). To do this we:
+     *  - Initializes our [Boolean] variable `val directoryOpen` to `true` if the number of entries
+     *  currently in the back stack of the FragmentManager is greater than 0.
+     *  - Have this activity's ActionBar display home as an "up" affordance if `directoryOpen` is `true`
+     *  - Have this activity's ActionBar include the application home affordance in the action bar if
+     *  `directoryOpen` is `true`
+     *  - If `directoryOpen` is `true` sets the visibility of the [FloatingActionButton]
+     *  `binding.fabOpenDirectory` to [View.GONE] (the contents of a directory chosen by the user
+     *  is already being displayed).
+     *  - if `directoryOpen` is `false` sets the visibility of the [FloatingActionButton]
+     *  `binding.fabOpenDirectory` to [View.VISIBLE] (no directory is being displayed so allow the
+     *  user to click the [FloatingActionButton] so they can choose one).
+     */
+    private fun setUpButtons() {
+        val directoryOpen = supportFragmentManager.backStackEntryCount > 0
+        supportActionBar?.let { actionBar ->
+            actionBar.setDisplayHomeAsUpEnabled(directoryOpen)
+            actionBar.setDisplayShowHomeEnabled(directoryOpen)
+        }
+
+        if (directoryOpen) {
+            binding.fabOpenDirectory.visibility = View.GONE
+        } else {
+            binding.fabOpenDirectory.visibility = View.VISIBLE
         }
     }
 
