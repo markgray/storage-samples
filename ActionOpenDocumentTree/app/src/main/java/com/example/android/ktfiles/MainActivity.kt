@@ -95,15 +95,15 @@ class MainActivity : AppCompatActivity() {
      * back stack (if we have a directory open in a [DirectoryFragment] there is an entry on the back
      * stack and we want the "Up" affordance visible and the [FloatingActionButton] GONE, otherwise
      * we want the "Up" affordance GONE and the [FloatingActionButton] visible). To do this we:
-     *  - Initializes our [Boolean] variable `val directoryOpen` to `true` if the number of entries
+     *  - Initialize our [Boolean] variable `val directoryOpen` to `true` if the number of entries
      *  currently in the back stack of the FragmentManager is greater than 0.
      *  - Have this activity's ActionBar display home as an "up" affordance if `directoryOpen` is `true`
      *  - Have this activity's ActionBar include the application home affordance in the action bar if
      *  `directoryOpen` is `true`
-     *  - If `directoryOpen` is `true` sets the visibility of the [FloatingActionButton]
+     *  - If `directoryOpen` is `true` we set the visibility of the [FloatingActionButton]
      *  `binding.fabOpenDirectory` to [View.GONE] (the contents of a directory chosen by the user
      *  is already being displayed).
-     *  - if `directoryOpen` is `false` sets the visibility of the [FloatingActionButton]
+     *  - if `directoryOpen` is `false` we set the visibility of the [FloatingActionButton]
      *  `binding.fabOpenDirectory` to [View.VISIBLE] (no directory is being displayed so allow the
      *  user to click the [FloatingActionButton] so they can choose one).
      */
