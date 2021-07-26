@@ -30,6 +30,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -86,6 +87,30 @@ class DirectoryFragment : Fragment() {
      * object associated with the item long clicked to enable the user to rename the file. We then
      * set the adapter of the [RecyclerView] in [binding] to [adapter].
      *
+     * We add an observer to the [MutableLiveData] wrapped list of [CachingDocumentFile] field
+     * [DirectoryFragmentViewModel.documents] of [viewModel] whose lambda calls the
+     * [DirectoryEntryAdapter.setEntries] method of [adapter] with the new value of the field when
+     * it changes value to have it update its [DirectoryEntryAdapter.directoryEntries] dataset with
+     * the new list.
+     *
+     * We add an observer to the [MutableLiveData] wrapped [Event] of [CachingDocumentFile] field
+     * [DirectoryFragmentViewModel.openDirectory] of [viewModel] whose lambda will call the
+     * [MainActivity.showDirectoryContents] method with the [CachingDocumentFile.uri] property of
+     * the [CachingDocumentFile] content of the [Event] to have it open the directory clicked on in
+     * a new instance of [DirectoryFragment] (only if the [Event.getContentIfNotHandled] method
+     * determines that the [Event] was not handled and returns its [CachingDocumentFile] content).
+     *
+     * We add another observer to the [MutableLiveData] wrapped [Event] of [CachingDocumentFile]
+     * field [DirectoryFragmentViewModel.openDirectory] of [viewModel] whose lambda will call our
+     * [openDocument] method with the [CachingDocumentFile.uri] property of the [CachingDocumentFile]
+     * content of the [Event] to have it open the document clicked on in an activity which is able
+     * to handle an [Intent] with a [Intent.ACTION_VIEW] action for the document [Uri] (only if the
+     * [Event.getContentIfNotHandled] method determines that the [Event] was not handled and returns
+     * its [CachingDocumentFile] content).
+     *
+     * Finally we return the outermost [View] in the associated layout file of [binding] to the
+     * caller (this is the `FrameLayout` root view of the file layout/fragment_directory.xml).
+     *
      * @param inflater The [LayoutInflater] object that can be used to inflate any views in the
      * fragment.
      * @param container If non-null, this is the parent [ViewGroup] that the fragment's UI will be
@@ -141,11 +166,14 @@ class DirectoryFragment : Fragment() {
     }
 
     /**
-     * Called when all saved state has been restored into the view hierarchy
-     * of the fragment.  This can be used to do initialization based on saved
-     * state that you are letting the view hierarchy track itself, such as
-     * whether check box widgets are currently checked.  This is called
-     * after [onViewCreated] and before [onStart].
+     * Called when all saved state has been restored into the view hierarchy of the fragment. This
+     * can be used to do initialization based on saved state that you are letting the view hierarchy
+     * track itself, such as whether check box widgets are currently checked. This is called after
+     * [onViewCreated] and before [onStart]. First we call our super's implementation of
+     * [onViewStateRestored], then we call the [DirectoryFragmentViewModel.loadDirectory] method of
+     * [viewModel] with our [Uri] field [directoryUri] to have it access the tree of documents that
+     * the [Uri] points to and create a sorted [MutableLiveData] list of [CachingDocumentFile] from
+     * it to initialize its [DirectoryFragmentViewModel.documents] field.
      *
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
