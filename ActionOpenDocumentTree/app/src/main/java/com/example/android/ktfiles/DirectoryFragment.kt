@@ -33,6 +33,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.android.ktfiles.databinding.FragmentDirectoryBinding
 
 /**
  * Fragment that shows a list of documents in a directory.
@@ -40,7 +41,11 @@ import androidx.recyclerview.widget.RecyclerView
 class DirectoryFragment : Fragment() {
     private lateinit var directoryUri: Uri
 
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var binding: FragmentDirectoryBinding
+
+    /**
+     * The [DirectoryEntryAdapter] used to feed views to our [RecyclerView]
+     */
     private lateinit var adapter: DirectoryEntryAdapter
 
     private lateinit var viewModel: DirectoryFragmentViewModel
@@ -49,16 +54,15 @@ class DirectoryFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         directoryUri = arguments?.getString(ARG_DIRECTORY_URI)?.toUri()
             ?: throw IllegalArgumentException("Must pass URI of directory to open")
 
         viewModel = ViewModelProvider(this)
             .get(DirectoryFragmentViewModel::class.java)
 
-        val view = inflater.inflate(R.layout.fragment_directory, container, false)
-        recyclerView = view.findViewById(R.id.list)
-        recyclerView.layoutManager = LinearLayoutManager(recyclerView.context)
+        binding = FragmentDirectoryBinding.inflate(layoutInflater)
+        binding.list.layoutManager = LinearLayoutManager(binding.list.context)
 
         adapter = DirectoryEntryAdapter(object : ClickListeners {
             override fun onDocumentClicked(clickedDocument: CachingDocumentFile) {
@@ -70,7 +74,7 @@ class DirectoryFragment : Fragment() {
             }
         })
 
-        recyclerView.adapter = adapter
+        binding.list.adapter = adapter
 
         viewModel.documents.observe(viewLifecycleOwner, { documents ->
             documents?.let { adapter.setEntries(documents) }
@@ -88,7 +92,7 @@ class DirectoryFragment : Fragment() {
             }
         })
 
-        return view
+        return binding.root
     }
 
     /**
