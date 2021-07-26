@@ -39,17 +39,62 @@ import com.example.android.ktfiles.databinding.FragmentDirectoryBinding
  * Fragment that shows a list of documents in a directory.
  */
 class DirectoryFragment : Fragment() {
+    /**
+     * The [Uri] to the directory that the user has chosen to open.
+     */
     private lateinit var directoryUri: Uri
 
+    /**
+     * This is the [FragmentDirectoryBinding] `ViewBinding` that is inflated from our layout file
+     * layout/fragment_directory.xml which allows us to access views within it as kotlin properties.
+     */
     private lateinit var binding: FragmentDirectoryBinding
 
     /**
-     * The [DirectoryEntryAdapter] used to feed views to our [RecyclerView]
+     * The [DirectoryEntryAdapter] used to feed views to the [RecyclerView] in our UI
      */
     private lateinit var adapter: DirectoryEntryAdapter
 
+    /**
+     * The singleton `ViewModel` that we use to store and manage our dataset of directory entries.
+     */
     private lateinit var viewModel: DirectoryFragmentViewModel
 
+    /**
+     * Called to have the fragment instantiate its user interface view. This will be called between
+     * [onCreate] and [onViewCreated]. It is recommended to only inflate the layout in this method
+     * and move logic that operates on the returned View to [onViewCreated]. First we initialize our
+     * [Uri] field [directoryUri] by retrieving the [String] that was stored in the arguments
+     * supplied when the fragment was instantiated under the key [ARG_DIRECTORY_URI] and converting
+     * it to a [Uri] (throwing an [IllegalArgumentException] "Must pass URI of directory to open"
+     * if this fails). We initialize our [DirectoryFragmentViewModel] field [viewModel] by using the
+     * [ViewModelProvider.get] method to retrieve the existing [DirectoryFragmentViewModel] ViewModel
+     * or create a new one in the scope of the [ViewModelProvider] if one did not exist yet.
+     *
+     * We use the [FragmentDirectoryBinding.inflate] method to have it use our [LayoutInflater]
+     * parameter [inflater] to inflate itself in to an [FragmentDirectoryBinding] instance which we
+     * use to initialize our field [binding]. ([FragmentDirectoryBinding] is created from the layout
+     * file with ID [R.layout.fragment_directory] by the build system).
+     *
+     * We set the [RecyclerView.LayoutManager] that the [RecyclerView] in [binding] whose reference
+     * is found in its [FragmentDirectoryBinding.list] property to a [LinearLayoutManager] instance.
+     * Next we set our [DirectoryEntryAdapter] field [adapter] to a new instance with an anonymous
+     * [ClickListeners] object whose `onDocumentClicked` override calls the `documentClicked` method
+     * of [viewModel] with the [CachingDocumentFile] object associated with the item clicked (to
+     * trigger an attempt to present the content of the file to the user), and whose
+     * `onDocumentLongClicked` method calls our method [renameDocument] with the [CachingDocumentFile]
+     * object associated with the item long clicked to enable the user to rename the file. We then
+     * set the adapter of the [RecyclerView] in [binding] to [adapter].
+     *
+     * @param inflater The [LayoutInflater] object that can be used to inflate any views in the
+     * fragment.
+     * @param container If non-null, this is the parent [ViewGroup] that the fragment's UI will be
+     * attached to. The fragment should not add the view itself, but this can be used to generate
+     * the `LayoutParams` of the view.
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,7 +106,7 @@ class DirectoryFragment : Fragment() {
         viewModel = ViewModelProvider(this)
             .get(DirectoryFragmentViewModel::class.java)
 
-        binding = FragmentDirectoryBinding.inflate(layoutInflater)
+        binding = FragmentDirectoryBinding.inflate(inflater)
         binding.list.layoutManager = LinearLayoutManager(binding.list.context)
 
         adapter = DirectoryEntryAdapter(object : ClickListeners {
@@ -168,7 +213,7 @@ class DirectoryFragment : Fragment() {
     companion object {
 
         /**
-         * Convenience method for constructing a [DirectoryFragment] with the directory uri
+         * Convenience method for constructing a [DirectoryFragment] with the directory [Uri]
          * to display.
          */
         @JvmStatic
