@@ -216,7 +216,34 @@ class DirectoryFragment : Fragment() {
 
     /**
      * Called to launch an [AlertDialog] which allows the user to rename the file referenced in its
-     * [CachingDocumentFile] parameter [document].
+     * [CachingDocumentFile] parameter [document]. First we initialize our [View] variable
+     * `val dialogView` to the [View] returned by the [LayoutInflater.inflate] method of the cached
+     * [LayoutInflater] used to inflate Views of this [Fragment] when it inflates the layout file
+     * with the resource ID [R.layout.rename_layout]. We then initialize our [EditText] variable
+     * `val editText` by finding the view in `dialogView` with the ID [R.id.file_name] and set the
+     * text of that [EditText] to the [CachingDocumentFile.name] property of our parameter [document].
+     * We initialize our [DialogInterface.OnClickListener] variable `val buttonCallback` to a lambda
+     * which will when the `buttonId` of the dialog button clicked is [DialogInterface.BUTTON_POSITIVE]:
+     *  - Initialize its [String] variable `val newName` to the text of `editText`
+     *  - and if `newName` is not blank, call the [CachingDocumentFile.rename] method of [document]
+     *  to rename the file, then call the [DirectoryFragmentViewModel.loadDirectory] method of [viewModel]
+     *  to have it reload our [Uri] field [directoryUri] into its [DirectoryFragmentViewModel.documents]
+     *  dataset so that it reflects the renamed file.
+     *
+     * Next we initialize our [AlertDialog] variable `val renameDialog` by using an [AlertDialog.Builder]
+     * for the parent context theme of the `FragmentActivity` this fragment is currently associated with
+     * to create an [AlertDialog] whose title is the [String] with resource ID [R.string.rename_title]
+     * ("Rename"), whose custom view contents is `dialogView`, whose listener to be invoked when the
+     * positive button of the dialog is pressed is `buttonCallback` and whose text is "Rename", and
+     * whose listener to be invoked when the negative button of the dialog is pressed is `buttonCallback`
+     * and whose text is "Cancel".
+     *
+     * We then set the [DialogInterface.OnShowListener] of `renameDialog` to a lambda (which will be
+     * run when the dialog is shown) which requests focus for `editText` and selects the entire text
+     * that it currently contains.
+     *
+     * Finally we call the [AlertDialog.show] method of `renameDialog` to start the dialog and display
+     * it on the screen.
      *
      * @param document a [CachingDocumentFile] referencing the file that the user has chosen to
      * rename.
@@ -225,7 +252,7 @@ class DirectoryFragment : Fragment() {
     private fun renameDocument(document: CachingDocumentFile) {
         // Normally we don't want to pass `null` in as the parent, but the dialog doesn't exist,
         // so there isn't a parent layout to use yet.
-        val dialogView = layoutInflater.inflate(R.layout.rename_layout, null)
+        val dialogView: View = layoutInflater.inflate(R.layout.rename_layout, null)
         val editText = dialogView.findViewById<EditText>(R.id.file_name)
         editText.setText(document.name)
 
@@ -244,7 +271,7 @@ class DirectoryFragment : Fragment() {
             }
         }
 
-        val renameDialog = AlertDialog.Builder(requireActivity())
+        val renameDialog: AlertDialog = AlertDialog.Builder(requireActivity())
             .setTitle(R.string.rename_title)
             .setView(dialogView)
             .setPositiveButton(R.string.rename_okay, buttonCallback)
@@ -264,7 +291,12 @@ class DirectoryFragment : Fragment() {
 
         /**
          * Convenience method for constructing a [DirectoryFragment] with the directory [Uri]
-         * to display.
+         * to display. We construct a new instance of [DirectoryFragment] and then use the [apply]
+         * extension function to set its arguments [Bundle] to a new instance which has had the
+         * [apply] extension store the [String] value of our [Uri] parameter [directoryUri] under
+         * the key [ARG_DIRECTORY_URI].
+         *
+         * @param directoryUri the [Uri] of the directory that the user has chosen to be displayed.
          */
         @JvmStatic
         fun newInstance(directoryUri: Uri) =
@@ -276,4 +308,7 @@ class DirectoryFragment : Fragment() {
     }
 }
 
+/**
+ * The key of the [Uri] that is passed to [DirectoryFragment] in its arguments [Bundle].
+ */
 private const val ARG_DIRECTORY_URI = "com.example.android.directoryselection.ARG_DIRECTORY_URI"
