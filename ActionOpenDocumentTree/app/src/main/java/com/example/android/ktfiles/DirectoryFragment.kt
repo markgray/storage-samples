@@ -183,6 +183,21 @@ class DirectoryFragment : Fragment() {
         viewModel.loadDirectory(directoryUri)
     }
 
+    /**
+     * Called to have an appropriate activity open the [Uri] of the [CachingDocumentFile.uri] property
+     * of our [document] parameter. Wrapped in a `try` block intended to catch [ActivityNotFoundException]
+     * in order to toast an error message we initialize our [Intent] variable `val openIntent` with a
+     * new instance whose action if [Intent.ACTION_VIEW] and use the [apply] extension function to set
+     * its `flags` to [Intent.FLAG_GRANT_READ_URI_PERMISSION] and its `data` to the [CachingDocumentFile.uri]
+     * property of [document]. Finally we use the [startActivity] method to launch whatever activity
+     * has an intent filter matching [Intent]s like `openIntent`. We are called by the lambda of an
+     * observer of the [DirectoryFragmentViewModel.openDocument] field of [viewModel] which is added
+     * in our [onCreateView] override. [DirectoryFragmentViewModel.openDocument] is a [MutableLiveData]
+     * wrapped [Event] of the [CachingDocumentFile] parameter [document] we called with.
+     *
+     * @param document the [CachingDocumentFile] object containing the [Uri] for a file that the user
+     * wants to view in its [CachingDocumentFile.uri] property.
+     */
     private fun openDocument(document: CachingDocumentFile) {
         try {
             val openIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -199,6 +214,13 @@ class DirectoryFragment : Fragment() {
         }
     }
 
+    /**
+     * Called to launch an [AlertDialog] which allows the user to rename the file referenced in its
+     * [CachingDocumentFile] parameter [document].
+     *
+     * @param document a [CachingDocumentFile] referencing the file that the user has chosen to
+     * rename.
+     */
     @SuppressLint("InflateParams")
     private fun renameDocument(document: CachingDocumentFile) {
         // Normally we don't want to pass `null` in as the parent, but the dialog doesn't exist,
