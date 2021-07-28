@@ -23,6 +23,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * The [RecyclerView.Adapter] used to create, hold, and supply views of [CachingDocumentFile] objects
+ * for the [RecyclerView] displayed by [DirectoryFragment].
+ *
+ * @param clickListeners holds the [View.OnClickListener] and [View.OnLongClickListener] callbacks
+ * that should be called when one of our views is clicked or long-clicked.
+ */
 class DirectoryEntryAdapter(
     private val clickListeners: ClickListeners
 ) : RecyclerView.Adapter<DirectoryEntryAdapter.ViewHolder>() {
