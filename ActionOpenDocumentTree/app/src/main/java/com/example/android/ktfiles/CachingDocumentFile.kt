@@ -77,7 +77,7 @@ data class CachingDocumentFile(private val documentFile: DocumentFile) {
  * a new instance of [CachingDocumentFile] constructed to cache `document`. Finally we return list to
  * the caller.
  *
- * @return a [MutableList] containing [CachingDocumentFile]s constructed from all or the [DocumentFile]
+ * @return a [MutableList] containing [CachingDocumentFile]s constructed from all of the [DocumentFile]
  * objects in its [Array] of [DocumentFile] receiver.
  */
 fun Array<DocumentFile>.toCachingList(): List<CachingDocumentFile> {
