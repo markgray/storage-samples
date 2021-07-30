@@ -127,6 +127,15 @@ class DirectoryEntryAdapter(
      */
     override fun getItemCount() = directoryEntries.size
 
+    /**
+     * Replaces our [MutableList] of [CachingDocumentFile] dataset field [directoryEntries] with the
+     * entries in its [List] of [CachingDocumentFile] parameter [newList]. In a block synchronized
+     * on [directoryEntries] we remove all elements from [directoryEntries], add all of the elements
+     * of [newList] to [directoryEntries], and then call the [notifyDataSetChanged] method to notify
+     * any registered observers of this [DirectoryEntryAdapter] that the data set has changed.
+     *
+     * @param newList the new [List] of [CachingDocumentFile] elements to use as our dataset.
+     */
     @SuppressLint("NotifyDataSetChanged")  // TODO: Move to DiffUtil
     fun setEntries(newList: List<CachingDocumentFile>) {
         synchronized(directoryEntries) {
@@ -137,7 +146,9 @@ class DirectoryEntryAdapter(
     }
 
     /**
-     * Provide a reference to the type of views that you are using (custom ViewHolder)
+     * Provide a reference to the type of views that you are using (custom [ViewHolder]).
+     *
+     * @param view the [itemView] we are to hold.
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val root = view
