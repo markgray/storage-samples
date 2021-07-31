@@ -28,8 +28,14 @@ import kotlinx.coroutines.withContext
 
 /**
  * ViewModel for the [DirectoryFragment].
+ *
+ * @param application the global [Application] of our activity, used to supply Application context
+ * for our [AndroidViewModel] super class.
  */
 class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(application) {
+    /**
+     *
+     */
     private val _documents = MutableLiveData<List<CachingDocumentFile>>()
     val documents = _documents
 
