@@ -23,6 +23,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.RecyclerView
 
 /**
@@ -146,18 +147,57 @@ class DirectoryEntryAdapter(
     }
 
     /**
-     * Provide a reference to the type of views that you are using (custom [ViewHolder]).
+     * Our custom [ViewHolder]. A [ViewHolder] describes an [itemView] and metadata about its place
+     * within the [RecyclerView]. Adapter implementations should subclass [ViewHolder] and add fields
+     * for caching potentially expensive [View.findViewById] results. While `LayoutParams` belong to
+     * the `LayoutManager`, [ViewHolder]s belong to the adapter. Adapters should feel free to use
+     * their own custom [ViewHolder] implementations to store data that makes binding view contents
+     * easier. Implementations should assume that individual item views will hold strong references
+     * to [ViewHolder] objects and that [RecyclerView] instances may hold strong references to extra
+     * off-screen item views for caching purposes.
+     *
+     * We initialize our fields as follows:
+     *  - `val root` - we store a reference to the [itemView] we were constructed to hold here.
+     *  - `val fileName` - we find the [TextView] in `view` with ID [R.id.file_name] which is used
+     *  to display the display name of the [DocumentFile] we are bound to.
+     *  - `val mimeType` - we find the [TextView] in `view` with ID [R.id.mime_type] which is used
+     *  to display the MIME type of the [DocumentFile] we are bound to.
+     *  - `val imageView` - we find the [ImageView] in `view` with ID [R.id.entry_image] which is
+     *  used to display a drawable icon representing a directory if the [DocumentFile] we are bound
+     *  to is a directory or a drawable icon representing a file otherwise.
      *
      * @param view the [itemView] we are to hold.
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        /**
+         * A reference to the [itemView] parameter `view` we were constructed to hold.
+         */
         val root = view
+        /**
+         * The [TextView] in `view` with ID [R.id.file_name] which is used to display the display
+         * name of the [DocumentFile] we are bound to.
+         */
         val fileName: TextView = view.findViewById(R.id.file_name)
+        /**
+         * The [TextView] in `view` with ID [R.id.mime_type] which is used to display the display
+         * MIME type of the [DocumentFile] we are bound to.
+         */
         val mimeType: TextView = view.findViewById(R.id.mime_type)
+        /**
+         * The [ImageView] in `view` with ID [R.id.entry_image] which is used to display a drawable
+         * icon representing a directory if the [DocumentFile] we are bound to is a directory or a
+         * drawable icon representing a file otherwise.
+         */
         val imageView: ImageView = view.findViewById(R.id.entry_image)
     }
 }
 
+/**
+ * This `interface` defines callbacks that the [View.OnClickListener] and [View.OnLongClickListener]
+ * listeners of every `root` [View] in the `ViewHolder`s we supply to our [RecyclerView] can use to
+ * handle the [CachingDocumentFile] that the `ViewHolder` is bound to when the [View] is clicked
+ * ([onDocumentClicked]) or long clicked ([onDocumentLongClicked]).
+ */
 interface ClickListeners {
     fun onDocumentClicked(clickedDocument: CachingDocumentFile)
     fun onDocumentLongClicked(clickedDocument: CachingDocumentFile)
