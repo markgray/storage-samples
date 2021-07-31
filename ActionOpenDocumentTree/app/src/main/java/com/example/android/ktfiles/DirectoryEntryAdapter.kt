@@ -199,6 +199,18 @@ class DirectoryEntryAdapter(
  * ([onDocumentClicked]) or long clicked ([onDocumentLongClicked]).
  */
 interface ClickListeners {
+    /**
+     * Called from the [View.OnClickListener] of the `root` [View] held by every `ViewHolder` with
+     * the [CachingDocumentFile] that the `ViewHolder` is bound to.
+     *
+     * @param clickedDocument the [CachingDocumentFile] that the `ViewHolder` is bound to.
+     */
     fun onDocumentClicked(clickedDocument: CachingDocumentFile)
+    /**
+     * Called from the [View.OnLongClickListener] of the `root` [View] held by every `ViewHolder`
+     * with the [CachingDocumentFile] that the `ViewHolder` is bound to.
+     *
+     * @param clickedDocument the [CachingDocumentFile] that the `ViewHolder` is bound to.
+     */
     fun onDocumentLongClicked(clickedDocument: CachingDocumentFile)
 }
