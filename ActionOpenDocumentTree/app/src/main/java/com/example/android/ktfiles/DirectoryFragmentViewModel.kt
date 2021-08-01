@@ -22,8 +22,10 @@ import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -87,8 +89,19 @@ class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(ap
      * into our data, converts them to [CachingDocumentFile] objects for efficiency, sorts them
      * alphabetically, and posts them to our [_documents] field. We initialize our [DocumentFile]
      * variable `val documentsTree` to the [DocumentFile] representing the document tree rooted at
-     * our [Uri] parameter [directoryUri] that the [DocumentFile.fromTreeUri] returns (returning to
-     * our caller if this is `null`).
+     * our [Uri] parameter [directoryUri] that the [DocumentFile.fromTreeUri] method returns
+     * (returning to our caller without doing anything more if this is `null`).
+     *
+     * We use our `toCachingList` extension function on the [Array] of [DocumentFile] objects that
+     * the [DocumentFile.listFiles] method of `documentsTree` returns to create a [List] of
+     * [CachingDocumentFile] objects to initialize our variable `val childDocuments`.
+     *
+     * We launch a new coroutine in the [CoroutineScope] tied to this [ViewModel] whose lambda uses
+     * the [Dispatchers.IO] coroutine context to call a suspending block to sort `childDocuments` by
+     * the [CachingDocumentFile.name] field saving the new [MutableList] of [CachingDocumentFile]
+     * objects it returns when it completes in the variable `val sortedDocuments`. Then back in the
+     * [CoroutineScope] tied to this [ViewModel] we post a task to the main thread that sets our
+     * [_documents] field to `sortedDocuments`.
      *
      * @param directoryUri the [Uri] of the directory whose [DocumentFile] entries we are supposed
      * to read, convert into a [List] of [CachingDocumentFile] objects, sort alphabetically, and
@@ -102,7 +115,7 @@ class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(ap
         // we got by name. Unfortunate there may be quite a few documents, and sorting can take
         // some time, so we'll take advantage of coroutines to take this work off the main thread.
         viewModelScope.launch {
-            val sortedDocuments = withContext(Dispatchers.IO) {
+            val sortedDocuments: MutableList<CachingDocumentFile> = withContext(Dispatchers.IO) {
                 childDocuments.toMutableList().apply {
                     sortBy { it.name }
                 }
@@ -113,7 +126,12 @@ class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(ap
 
     /**
      * Method to dispatch between clicking on a document (which should be opened), and a directory
-     * (which the user wants to navigate into).
+     * (which the user wants to navigate into). We branch on the [CachingDocumentFile.isDirectory]
+     * property of our parameter [clickedDocument]:
+     *  - `true` - the underlying [DocumentFile] is a directory - we post a task to the main thread
+     *  to set our [openDirectory] field to a new [Event] constructed to hold [clickedDocument].
+     *  - `false` - the underlying [DocumentFile] is NOT a directory - we post a task to the main
+     *  thread to set our [openDocument] field to a new [Event] constructed to hold [clickedDocument].
      *
      * @param clickedDocument the [CachingDocumentFile] whose view was clicked.
      */
