@@ -17,11 +17,13 @@
 package com.example.android.ktfiles
 
 import android.app.Application
+import android.content.Intent
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,24 +32,71 @@ import kotlinx.coroutines.withContext
  * ViewModel for the [DirectoryFragment].
  *
  * @param application the global [Application] of our activity, used to supply Application context
- * for our [AndroidViewModel] super class.
+ * to our [AndroidViewModel] super class.
  */
 class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(application) {
     /**
-     *
+     * The [MutableLiveData] wrapped [List] of [CachingDocumentFile] objects that is used as the
+     * dataset for the [DirectoryEntryAdapter] adapter which feeds views to the [RecyclerView] that
+     * [DirectoryFragment] uses to display directory entries. Private to prevent other classes from
+     * modifying it, it is set by our [loadDirectory] method.
      */
     private val _documents = MutableLiveData<List<CachingDocumentFile>>()
+    /**
+     * Public access to our [_documents] field. An observer is added to it in the `onCreateView`
+     * override of [DirectoryFragment] which calls the [DirectoryEntryAdapter.setEntries] method
+     * of the adapter feeding views to its [RecyclerView] to have it replace its dataset with it
+     * whenever it changes value.
+     */
     val documents = _documents
 
+    /**
+     * The [MutableLiveData] wrapped [Event] of [CachingDocumentFile] which is used to signal that
+     * the user wishes to open the [CachingDocumentFile] subdirectory for viewing. Private to prevent
+     * other classes from modifying it, public access is provided by our [openDirectory] field.
+     */
     private val _openDirectory = MutableLiveData<Event<CachingDocumentFile>>()
+    /**
+     * Public access to our [_openDirectory] field. An [Event] of [CachingDocumentFile] is posted to
+     * it from our [documentClicked] method if its [CachingDocumentFile] is a directory. An observer
+     * is added to it in the `onCreateView` override of [DirectoryFragment] which calls the
+     * [MainActivity.showDirectoryContents] method with the [Uri] of our[CachingDocumentFile]
+     * to have it replace the current [DirectoryFragment] with one that will display the contents
+     * of the directory whenever it changes value.
+     */
     val openDirectory = _openDirectory
 
+    /**
+     * The [MutableLiveData] wrapped [Event] of [CachingDocumentFile] which is used to signal that
+     * the user wishes to open the [CachingDocumentFile] file for viewing. Private to prevent
+     * other classes from modifying it, public access is provided by our [openDocument] field.
+     */
     private val _openDocument = MutableLiveData<Event<CachingDocumentFile>>()
+    /**
+     * Public access to our [_openDocument] field. An [Event] of [CachingDocumentFile] is posted to
+     * it from our [documentClicked] method if its [CachingDocumentFile] is NOT a directory. An
+     * observer is added to it in the `onCreateView` override of [DirectoryFragment] which calls its
+     * [DirectoryFragment.openDocument] method with our [CachingDocumentFile] to have it launch an
+     * [Intent] with the action [Intent.ACTION_VIEW] to have some activity handle the [Uri] of our
+     * [CachingDocumentFile] whenever it changes value.
+     */
     val openDocument = _openDocument
 
+    /**
+     * Loads the [DocumentFile] entries of the directory whose [Uri] is our parameter [directoryUri]
+     * into our data, converts them to [CachingDocumentFile] objects for efficiency, sorts them
+     * alphabetically, and posts them to our [_documents] field. We initialize our [DocumentFile]
+     * variable `val documentsTree` to the [DocumentFile] representing the document tree rooted at
+     * our [Uri] parameter [directoryUri] that the [DocumentFile.fromTreeUri] returns (returning to
+     * our caller if this is `null`).
+     *
+     * @param directoryUri the [Uri] of the directory whose [DocumentFile] entries we are supposed
+     * to read, convert into a [List] of [CachingDocumentFile] objects, sort alphabetically, and
+     * post to our [_documents] data set field.
+     */
     fun loadDirectory(directoryUri: Uri) {
         val documentsTree = DocumentFile.fromTreeUri(getApplication(), directoryUri) ?: return
-        val childDocuments = documentsTree.listFiles().toCachingList()
+        val childDocuments: List<CachingDocumentFile> = documentsTree.listFiles().toCachingList()
 
         // It's much nicer when the documents are sorted by something, so we'll sort the documents
         // we got by name. Unfortunate there may be quite a few documents, and sorting can take
@@ -63,8 +112,10 @@ class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(ap
     }
 
     /**
-     * Method to dispatch between clicking on a document (which should be opened), and
-     * a directory (which the user wants to navigate into).
+     * Method to dispatch between clicking on a document (which should be opened), and a directory
+     * (which the user wants to navigate into).
+     *
+     * @param clickedDocument the [CachingDocumentFile] whose view was clicked.
      */
     fun documentClicked(clickedDocument: CachingDocumentFile) {
         if (clickedDocument.isDirectory) {
