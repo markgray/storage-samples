@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
 
     defaultConfig {
         applicationId "com.example.android.contentproviderpaging"
         minSdkVersion 26
-        targetSdkVersion 28
+        targetSdkVersion 30
     }
 
     buildTypes {
@@ -17,6 +17,6 @@ android {
     }
 
     dependencies {
-        compile project(':resources')
+        implementation project(':resources')
     }
 }
