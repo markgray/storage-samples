@@ -13,161 +13,148 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.android.contentproviderpaging
 
-package com.example.android.contentproviderpaging;
-
-import android.app.Activity;
-import android.app.LoaderManager;
-import android.content.ContentResolver;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import android.app.Activity
+import androidx.loader.app.LoaderManager
+import android.content.ContentResolver
+import android.content.Context
+import androidx.loader.content.CursorLoader
+import androidx.loader.content.Loader
+import android.database.Cursor
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.android.contentproviderpaging.ImageAdapter.ImageDocument
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Fragment that works as a client for accessing the DocumentsProvider
- * ({@link ImageProvider}.
+ * ([ImageProvider].
  */
-public class ImageClientFragment extends Fragment {
-
-    private static final String TAG = "ImageClientFragment";
-
-    /** The number of fetched images in a single query to the DocumentsProvider. */
-    private static final int LIMIT = 10;
-
-    private ImageAdapter mAdapter;
-
-    private LinearLayoutManager mLayoutManager;
-
-    private final LoaderCallback mLoaderCallback = new LoaderCallback();
+class ImageClientFragment : Fragment() {
+    private var mAdapter: ImageAdapter? = null
+    private var mLayoutManager: LinearLayoutManager? = null
+    private val mLoaderCallback = LoaderCallback()
 
     /**
      * The offset position for the ContentProvider to be used as a starting position to fetch
      * the images from.
      */
-    private AtomicInteger mOffset = new AtomicInteger(0);
-
-    public static ImageClientFragment newInstance() {
-
-        Bundle args = new Bundle();
-
-        ImageClientFragment fragment = new ImageClientFragment();
-        fragment.setArguments(args);
-        return fragment;
+    private val mOffset = AtomicInteger(0)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_image_client, container, false)
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_image_client, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View rootView, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(rootView, savedInstanceState);
-
-        final Activity activity = getActivity();
-
-        RecyclerView recyclerView = (RecyclerView) activity.findViewById(R.id.recyclerview);
+    override fun onViewCreated(rootView: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(rootView, savedInstanceState)
+        val activity: Activity? = activity
+        val recyclerView = activity!!.findViewById<View>(R.id.recyclerview) as RecyclerView
         if (mLayoutManager == null) {
-            mLayoutManager = new LinearLayoutManager(activity);
+            mLayoutManager = LinearLayoutManager(activity)
         }
-        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.layoutManager = mLayoutManager
         if (mAdapter == null) {
-            mAdapter = new ImageAdapter(activity);
+            mAdapter = ImageAdapter(activity)
         }
-        recyclerView.setAdapter(mAdapter);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                int lastVisiblePosition = mLayoutManager.findLastVisibleItemPosition();
-                if (lastVisiblePosition >= mAdapter.getFetchedItemCount()) {
-                    Log.d(TAG,
-                            "Fetch new images. LastVisiblePosition: " + lastVisiblePosition
-                                    + ", NonEmptyItemCount: " + mAdapter.getFetchedItemCount());
-
-                    int pageId = lastVisiblePosition / LIMIT;
+        recyclerView.adapter = mAdapter
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                val lastVisiblePosition = mLayoutManager!!.findLastVisibleItemPosition()
+                if (lastVisiblePosition >= mAdapter!!.fetchedItemCount) {
+                    Log.d(
+                        TAG,
+                        "Fetch new images. LastVisiblePosition: " + lastVisiblePosition
+                            + ", NonEmptyItemCount: " + mAdapter!!.fetchedItemCount
+                    )
+                    val pageId = lastVisiblePosition / LIMIT
                     // Fetch new images once the last fetched item becomes visible
-                    activity.getLoaderManager()
-                            .restartLoader(pageId, null, mLoaderCallback);
+                    LoaderManager.getInstance(this@ImageClientFragment)
+                        .restartLoader(pageId, null, mLoaderCallback)
                 }
             }
-        });
-
-        final Button showButton = rootView.findViewById(R.id.button_show);
-        showButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                activity.getLoaderManager().restartLoader(0, null, mLoaderCallback);
-                showButton.setVisibility(View.GONE);
-            }
-        });
+        })
+        val showButton = rootView.findViewById<Button>(R.id.button_show)
+        showButton.setOnClickListener {
+            LoaderManager.getInstance(this).restartLoader(0, null, mLoaderCallback)
+            showButton.visibility = View.GONE
+        }
     }
 
-    private class LoaderCallback implements LoaderManager.LoaderCallbacks<Cursor> {
-
-        @Override
-        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-            final Activity activity = ImageClientFragment.this.getActivity();
-            return new CursorLoader(activity) {
-                @Override
-                public Cursor loadInBackground() {
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(ContentResolver.QUERY_ARG_OFFSET, mOffset.intValue());
-                    bundle.putInt(ContentResolver.QUERY_ARG_LIMIT, LIMIT);
-                    return activity.getContentResolver()
-                            .query(ImageContract.CONTENT_URI, null, bundle, null);
+    private inner class LoaderCallback : LoaderManager.LoaderCallbacks<Cursor> {
+        override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
+            val activity: Activity? = this@ImageClientFragment.activity
+            return object : CursorLoader(activity as Context) {
+                override fun loadInBackground(): Cursor {
+                    val bundle = Bundle()
+                    bundle.putInt(ContentResolver.QUERY_ARG_OFFSET, mOffset.toInt())
+                    bundle.putInt(ContentResolver.QUERY_ARG_LIMIT, LIMIT)
+                    return activity!!.contentResolver
+                        .query(ImageContract.CONTENT_URI, null, bundle, null)!!
                 }
-            };
+            }
         }
 
-        @Override
-        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-            Bundle extras = cursor.getExtras();
-            int totalSize = extras.getInt(ContentResolver.EXTRA_SIZE);
-            mAdapter.setTotalSize(totalSize);
-            int beforeCount = mAdapter.getFetchedItemCount();
+        override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
+            val extras = cursor.extras
+            val totalSize = extras.getInt(ContentResolver.EXTRA_SIZE)
+            mAdapter!!.setTotalSize(totalSize)
+            val beforeCount = mAdapter!!.fetchedItemCount
             while (cursor.moveToNext()) {
-                String displayName = cursor.getString(cursor.getColumnIndex(
-                        ImageContract.Columns.DISPLAY_NAME));
-                String absolutePath = cursor.getString(cursor.getColumnIndex(
-                        ImageContract.Columns.ABSOLUTE_PATH));
-
-                ImageAdapter.ImageDocument imageDocument = new ImageAdapter.ImageDocument();
-                imageDocument.mAbsolutePath = absolutePath;
-                imageDocument.mDisplayName = displayName;
-                mAdapter.add(imageDocument);
+                val displayName = cursor.getString(
+                    cursor.getColumnIndex(
+                        ImageContract.Columns.DISPLAY_NAME
+                    )
+                )
+                val absolutePath = cursor.getString(
+                    cursor.getColumnIndex(
+                        ImageContract.Columns.ABSOLUTE_PATH
+                    )
+                )
+                val imageDocument = ImageDocument()
+                imageDocument.mAbsolutePath = absolutePath
+                imageDocument.mDisplayName = displayName
+                mAdapter!!.add(imageDocument)
             }
-            int cursorCount = cursor.getCount();
+            val cursorCount = cursor.count
             if (cursorCount == 0) {
-                return;
+                return
             }
-            Activity activity = ImageClientFragment.this.getActivity();
-            mAdapter.notifyItemRangeChanged(beforeCount, cursorCount);
-            int offsetSnapShot = mOffset.get();
-            String message = activity.getResources()
-                    .getString(R.string.fetched_images_out_of, offsetSnapShot + 1,
-                            offsetSnapShot + cursorCount, totalSize);
-            mOffset.addAndGet(cursorCount);
-            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+            val activity: Activity? = this@ImageClientFragment.activity
+            mAdapter!!.notifyItemRangeChanged(beforeCount, cursorCount)
+            val offsetSnapShot = mOffset.get()
+            val message = activity!!.resources
+                .getString(
+                    R.string.fetched_images_out_of, offsetSnapShot + 1,
+                    offsetSnapShot + cursorCount, totalSize
+                )
+            mOffset.addAndGet(cursorCount)
+            Toast.makeText(activity, message, Toast.LENGTH_LONG).show()
         }
 
-        @Override
-        public void onLoaderReset(Loader<Cursor> loader) {
+        override fun onLoaderReset(loader: Loader<Cursor>) {}
+    }
 
+    companion object {
+        private const val TAG = "ImageClientFragment"
+
+        /** The number of fetched images in a single query to the DocumentsProvider.  */
+        private const val LIMIT = 10
+        fun newInstance(): ImageClientFragment {
+            val args = Bundle()
+            val fragment = ImageClientFragment()
+            fragment.arguments = args
+            return fragment
         }
     }
 }
