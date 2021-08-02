@@ -16,6 +16,7 @@
 package com.example.android.contentproviderpaging
 
 import android.app.Activity
+import android.content.ContentProvider
 import androidx.loader.app.LoaderManager
 import android.content.ContentResolver
 import android.content.Context
@@ -30,6 +31,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.android.contentproviderpaging.ImageAdapter.ImageDocument
@@ -40,22 +42,67 @@ import java.util.concurrent.atomic.AtomicInteger
  * ([ImageProvider].
  */
 class ImageClientFragment : Fragment() {
+    /**
+     * The [ImageAdapter] (custom [RecyclerView.Adapter] of [ImageViewHolder] objects) which feeds
+     * views to our [RecyclerView].
+     */
     private var mAdapter: ImageAdapter? = null
+    /**
+     * The [LinearLayoutManager] used by our [RecyclerView] as its [RecyclerView.LayoutManager].
+     */
     private var mLayoutManager: LinearLayoutManager? = null
+    /**
+     * The [LoaderManager.LoaderCallbacks] callback interface we use to interact with the manager.
+     */
     private val mLoaderCallback = LoaderCallback()
 
     /**
-     * The offset position for the ContentProvider to be used as a starting position to fetch
+     * The offset position for the [ContentProvider] to use as the starting position to fetch
      * the images from.
      */
     private val mOffset = AtomicInteger(0)
+
+    /**
+     * Called to have the fragment instantiate its user interface view. This will be called between
+     * [onCreate] and [onViewCreated]. It is recommended to only inflate the layout in this method
+     * and move logic that operates on the returned [View] to [onViewCreated]. We return the [View]
+     * that our [LayoutInflater] parameter [inflater] inflates from the layout file with resource ID
+     * [R.layout.fragment_image_client] using our [ViewGroup] parameter [container] for `LayoutParams`
+     * without attaching to it. This layout file consists of a vertical `LinearLayout` holding a
+     * [Button] with the label "Show images" above a [RecyclerView].
+     *
+     * @param inflater The [LayoutInflater] object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-`null`, this is the parent view that the fragment's
+     * UI will be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the `LayoutParams` of the view.
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_image_client, container, false)
     }
 
+    /**
+     * Called immediately after [onCreateView] has returned, but before any saved state has been
+     * restored in to the view. First we call our super's implementation of `onViewCreated`. We
+     * initialize our [Activity] variable `val activity` to the [FragmentActivity] this fragment
+     * is currently associated with, and we initialize our [RecyclerView] variable `val recyclerView`
+     * to the [View] with ID [R.id.recyclerview].
+     *
+     * If our [LinearLayoutManager] field [mLayoutManager] is `null` we first initialize it to a
+     * new instance of [LinearLayoutManager] before setting the [RecyclerView.LayoutManager] that
+     * `recyclerView` will use to [mLayoutManager].
+     *
+     * @param rootView The [View] returned by [onCreateView].
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     override fun onViewCreated(rootView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(rootView, savedInstanceState)
         val activity: Activity? = activity
