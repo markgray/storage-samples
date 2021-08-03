@@ -97,7 +97,27 @@ class ImageClientFragment : Fragment() {
      *
      * If our [LinearLayoutManager] field [mLayoutManager] is `null` we first initialize it to a
      * new instance of [LinearLayoutManager] before setting the [RecyclerView.LayoutManager] that
-     * `recyclerView` will use to [mLayoutManager].
+     * `recyclerView` will use to [mLayoutManager]. If our [ImageAdapter] field [mAdapter] is `null`
+     * we first initialize it to a new instance of [ImageAdapter] before setting the
+     * [RecyclerView.Adapter] of `recyclerView` that will provide child views on demand to
+     * [mAdapter].
+     *
+     * Next we add an anonymous [RecyclerView.OnScrollListener] to `recyclerView` whose `onScrolled`
+     * override will:
+     *  - Initialize its [Int] variable `val lastVisiblePosition` to the adapter position of the
+     *  last visible view that the [LinearLayoutManager.findLastVisibleItemPosition] method of
+     *  [mLayoutManager] returns.
+     *  - If `lastVisiblePosition` is greater than or equal to the number of images already fetched
+     *  and added to the adapter [mAdapter] that its [ImageAdapter.getFetchedItemCount] returns we:
+     *    - Initialize our [Int] variable `val pageId` to `lastVisiblePosition` divided by [LIMIT] (10)
+     *    - Use an instance of [LoaderManager] to start or restart a new [Loader] whose ID is `pageId`
+     *    with `null` for its args, and [mLoaderCallback] for its [LoaderManager.LoaderCallbacks]
+     *
+     * Next we initialize our [Button] variable `val showButton` to the view in our [View] parameter
+     * [rootView] with resource ID [R.id.button_show] (labeled "Show images") and then set its
+     * [View.OnClickListener] to a lambda which uses an instance of [LoaderManager] to start or
+     * restart a new [Loader] whose ID is 0, with `null` for its args, and [mLoaderCallback] for its
+     * [LoaderManager.LoaderCallbacks], and then sets the visibility of `showButton` to GONE.
      *
      * @param rootView The [View] returned by [onCreateView].
      * @param savedInstanceState If non-`null`, this fragment is being re-constructed
@@ -193,9 +213,14 @@ class ImageClientFragment : Fragment() {
     }
 
     companion object {
+        /**
+         * TAG used for logging.
+         */
         private const val TAG = "ImageClientFragment"
 
-        /** The number of fetched images in a single query to the DocumentsProvider.  */
+        /**
+         * The number of fetched images in a single query to the DocumentsProvider.
+         */
         private const val LIMIT = 10
         fun newInstance(): ImageClientFragment {
             val args = Bundle()
