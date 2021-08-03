@@ -23,6 +23,7 @@ import android.content.Context
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -158,10 +159,61 @@ class ImageClientFragment : Fragment() {
         }
     }
 
+    /**
+     * The custom [LoaderManager.LoaderCallbacks] class we use for our field [mLoaderCallback]. It
+     * is used as the callback of the [Loader] used to read images from our [ImageProvider].
+     */
     private inner class LoaderCallback : LoaderManager.LoaderCallbacks<Cursor> {
+        /**
+         * Instantiate and return a new [Loader] for the given ID. This will always be called from
+         * the process's main thread. We initialize our [Activity] variable `val activity` to the
+         * [FragmentActivity] this [ImageClientFragment] fragment is currently associated with. Then
+         * we return an anonymous [CursorLoader] whose [CursorLoader.loadInBackground] override:
+         *  - Initializes its [Bundle] variable `val bundle` to a new instance.
+         *  - Stores our [mOffset] field under the key [ContentResolver.QUERY_ARG_OFFSET] in `bundle`
+         *  - Stores our [LIMIT] constant (10) under the key [ContentResolver.QUERY_ARG_LIMIT] in `bundle`
+         *  - Retrieves a [ContentResolver] instance for our application's package and calls its
+         *  [ContentResolver.query] method with [ImageContract.CONTENT_URI] as the [Uri] to retrieve
+         *  ("content://com.example.android.contentproviderpaging.documents/images" which our provider
+         *  [ImageProvider] is configured to handle in our AndroidManifest.xml), with `null` as the
+         *  projection (will return all columns), `bundle` as the query arguments, and `null` as the
+         *  signal to cancel the operation in progress. Finally we return the [Cursor] returned by
+         *  the [ContentResolver.query] method to the caller.
+         *
+         * @param id The ID whose loader is to be created.
+         * @param args Any arguments supplied by the caller.
+         * @return Return a new [Loader] instance that is ready to start loading.
+         */
         override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
             val activity: Activity? = this@ImageClientFragment.activity
             return object : CursorLoader(activity as Context) {
+                /**
+                 * Called on a worker thread to perform the actual load and to return the result of
+                 * the load operation. Implementations should not deliver the result directly, but
+                 * should return them from this method, which will eventually end up calling
+                 * [Loader.deliverResult] on the UI thread. If implementations need to process the
+                 * results on the UI thread they may override [Loader.deliverResult] and do so
+                 * there. To support cancellation, this method should periodically check the value
+                 * of `isLoadInBackgroundCanceled` and terminate when it returns true. Subclasses
+                 * may also override [CursorLoader.cancelLoadInBackground] to interrupt the load
+                 * directly instead of polling `isLoadInBackgroundCanceled`. When the load is
+                 * canceled, this method may either return normally or throw `OperationCanceledException`.
+                 * In either case, the Loader will call `onCanceled` to perform post-cancellation
+                 * cleanup and to dispose of the result object, if any.
+                 *
+                 * We initialize our [Bundle] variable `val bundle` to a new instance, store our
+                 * [mOffset] field under the key [ContentResolver.QUERY_ARG_OFFSET] in `bundle`,
+                 * and our [LIMIT] constant (10) under the key [ContentResolver.QUERY_ARG_LIMIT] in
+                 * `bundle`. Finally we retrieve a [ContentResolver] instance for our application's
+                 * package and calls its [ContentResolver.query] method with [ImageContract.CONTENT_URI]
+                 * as the [Uri] to retrieve ("content://com.example.android.contentproviderpaging.documents/images"
+                 * which our provider [ImageProvider] is configured to handle in our AndroidManifest.xml),
+                 * with `null` as the projection (will return all columns), `bundle` as the query
+                 * arguments, and `null` as the signal to cancel the operation in progress, and we
+                 * return the [Cursor] returned by the [ContentResolver.query] method to the caller.
+                 *
+                 * @return The result of the load operation.
+                 */
                 override fun loadInBackground(): Cursor {
                     val bundle = Bundle()
                     bundle.putInt(ContentResolver.QUERY_ARG_OFFSET, mOffset.toInt())
