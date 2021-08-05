@@ -13,61 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.android.contentproviderpaging
 
-package com.example.android.contentproviderpaging;
-
-import com.bumptech.glide.Glide;
-
-import android.content.Context;
-import android.content.res.Resources;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.recyclerview.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import java.util.ArrayList
 
 /**
  * Adapter for RecyclerView, which manages the image documents.
  */
-class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {
-
-    private final Context mContext;
-
-    /** Holds the information for already retrieved images. */
-    private final List<ImageDocument> mImageDocuments = new ArrayList<>();
+internal class ImageAdapter(private val mContext: Context) :
+    RecyclerView.Adapter<ImageViewHolder>() {
+    /** Holds the information for already retrieved images.  */
+    private val mImageDocuments: MutableList<ImageDocument> = ArrayList()
 
     /**
      * The total size of the all images. This number should be the size for all images even if
      * they are not fetched from the ContentProvider.
      */
-    private int mTotalSize;
-
-    ImageAdapter(Context context) {
-        mContext = context;
+    private var mTotalSize = 0
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.viewholder_image, parent, false)
+        return ImageViewHolder(view)
     }
 
-    @Override
-    public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.viewholder_image, parent, false);
-        return new ImageViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(ImageViewHolder holder, int position) {
-        Resources resources = mContext.getResources();
-        if (mImageDocuments.size() > position) {
+    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+        val resources = mContext.resources
+        if (mImageDocuments.size > position) {
             Glide.with(mContext)
-                    .load(mImageDocuments.get(position).mAbsolutePath)
-                    .placeholder(R.drawable.cat_placeholder)
-                    .into(holder.mImageView);
-            holder.mTextView.setText(String.valueOf(position + 1));
+                .load(mImageDocuments[position].mAbsolutePath)
+                .placeholder(R.drawable.cat_placeholder)
+                .into(holder.mImageView)
+            holder.mTextView.text = (position + 1).toString()
         } else {
             holder.mImageView.setImageDrawable(
-                    ResourcesCompat.getDrawable(resources, R.drawable.cat_placeholder, null));
+                ResourcesCompat.getDrawable(resources, R.drawable.cat_placeholder, null)
+            )
         }
     }
 
@@ -76,8 +62,8 @@ class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {
      *
      * @param imageDocument the image information to be added
      */
-    void add(ImageDocument imageDocument) {
-        mImageDocuments.add(imageDocument);
+    fun add(imageDocument: ImageDocument) {
+        mImageDocuments.add(imageDocument)
     }
 
     /**
@@ -85,29 +71,25 @@ class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {
      *
      * @param totalSize the total size
      */
-    void setTotalSize(int totalSize) {
-        mTotalSize = totalSize;
+    fun setTotalSize(totalSize: Int) {
+        mTotalSize = totalSize
     }
 
     /**
      * @return the number of images already fetched and added to this adapter.
      */
-    int getFetchedItemCount() {
-        return mImageDocuments.size();
-    }
+    val fetchedItemCount: Int
+        get() = mImageDocuments.size
 
-    @Override
-    public int getItemCount() {
-        return mTotalSize;
+    override fun getItemCount(): Int {
+        return mTotalSize
     }
 
     /**
      * Represents information for an image.
      */
-    static class ImageDocument {
-
-        String mAbsolutePath;
-
-        String mDisplayName;
+    internal class ImageDocument {
+        var mAbsolutePath: String? = null
+        var mDisplayName: String? = null
     }
 }
