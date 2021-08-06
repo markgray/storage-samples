@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.android.contentproviderpaging
 
-package com.example.android.contentproviderpaging;
-
-import androidx.recyclerview.widget.RecyclerView;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 /**
- * ViewHolder that represents an image.
+ * [ViewHolder] that represents an image.
+ *
+ * @param itemView the [View] that we are holding, inflated from the [R.layout.viewholder_image]
+ * layout file.
  */
-class ImageViewHolder extends RecyclerView.ViewHolder {
-
-    ImageView mImageView;
-    TextView mTextView;
-
-    ImageViewHolder(View itemView) {
-        super(itemView);
-
-        mImageView = itemView.findViewById(R.id.imageview);
-        mTextView = itemView.findViewById(R.id.textview_image_label);
-    }
+internal class ImageViewHolder(itemView: View) : ViewHolder(itemView) {
+    /**
+     * The [ImageView] in our [itemView] that displays the jpeg.
+     */
+    var mImageView: ImageView = itemView.findViewById(R.id.imageview)
+    /**
+     * The [TextView] in our [itemView] that displays the image number.
+     */
+    var mTextView: TextView = itemView.findViewById(R.id.textview_image_label)
 }
