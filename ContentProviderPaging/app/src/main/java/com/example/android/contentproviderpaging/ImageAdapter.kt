@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("UnusedImport")
+
 package com.example.android.contentproviderpaging
 
 import android.content.Context
@@ -120,20 +122,33 @@ internal class ImageAdapter(private val mContext: Context) :
     }
 
     /**
-     * Set the total size of all images.
+     * Set the total number of items in the data set held by the adapter. This is the value returned
+     * by our override of the [getItemCount] method and represents the total number of images which
+     * our provider can eventually have supplied us with, not the number of images already fetched
+     * and added to the adapter which is returned by our [fetchedItemCount] property. We just set
+     * our [mTotalSize] field to our [Int] parameter [totalSize].
      *
-     * @param totalSize the total size
+     * @param totalSize the total number of items in the data set
      */
     fun setTotalSize(totalSize: Int) {
         mTotalSize = totalSize
     }
 
     /**
+     * Returns the number of images already fetched and added to this adapter, which is the size of
+     * our [MutableList] of [ImageDocument] field [mImageDocuments].
+     *
      * @return the number of images already fetched and added to this adapter.
      */
     val fetchedItemCount: Int
         get() = mImageDocuments.size
 
+    /**
+     * Returns the total number of items in the data set held by the adapter. We just return the
+     * [Int] value stored in our [mTotalSize] field by our [setTotalSize] method.
+     *
+     * @return The total number of items in this adapter.
+     */
     override fun getItemCount(): Int {
         return mTotalSize
     }
@@ -142,7 +157,14 @@ internal class ImageAdapter(private val mContext: Context) :
      * Represents information for an image.
      */
     internal class ImageDocument {
+        /**
+         * The absolute path in our file system for the jpeg image.
+         */
         var mAbsolutePath: String? = null
+
+        /**
+         * The file name of the jpeg image (apparently unused?).
+         */
         var mDisplayName: String? = null
     }
 }
