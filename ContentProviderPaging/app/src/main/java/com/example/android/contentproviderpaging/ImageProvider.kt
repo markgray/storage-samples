@@ -13,161 +13,145 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("UnusedImport")
 
-package com.example.android.contentproviderpaging;
+package com.example.android.contentproviderpaging
 
-import android.content.ContentProvider;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.UriMatcher;
-import android.content.res.TypedArray;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.CancellationSignal;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import android.util.Log;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
+import android.content.ContentProvider
+import android.content.UriMatcher
+import com.example.android.contentproviderpaging.ImageContract
+import android.os.Bundle
+import android.database.MatrixCursor
+import android.content.ContentResolver
+import android.content.ContentValues
+import android.content.Context
+import android.database.MatrixCursor.RowBuilder
+import com.example.android.contentproviderpaging.R
+import android.content.res.TypedArray
+import android.database.Cursor
+import android.net.Uri
+import android.os.CancellationSignal
+import android.util.Log
+import java.io.File
+import java.io.IOException
+import java.lang.IllegalArgumentException
+import java.lang.RuntimeException
+import java.lang.UnsupportedOperationException
+import java.util.Arrays
 
 /**
  * ContentProvider that demonstrates how the paging support works introduced in Android O.
  * This class fetches the images from the local storage but the storage could be
  * other locations such as a remote server.
  */
-public class ImageProvider extends ContentProvider {
+class ImageProvider : ContentProvider() {
+    companion object {
+        private const val TAG = "ImageDocumentsProvider"
+        private const val IMAGES = 1
+        private const val IMAGE_ID = 2
+        private val sUriMatcher = UriMatcher(UriMatcher.NO_MATCH)
 
-    private static final String TAG = "ImageDocumentsProvider";
+        // Indicated how many same images are going to be written as dummy images
+        private const val REPEAT_COUNT_WRITE_FILES = 10
+        private fun resolveDocumentProjection(projection: Array<String>?): Array<String> {
+            return projection ?: ImageContract.PROJECTION_ALL
+        }
 
-    private static final int IMAGES = 1;
-
-    private static final int IMAGE_ID = 2;
-
-    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-
-    static {
-        sUriMatcher.addURI(ImageContract.AUTHORITY, "images", IMAGES);
-        sUriMatcher.addURI(ImageContract.AUTHORITY, "images/#", IMAGE_ID);
+        init {
+            sUriMatcher.addURI(ImageContract.AUTHORITY, "images", IMAGES)
+            sUriMatcher.addURI(ImageContract.AUTHORITY, "images/#", IMAGE_ID)
+        }
     }
 
-    // Indicated how many same images are going to be written as dummy images
-    private static final int REPEAT_COUNT_WRITE_FILES = 10;
-
-    private File mBaseDir;
-
-    @Override
-    public boolean onCreate() {
-        Log.d(TAG, "onCreate");
-
-        Context context = getContext();
-        if (context == null) {
-            return false;
-        }
-        mBaseDir = context.getFilesDir();
-        writeDummyFilesToStorage(context);
-
-        return true;
+    private var mBaseDir: File? = null
+    override fun onCreate(): Boolean {
+        Log.d(TAG, "onCreate")
+        val context = context ?: return false
+        mBaseDir = context.filesDir
+        writeDummyFilesToStorage(context)
+        return true
     }
 
-    @Nullable
-    @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s,
-            @Nullable String[] strings1, @Nullable String s1) {
-        throw new UnsupportedOperationException();
+    override fun query(
+        uri: Uri, strings: Array<String>?, s: String?,
+        strings1: Array<String>?, s1: String?
+    ): Cursor? {
+        throw UnsupportedOperationException()
     }
 
-    @Override
-    public Cursor query(Uri uri, String[] projection, Bundle queryArgs,
-            CancellationSignal cancellationSignal) {
-        int match = sUriMatcher.match(uri);
-        // We only support a query for multiple images, return null for other form of queries
-        // including a query for a single image.
-        switch (match) {
-            case IMAGES:
-                break;
-            default:
-                return null;
+    override fun query(
+        uri: Uri, projection: Array<String>?, queryArgs: Bundle?,
+        cancellationSignal: CancellationSignal?
+    ): Cursor? {
+        when (sUriMatcher.match(uri)) {
+            IMAGES -> {
+            }
+            else -> return null
         }
-        MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
-
-        File[] files = mBaseDir.listFiles();
-        int offset = queryArgs.getInt(ContentResolver.QUERY_ARG_OFFSET, 0);
-        int limit = queryArgs.getInt(ContentResolver.QUERY_ARG_LIMIT, Integer.MAX_VALUE);
-        Log.d(TAG, "queryChildDocuments with Bundle, Uri: " +
-                uri + ", offset: " + offset + ", limit: " + limit);
-        if (offset < 0) {
-            throw new IllegalArgumentException("Offset must not be less than 0");
+        val result = MatrixCursor(resolveDocumentProjection(projection))
+        val files = mBaseDir!!.listFiles()
+        val offset = queryArgs!!.getInt(ContentResolver.QUERY_ARG_OFFSET, 0)
+        val limit = queryArgs.getInt(ContentResolver.QUERY_ARG_LIMIT, Int.MAX_VALUE)
+        Log.d(
+            TAG, "queryChildDocuments with Bundle, Uri: " +
+                uri + ", offset: " + offset + ", limit: " + limit
+        )
+        require(offset >= 0) { "Offset must not be less than 0" }
+        require(limit >= 0) { "Limit must not be less than 0" }
+        if (offset >= files!!.size) {
+            return result
         }
-        if (limit < 0) {
-            throw new IllegalArgumentException("Limit must not be less than 0");
+        var i = offset
+        val maxIndex = (offset + limit).coerceAtMost(files.size)
+        while (i < maxIndex) {
+            includeFile(result, files[i])
+            i++
         }
-
-        if (offset >= files.length) {
-            return result;
-        }
-
-        for (int i = offset, maxIndex = Math.min(offset + limit, files.length); i < maxIndex; i++) {
-            includeFile(result, files[i]);
-        }
-
-        Bundle bundle = new Bundle();
-        bundle.putInt(ContentResolver.EXTRA_SIZE, files.length);
-        String[] honoredArgs = new String[2];
-        int size = 0;
+        val bundle = Bundle()
+        bundle.putInt(ContentResolver.EXTRA_SIZE, files.size)
+        var honoredArgs = arrayOfNulls<String>(2)
+        var size = 0
         if (queryArgs.containsKey(ContentResolver.QUERY_ARG_OFFSET)) {
-            honoredArgs[size++] = ContentResolver.QUERY_ARG_OFFSET;
+            honoredArgs[size++] = ContentResolver.QUERY_ARG_OFFSET
         }
         if (queryArgs.containsKey(ContentResolver.QUERY_ARG_LIMIT)) {
-            honoredArgs[size++] = ContentResolver.QUERY_ARG_LIMIT;
+            honoredArgs[size++] = ContentResolver.QUERY_ARG_LIMIT
         }
-        if (size != honoredArgs.length) {
-            honoredArgs = Arrays.copyOf(honoredArgs, size);
+        if (size != honoredArgs.size) {
+            honoredArgs = honoredArgs.copyOf(size)
         }
-        bundle.putStringArray(ContentResolver.EXTRA_HONORED_ARGS, honoredArgs);
-        result.setExtras(bundle);
-        return result;
+        bundle.putStringArray(ContentResolver.EXTRA_HONORED_ARGS, honoredArgs)
+        result.extras = bundle
+        return result
     }
 
-    @Nullable
-    @Override
-    public String getType(@NonNull Uri uri) {
-        int match = sUriMatcher.match(uri);
-        switch (match) {
-            case IMAGES:
-                return "vnd.android.cursor.dir/images";
-            case IMAGE_ID:
-                return "vnd.android.cursor.item/images";
-            default:
-                throw new IllegalArgumentException(String.format("Unknown URI: %s", uri));
+    @Suppress("RedundantNullableReturnType")
+    override fun getType(uri: Uri): String? {
+        return when (sUriMatcher.match(uri)) {
+            IMAGES -> "vnd.android.cursor.dir/images"
+            IMAGE_ID -> "vnd.android.cursor.item/images"
+            else -> throw IllegalArgumentException(
+                String.format(
+                    "Unknown URI: %s",
+                    uri
+                )
+            )
         }
     }
 
-    @Nullable
-    @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
-        throw new UnsupportedOperationException();
+    override fun insert(uri: Uri, contentValues: ContentValues?): Uri? {
+        throw UnsupportedOperationException()
     }
 
-    @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        throw new UnsupportedOperationException();
+    override fun delete(uri: Uri, s: String?, strings: Array<String>?): Int {
+        throw UnsupportedOperationException()
     }
 
-    @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s,
-            @Nullable String[] strings) {
-        throw new UnsupportedOperationException();
-    }
-
-    private static String[] resolveDocumentProjection(String[] projection) {
-        return projection != null ? projection : ImageContract.PROJECTION_ALL;
+    override fun update(
+        uri: Uri, contentValues: ContentValues?, s: String?,
+        strings: Array<String>?
+    ): Int {
+        throw UnsupportedOperationException()
     }
 
     /**
@@ -176,11 +160,11 @@ public class ImageProvider extends ContentProvider {
      * @param result the cursor to modify
      * @param file   the File object representing the desired file (may be null if given docID)
      */
-    private void includeFile(MatrixCursor result, File file) {
-        MatrixCursor.RowBuilder row = result.newRow();
-        row.add(ImageContract.Columns.DISPLAY_NAME, file.getName());
-        row.add(ImageContract.Columns.SIZE, file.length());
-        row.add(ImageContract.Columns.ABSOLUTE_PATH, file.getAbsolutePath());
+    private fun includeFile(result: MatrixCursor, file: File) {
+        val row = result.newRow()
+        row.add(ImageContract.Columns.DISPLAY_NAME, file.name)
+        row.add(ImageContract.Columns.SIZE, file.length())
+        row.add(ImageContract.Columns.ABSOLUTE_PATH, file.absolutePath)
     }
 
     /**
@@ -188,15 +172,14 @@ public class ImageProvider extends ContentProvider {
      * dummy function specific to this demo.  The MyCloud mock cloud service doesn't actually
      * have a backend, so it simulates by reading content from the device's internal storage.
      */
-    private void writeDummyFilesToStorage(Context context) {
-        if (mBaseDir.list().length > 0) {
-            return;
+    private fun writeDummyFilesToStorage(context: Context) {
+        if (mBaseDir!!.list()!!.isNotEmpty()) {
+            return
         }
-
-        int[] imageResIds = getResourceIdArray(context, R.array.image_res_ids);
-        for (int i = 0; i < REPEAT_COUNT_WRITE_FILES; i++) {
-            for (int resId : imageResIds) {
-                writeFileToInternalStorage(context, resId, "-" + i + ".jpeg");
+        val imageResIds = getResourceIdArray(context, R.array.image_res_ids)
+        for (i in 0 until REPEAT_COUNT_WRITE_FILES) {
+            for (resId in imageResIds) {
+                writeFileToInternalStorage(context, resId, "-$i.jpeg")
             }
         }
     }
@@ -208,33 +191,32 @@ public class ImageProvider extends ContentProvider {
      * @param resId     the resource ID of the file to write to internal storage
      * @param extension the file extension (ex. .png, .mp3)
      */
-    private void writeFileToInternalStorage(Context context, int resId, String extension) {
-        InputStream ins = context.getResources().openRawResource(resId);
-        int size;
-        byte[] buffer = new byte[1024];
+    private fun writeFileToInternalStorage(context: Context, resId: Int, extension: String) {
+        val ins = context.resources.openRawResource(resId)
+        var size: Int
+        val buffer = ByteArray(1024)
         try {
-            String filename = context.getResources().getResourceEntryName(resId) + extension;
-            FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE);
-            while ((size = ins.read(buffer, 0, 1024)) >= 0) {
-                fos.write(buffer, 0, size);
+            val filename = context.resources.getResourceEntryName(resId) + extension
+            val fos = context.openFileOutput(filename, Context.MODE_PRIVATE)
+            while (ins.read(buffer, 0, 1024).also { size = it } >= 0) {
+                fos.write(buffer, 0, size)
             }
-            ins.close();
-            fos.write(buffer);
-            fos.close();
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            ins.close()
+            fos.write(buffer)
+            fos.close()
+        } catch (e: IOException) {
+            throw RuntimeException(e)
         }
     }
 
-    private int[] getResourceIdArray(Context context, int arrayResId) {
-        TypedArray ar = context.getResources().obtainTypedArray(arrayResId);
-        int len = ar.length();
-        int[] resIds = new int[len];
-        for (int i = 0; i < len; i++) {
-            resIds[i] = ar.getResourceId(i, 0);
+    private fun getResourceIdArray(context: Context, arrayResId: Int): IntArray {
+        val ar = context.resources.obtainTypedArray(arrayResId)
+        val len = ar.length()
+        val resIds = IntArray(len)
+        for (i in 0 until len) {
+            resIds[i] = ar.getResourceId(i, 0)
         }
-        ar.recycle();
-        return resIds;
+        ar.recycle()
+        return resIds
     }
 }
