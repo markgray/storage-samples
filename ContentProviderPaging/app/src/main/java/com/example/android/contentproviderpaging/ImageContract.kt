@@ -13,34 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.android.contentproviderpaging
 
-package com.example.android.contentproviderpaging;
-
-import android.net.Uri;
-import android.provider.BaseColumns;
+import android.net.Uri
+import android.provider.BaseColumns
 
 /**
- * The contract for the {@link ImageProvider}.
+ * The contract for the [ImageProvider].
  */
-class ImageContract {
+internal object ImageContract {
+    const val AUTHORITY = "com.example.android.contentproviderpaging.documents"
+    val CONTENT_URI: Uri = Uri.parse("content://$AUTHORITY/images")
+    val PROJECTION_ALL = arrayOf(
+        BaseColumns._ID,
+        Columns.DISPLAY_NAME,
+        Columns.ABSOLUTE_PATH,
+        Columns.SIZE
+    )
 
-    static final String AUTHORITY = "com.example.android.contentproviderpaging.documents";
-
-    static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/images");
-
-    interface Columns extends BaseColumns {
-
-        String DISPLAY_NAME = "display_name";
-
-        String ABSOLUTE_PATH = "absolute_path";
-
-        String SIZE = "size";
+    internal interface Columns : BaseColumns {
+        companion object {
+            const val DISPLAY_NAME = "display_name"
+            const val ABSOLUTE_PATH = "absolute_path"
+            const val SIZE = "size"
+        }
     }
-
-    static final String[] PROJECTION_ALL = new String[]{
-            Columns._ID,
-            Columns.DISPLAY_NAME,
-            Columns.ABSOLUTE_PATH,
-            Columns.SIZE
-    };
 }
