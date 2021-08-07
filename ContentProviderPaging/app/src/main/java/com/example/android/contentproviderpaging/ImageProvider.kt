@@ -40,12 +40,15 @@ import java.lang.UnsupportedOperationException
 import java.util.Arrays
 
 /**
- * ContentProvider that demonstrates how the paging support works introduced in Android O.
- * This class fetches the images from the local storage but the storage could be
- * other locations such as a remote server.
+ * [ContentProvider] that demonstrates how the paging support introduced in Android O works.
+ * This class fetches the images from the local storage but the storage could be other locations
+ * such as a remote server.
  */
 class ImageProvider : ContentProvider() {
     companion object {
+        /**
+         * TAG used for logging.
+         */
         private const val TAG = "ImageDocumentsProvider"
         private const val IMAGES = 1
         private const val IMAGE_ID = 2
