@@ -50,12 +50,43 @@ class ImageProvider : ContentProvider() {
          * TAG used for logging.
          */
         private const val TAG = "ImageDocumentsProvider"
+
+        /**
+         * The code that is returned when a [Uri] is matched by [UriMatcher] field [sUriMatcher]
+         * against the authority [ImageContract.AUTHORITY] and path "images".
+         */
         private const val IMAGES = 1
+
+        /**
+         * The code that is returned when a [Uri] is matched by [UriMatcher] field [sUriMatcher]
+         * against the authority [ImageContract.AUTHORITY] and path "images/#".
+         */
         private const val IMAGE_ID = 2
+
+        /**
+         * The [UriMatcher] that we use to match the [Uri] parameter of our [getType] override and
+         * our [query] override. Two URIs to match are added to it in our `init` block, both using
+         * the authority [ImageContract.AUTHORITY] with the path "images" returning the code [IMAGES]
+         * and the path "images/#" returning the code [IMAGE_ID]. [getType] returns the mime type
+         * "vnd.android.cursor.dir/images" when the [UriMatcher.match] method of [sUriMatcher] returns
+         * [IMAGES], and the mime type "vnd.android.cursor.item/images" when the [UriMatcher.match]
+         * method of [sUriMatcher] returns [IMAGE_ID]. [query] returns `null` unless the [UriMatcher.match]
+         * method of [sUriMatcher] returns [IMAGES].
+         */
         private val sUriMatcher = UriMatcher(UriMatcher.NO_MATCH)
 
-        // Indicated how many same images are going to be written as dummy images
+        /**
+         * How many copies of the same images are going to be written as dummy images.
+         */
         private const val REPEAT_COUNT_WRITE_FILES = 10
+
+        /**
+         * Convenience method to default to [ImageContract.PROJECTION_ALL] if the projection passed
+         * to our [query] override is `null`.
+         *
+         * @return our [Array] of [String] parameter [projection] if it is not `null` or the constant
+         * [Array] of [String] in [ImageContract.PROJECTION_ALL] if it is `null`.
+         */
         private fun resolveDocumentProjection(projection: Array<String>?): Array<String> {
             return projection ?: ImageContract.PROJECTION_ALL
         }
@@ -86,11 +117,7 @@ class ImageProvider : ContentProvider() {
         uri: Uri, projection: Array<String>?, queryArgs: Bundle?,
         cancellationSignal: CancellationSignal?
     ): Cursor? {
-        when (sUriMatcher.match(uri)) {
-            IMAGES -> {
-            }
-            else -> return null
-        }
+        if (sUriMatcher.match(uri) != IMAGES) return null
         val result = MatrixCursor(resolveDocumentProjection(projection))
         val files = mBaseDir!!.listFiles()
         val offset = queryArgs!!.getInt(ContentResolver.QUERY_ARG_OFFSET, 0)
