@@ -155,7 +155,41 @@ class ImageProvider : ContentProvider() {
     }
 
     /**
-     * Implement this to handle query requests where the arguments are packed into a [Bundle].
+     * Implement this to handle query requests where the arguments are packed into a [Bundle]. First
+     * we use the [UriMatcher.match] method of our [sUriMatcher] field to make sure that our [Uri]
+     * parameter [uri] matches for the path "images" ([UriMatcher.match] returns [IMAGES]), and if
+     * it does not we return `null` to the caller. Otherwise we initialize our [MatrixCursor] variable
+     * `val result` to a new instance constructed to contain the column names returned by our method
+     * [resolveDocumentProjection] when it is called with our [Array] of [String] parameter
+     * [projection] (in our case this is always [ImageContract.PROJECTION_ALL] which contains the
+     * names of all of our columns). Next we initialize our [Array] of [File] variable `val files`
+     * to the array of abstract pathnames denoting the files in the directory [mBaseDir]. We initialize
+     * our [Int] variable `val offset` to the value stored in our [Bundle] parameter [queryArgs] under
+     * the key [ContentResolver.QUERY_ARG_OFFSET], and our [Int] variable `val limit` to the value
+     * stored under the key [ContentResolver.QUERY_ARG_LIMIT]. We make sure that `offset` and `limit`
+     * are both greater than or equal to 0 throwing a [IllegalArgumentException] if they are not.
+     * Then if `offset` is greater than or equal to the size of `files` we return `result` without
+     * adding any rows to it.
+     *
+     * Otherwise we initialize our [Int] variable `var i` to `offset` and our [Int] variable
+     * `val maxIndex` to `offset` plus `limit` coerced to be at most the size of `files`. Then
+     * while `i` is less than `maxIndex` we loop:
+     *  - we call our [includeFile] method to have it add a new row for the [File] at index `i` in
+     *  `files` to `result`
+     *  - we increment `i` to point to the next [File] in `files` to be added.
+     *
+     * We next initialize our [Bundle] variable `val bundle` to a new instance and store the `size`
+     * of `files` under the key [ContentResolver.EXTRA_SIZE] in it. We initialize our [Array] of
+     * [String] variable `var honoredArg` to a two element array initialized to `null` values and
+     * our [Int] variable `var size` to 0. If our [Bundle] parameter [queryArgs] contains the key
+     * [ContentResolver.QUERY_ARG_OFFSET] we set the `size` entry of `honoredArgs` to it and post
+     * increment `size`, and if it contains the key [ContentResolver.QUERY_ARG_LIMIT] we set the
+     * `size` entry of `honoredArgs` to it and post increment `size`. If `size` does not equal the
+     * size of `honoredArgs` we set `honoredArgs` to a new array which is a copy of the original
+     * array, resized to the size `size`. We then store the `honoredArgs` [Array] of [String] in
+     * `bundle` under the key [ContentResolver.EXTRA_HONORED_ARGS], set `bundle` to be the [Bundle]
+     * that will be returned by the [Cursor.getExtras] method of `result` and return `result` to the
+     * caller.
      *
      * @param uri The [Uri] to query. This will be the full [Uri] sent by the client.
      * @param projection The list of columns to put into the cursor. If `null` provide a default set
@@ -175,7 +209,7 @@ class ImageProvider : ContentProvider() {
     ): Cursor? {
         if (sUriMatcher.match(uri) != IMAGES) return null
         val result = MatrixCursor(resolveDocumentProjection(projection))
-        val files = mBaseDir.listFiles()
+        val files: Array<File>? = mBaseDir.listFiles()
         val offset = queryArgs!!.getInt(ContentResolver.QUERY_ARG_OFFSET, 0)
         val limit = queryArgs.getInt(ContentResolver.QUERY_ARG_LIMIT, Int.MAX_VALUE)
         Log.d(
