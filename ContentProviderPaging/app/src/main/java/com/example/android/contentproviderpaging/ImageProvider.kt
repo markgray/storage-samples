@@ -92,34 +92,90 @@ class ImageProvider : ContentProvider() {
         }
 
         init {
+            // Add a Uri to match the path "images" which returns IMAGES when it matches
             sUriMatcher.addURI(ImageContract.AUTHORITY, "images", IMAGES)
+            // Add a Uri to match the path "images/#" which returns IMAGES_ID when it matches
             sUriMatcher.addURI(ImageContract.AUTHORITY, "images/#", IMAGE_ID)
         }
     }
 
-    private var mBaseDir: File? = null
+    /**
+     * The absolute path to the directory on the filesystem where files created with
+     * `openFileOutput` are stored.
+     */
+    private lateinit var mBaseDir: File
+
+    /**
+     * Implement this to initialize your content provider on startup. This method is called for all
+     * registered content providers on the application main thread at application launch time.
+     *
+     * We initialize our [Context] variable `val context` to the [Context] this provider is running
+     * in, returning `false` if this is `null`. We then initialize our [File] field [mBaseDir] to
+     * the absolute path to the directory on the filesystem where files created with `openFileOutput`
+     * are stored. Next we call our [writeDummyFilesToStorage] method with `context` to have it
+     * write a bunch of copies of the cat jpegs in our raw resources to the internal storage
+     * directory. Finally we return `true` to the caller to report that we were successfully loaded.
+     *
+     * @return `true` if the provider was successfully loaded, `false` otherwise
+     */
     override fun onCreate(): Boolean {
         Log.d(TAG, "onCreate")
-        val context = context ?: return false
+        val context: Context = context ?: return false
         mBaseDir = context.filesDir
         writeDummyFilesToStorage(context)
         return true
     }
 
+    /**
+     * Implement this to handle query requests from clients. Apps targeting O or higher should
+     * override `query(Uri, String[], Bundle, CancellationSignal)` and provide a stub implementation
+     * of this method. We just throw [UnsupportedOperationException] because we do target O.
+     *
+     * @param uri The [Uri] to query. This will be the full [Uri] sent by the client, if the client
+     * is requesting a specific record, the [Uri] will end in a record number that the implementation
+     * should parse and add to a WHERE or HAVING clause, specifying that _id value.
+     * @param projection The list of columns to put into the cursor. If `null` all columns are included.
+     * @param selection A selection criteria to apply when filtering rows. If `null` then all rows
+     * are included.
+     * @param selectionArgs You may include ?s in selection, which will be replaced by the values
+     * from [selectionArgs], in the order that they appear in the selection. The values will be
+     * bound as [String]s.
+     * @param sortOrder How the rows in the cursor should be sorted. If `null` then the provider is
+     * free to define the sort order.
+     * @return a [Cursor] or `null`.
+     */
     override fun query(
-        uri: Uri, strings: Array<String>?, s: String?,
-        strings1: Array<String>?, s1: String?
+        uri: Uri,
+        projection: Array<String>?,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        sortOrder: String?
     ): Cursor? {
         throw UnsupportedOperationException()
     }
 
+    /**
+     * Implement this to handle query requests where the arguments are packed into a [Bundle].
+     *
+     * @param uri The [Uri] to query. This will be the full [Uri] sent by the client.
+     * @param projection The list of columns to put into the cursor. If `null` provide a default set
+     * of columns.
+     * @param queryArgs A [Bundle] containing additional information necessary for the operation.
+     * Arguments may include SQL style arguments, such as [ContentResolver.QUERY_ARG_SQL_LIMIT], but
+     * note that the documentation for each individual provider will indicate which arguments they
+     * support.
+     * @param cancellationSignal A signal to cancel the operation in progress, or `null`.
+     * @return a [Cursor] or `null`.
+     */
     override fun query(
-        uri: Uri, projection: Array<String>?, queryArgs: Bundle?,
+        uri: Uri,
+        projection: Array<String>?,
+        queryArgs: Bundle?,
         cancellationSignal: CancellationSignal?
     ): Cursor? {
         if (sUriMatcher.match(uri) != IMAGES) return null
         val result = MatrixCursor(resolveDocumentProjection(projection))
-        val files = mBaseDir!!.listFiles()
+        val files = mBaseDir.listFiles()
         val offset = queryArgs!!.getInt(ContentResolver.QUERY_ARG_OFFSET, 0)
         val limit = queryArgs.getInt(ContentResolver.QUERY_ARG_LIMIT, Int.MAX_VALUE)
         Log.d(
@@ -203,7 +259,7 @@ class ImageProvider : ContentProvider() {
      * have a backend, so it simulates by reading content from the device's internal storage.
      */
     private fun writeDummyFilesToStorage(context: Context) {
-        if (mBaseDir!!.list()!!.isNotEmpty()) {
+        if (mBaseDir.list()!!.isNotEmpty()) {
             return
         }
         val imageResIds = getResourceIdArray(context, R.array.image_res_ids)
