@@ -245,6 +245,21 @@ class ImageProvider : ContentProvider() {
         return result
     }
 
+    /**
+     * Implement this to handle requests for the MIME type of the data at the given URI. The
+     * returned MIME type should start with `vnd.android.cursor.item` for a single record, or
+     * `vnd.android.cursor.dir/` for multiple items. We branch on the value returned by the
+     * [UriMatcher.match] method of our field [sUriMatcher] when it tries to match our [Uri]
+     * parameter [uri]:
+     *  - [IMAGES] (matches the authority [ImageContract.AUTHORITY] and the path "images") we
+     *  return the [String] "vnd.android.cursor.dir/images".
+     *  - [IMAGE_ID] (matches the authority [ImageContract.AUTHORITY] and the path "images/#") we
+     *  return the [String] "vnd.android.cursor.item/images".
+     *  - For all other matches (or non-match) we throw [IllegalArgumentException]
+     *
+     * @param uri the [Uri] to query.
+     * @return a MIME type [String], or `null` if there is no type.
+     */
     @Suppress("RedundantNullableReturnType")
     override fun getType(uri: Uri): String? {
         return when (sUriMatcher.match(uri)) {
@@ -259,29 +274,80 @@ class ImageProvider : ContentProvider() {
         }
     }
 
+    /**
+     * Implement this to handle requests to insert a new row. As a courtesy, call
+     * [ContentResolver.notifyChange] notifyChange()} after inserting. We just throw
+     * [UnsupportedOperationException].
+     *
+     * @param uri The content:// [Uri] of the insertion request.
+     * @param contentValues A set of column_name/value pairs to add to the database.
+     * @return The [Uri] for the newly inserted item.
+     */
     override fun insert(uri: Uri, contentValues: ContentValues?): Uri? {
         throw UnsupportedOperationException()
     }
 
-    override fun delete(uri: Uri, s: String?, strings: Array<String>?): Int {
+    /**
+     * Implement this to handle requests to delete one or more rows. The implementation should apply
+     * the selection clause when performing deletion, allowing the operation to affect multiple rows
+     * in a directory. As a courtesy, call [ContentResolver.notifyChange] after deleting.
+     *
+     * The implementation is responsible for parsing out a row ID at the end of the [Uri], if a
+     * specific row is being deleted.
+     *
+     * We just throw [UnsupportedOperationException].
+     *
+     * @param uri The full [Uri] to query, including a row ID (if a specific record is requested).
+     * @param selection An optional restriction to apply to rows when deleting.
+     * @param selectionArgs You may include ?s in [selection], which will be replaced by the values
+     * from [selectionArgs], in order that they appear in the selection. The values will be bound
+     * as [String]s.
+     * @return The number of rows affected.
+     */
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         throw UnsupportedOperationException()
     }
 
+    /**
+     * Implement this to handle requests to update one or more rows. The implementation should update
+     * all rows matching the selection to set the columns according to the provided values map.
+     * As a courtesy, call [ContentResolver.notifyChange] after updating.
+     *
+     * We just throw [UnsupportedOperationException].
+     *
+     * @param uri The [Uri] to query. This can potentially have a record ID if this is an update
+     * request for a specific record.
+     * @param contentValues A set of column_name/value pairs to update in the database.
+     * @param selection An optional filter to match rows to update.
+     * @param selectionArgs You may include ?s in [selection], which will be replaced by the values
+     * from [selectionArgs], in order that they appear in the selection. The values will be bound
+     * as [String]s.
+     * @return the number of rows affected.
+     */
     override fun update(
-        uri: Uri, contentValues: ContentValues?, s: String?,
-        strings: Array<String>?
+        uri: Uri,
+        contentValues: ContentValues?,
+        selection: String?,
+        selectionArgs: Array<String>?
     ): Int {
         throw UnsupportedOperationException()
     }
 
     /**
-     * Add a representation of a file to a cursor.
+     * Add a representation of a file to a cursor. We initialize our [RowBuilder] variable `val row`
+     * by using the [MatrixCursor.newRow] method of our parameter [result] to add a new row to the
+     * end of [result] and return a builder for that row. We then use the [RowBuilder.add] method of
+     * `row` to add a column with the column name [ImageContract.Columns.DISPLAY_NAME] containing
+     * the name of the file or directory denoted by our [File] parameter [file], to add a column
+     * with the column name [ImageContract.Columns.SIZE] containing the length of [file], and to add
+     * a column with the column name [ImageContract.Columns.ABSOLUTE_PATH] containing the absolute
+     * path of [file].
      *
      * @param result the cursor to modify
-     * @param file   the File object representing the desired file (may be null if given docID)
+     * @param file   the [File] object representing the desired file (may be `null` if given docID)
      */
     private fun includeFile(result: MatrixCursor, file: File) {
-        val row = result.newRow()
+        val row: RowBuilder = result.newRow()
         row.add(ImageContract.Columns.DISPLAY_NAME, file.name)
         row.add(ImageContract.Columns.SIZE, file.length())
         row.add(ImageContract.Columns.ABSOLUTE_PATH, file.absolutePath)
@@ -291,12 +357,23 @@ class ImageProvider : ContentProvider() {
      * Preload sample files packaged in the apk into the internal storage directory.  This is a
      * dummy function specific to this demo.  The MyCloud mock cloud service doesn't actually
      * have a backend, so it simulates by reading content from the device's internal storage.
+     *
+     * If the array of strings naming the files and directories in the directory denoted by the
+     * abstract pathname of our [File] field [mBaseDir] is not empty we return (we have been called
+     * already and done our work).
+     *
+     * Otherwise we initialize our [IntArray] variable `val imageResIds` to the [IntArray] that is
+     * returned by [getResourceIdArray] when it reads the array with ID [R.array.image_res_ids]
+     * from our resources (this array consists of `item`s like "@raw/cat_1" which are references to
+     * images stored in our "raw" resources directory).
+     *
+     * @param context the [Context] this provider is running in.
      */
     private fun writeDummyFilesToStorage(context: Context) {
         if (mBaseDir.list()!!.isNotEmpty()) {
             return
         }
-        val imageResIds = getResourceIdArray(context, R.array.image_res_ids)
+        val imageResIds: IntArray = getResourceIdArray(context, R.array.image_res_ids)
         for (i in 0 until REPEAT_COUNT_WRITE_FILES) {
             for (resId in imageResIds) {
                 writeFileToInternalStorage(context, resId, "-$i.jpeg")
