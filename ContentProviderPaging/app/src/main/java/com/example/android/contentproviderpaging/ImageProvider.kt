@@ -33,7 +33,9 @@ import android.net.Uri
 import android.os.CancellationSignal
 import android.util.Log
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import java.lang.UnsupportedOperationException
@@ -276,8 +278,9 @@ class ImageProvider : ContentProvider() {
 
     /**
      * Implement this to handle requests to insert a new row. As a courtesy, call
-     * [ContentResolver.notifyChange] notifyChange()} after inserting. We just throw
-     * [UnsupportedOperationException].
+     * [ContentResolver.notifyChange] after inserting.
+     *
+     * We just throw [UnsupportedOperationException].
      *
      * @param uri The content:// [Uri] of the insertion request.
      * @param contentValues A set of column_name/value pairs to add to the database.
@@ -367,6 +370,13 @@ class ImageProvider : ContentProvider() {
      * from our resources (this array consists of `item`s like "@raw/cat_1" which are references to
      * images stored in our "raw" resources directory).
      *
+     * In an outer loop we loop over [Int] variable `i` from 0 until [REPEAT_COUNT_WRITE_FILES], and
+     * in an inner loop we loop over all the [Int] variable `resId` in `imageResIds` calling our
+     * method [writeFileToInternalStorage] to have it write a copy of the resource image with ID
+     * `resId` to a [File] in our internal storage with the name formed by appending the extension
+     * created from `i` concatenated with the string ".jpeg" at the end of the entry name of the
+     * resource identifier `resId` (ie: "cat_1-0.jpeg" to "cat_13-9.jpeg").
+     *
      * @param context the [Context] this provider is running in.
      */
     private fun writeDummyFilesToStorage(context: Context) {
@@ -382,19 +392,20 @@ class ImageProvider : ContentProvider() {
     }
 
     /**
-     * Write a file to internal storage.  Used to set up our dummy "cloud server".
+     * Write a raw resources jpeg file to internal storage. Used to set up our dummy "cloud server".
      *
-     * @param context   the Context
+     * @param context   the [Context] this provider is running in.
      * @param resId     the resource ID of the file to write to internal storage
      * @param extension the file extension (ex. .png, .mp3)
      */
     private fun writeFileToInternalStorage(context: Context, resId: Int, extension: String) {
-        val ins = context.resources.openRawResource(resId)
+        val ins: InputStream = context.resources.openRawResource(resId)
         var size: Int
         val buffer = ByteArray(1024)
         try {
-            val filename = context.resources.getResourceEntryName(resId) + extension
-            val fos = context.openFileOutput(filename, Context.MODE_PRIVATE)
+            val filename: String = context.resources.getResourceEntryName(resId) + extension
+            Log.i(TAG, "Writing $filename")
+            val fos: FileOutputStream = context.openFileOutput(filename, Context.MODE_PRIVATE)
             while (ins.read(buffer, 0, 1024).also { size = it } >= 0) {
                 fos.write(buffer, 0, size)
             }

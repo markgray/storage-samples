@@ -19,6 +19,7 @@ package com.example.android.contentproviderpaging
 
 import android.content.Context
 import android.content.res.Resources
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -99,6 +100,7 @@ internal class ImageAdapter(private val mContext: Context) :
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val resources: Resources = mContext.resources
         if (mImageDocuments.size > position) {
+            Log.i(TAG, "Loading ${mImageDocuments[position].mAbsolutePath}")
             Glide.with(mContext)
                 .load(mImageDocuments[position].mAbsolutePath)
                 .placeholder(R.drawable.cat_placeholder)
@@ -166,5 +168,9 @@ internal class ImageAdapter(private val mContext: Context) :
          * The file name of the jpeg image (apparently unused?).
          */
         var mDisplayName: String? = null
+    }
+
+    companion object {
+        const val TAG = "ImageAdapter"
     }
 }
