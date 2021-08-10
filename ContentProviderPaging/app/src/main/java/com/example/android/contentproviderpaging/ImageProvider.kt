@@ -440,9 +440,27 @@ class ImageProvider : ContentProvider() {
         }
     }
 
+    /**
+     * Used to read an array of resource IDs from the resource array whose ID is our [Int] parameter
+     * [arrayResId]. We initialize our [TypedArray] variable `val ar` by retrieving a [Resources]
+     * instance from our [Context] parameter [context] and using its [Resources.obtainTypedArray]
+     * method to fetch a [TypedArray] holding an array of the array values in the resource identifier
+     * [arrayResId]. We initialize our [Int] variable `val len` to the number of values in `ar`, and
+     * initialize our [IntArray] variable `val resIds` to a new array of size `len`, with all elements
+     * initialized to zero. We then loop over [Int] variable `i` from 0 until `len` setting the `i`th
+     * entry in `resIds` to the resource identifier for the attribute at index `i` in `ar`. When done
+     * looping we call the [TypedArray.recycle] method of `ar` to recycle the [TypedArray] so it can
+     * be re-used by a later caller, and return `resIds` to the caller.
+     *
+     * @param context the [Context] this provider is running in.
+     * @param arrayResId the resource ID of the array of resource IDs we are to read.
+     * @return an [IntArray] of the resource identifiers for the attributes in the array of resource
+     * IDs whose resource ID is [arrayResId].
+     *
+     */
     private fun getResourceIdArray(context: Context, arrayResId: Int): IntArray {
-        val ar = context.resources.obtainTypedArray(arrayResId)
-        val len = ar.length()
+        val ar: TypedArray = context.resources.obtainTypedArray(arrayResId)
+        val len: Int = ar.length()
         val resIds = IntArray(len)
         for (i in 0 until len) {
             resIds[i] = ar.getResourceId(i, 0)
