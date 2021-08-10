@@ -25,6 +25,7 @@ import android.database.MatrixCursor
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.content.res.Resources
 import android.database.MatrixCursor.RowBuilder
 import com.example.android.contentproviderpaging.R
 import android.content.res.TypedArray
@@ -393,6 +394,28 @@ class ImageProvider : ContentProvider() {
 
     /**
      * Write a raw resources jpeg file to internal storage. Used to set up our dummy "cloud server".
+     * We initialize our [InputStream] variable `val ins` by retrieving from the [Context] this
+     * provider is running in a `Resources` instance for the application's package and using its
+     * [Resources.openRawResource] method to open a data stream for reading the raw resource with ID
+     * [resId]. We declare our [Int] variable `var size` and initialize our [ByteArray] variable
+     * `val buffer` to a new array of size 1024, with all elements initialized to zero. Then in a
+     * `try` block intended to catch [IOException] in order to re-throw it as an [RuntimeException]:
+     *  - We initialize our [String] variable `val filename` to the string formed by retrieving from
+     *  the [Context] this provider is running in a `Resources` instance for the application's package
+     *  and using its [Resources.getResourceEntryName] method to fetch the entry name for resource
+     *  identifier [resId] and appending our [String] parameter [extension] to the end of it.
+     *  - We initialize our [FileOutputStream] variable `val fos` by using the [Context.openFileOutput]
+     *  method of the [Context] this provider is running in to open a file named `filename` using the
+     *  operating mode [Context.MODE_PRIVATE] (the default mode, where the created file can only be
+     *  accessed by the calling application).
+     *  - We loop while the [InputStream.read] method of `ins` reads more than 0 bytes into `buffer`
+     *  (using the [also] extension method to set `size` to the number of bytes read) then we write
+     *  `size` bytes of buffer starting at index 0 to `fos` using its [FileOutputStream.write] method.
+     *  - When done looping we use the [InputStream.close] method of `ins` to close it.
+     *  - We use the [FileOutputStream.write] method of `fos` to write the entire contents of `buffer`
+     *  to it.
+     *  - Finally we use the [FileOutputStream.close] method of `fos` to close the file output stream
+     *  and release any system resources associated with the stream.
      *
      * @param context   the [Context] this provider is running in.
      * @param resId     the resource ID of the file to write to internal storage
