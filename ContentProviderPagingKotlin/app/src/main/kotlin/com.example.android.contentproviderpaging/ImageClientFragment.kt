@@ -16,21 +16,22 @@
 
 package com.example.android.contentproviderpaging
 
-import android.app.LoaderManager
 import android.content.ContentResolver
-import android.content.CursorLoader
-import android.content.Loader
+import android.content.Context
 import android.database.Cursor
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.loader.app.LoaderManager
+import androidx.loader.content.CursorLoader
+import androidx.loader.content.Loader
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -51,18 +52,22 @@ class ImageClientFragment : Fragment() {
      */
     private val mOffset = AtomicInteger(0)
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        return inflater?.inflate(R.layout.fragment_image_client, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_image_client, container, false)
     }
 
-    override fun onViewCreated(rootView: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(rootView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(rootView, savedInstanceState)
 
         val activity = activity
-        val recyclerView = activity.findViewById<RecyclerView>(R.id.recyclerview)
+        val recyclerView = activity!!.findViewById<RecyclerView>(R.id.recyclerview)
         if (mLayoutManager == null) {
-            mLayoutManager = LinearLayoutManager(activity)
+            mLayoutManager =
+                LinearLayoutManager(activity)
         }
         recyclerView.layoutManager = mLayoutManager
         if (mAdapter == null) {
@@ -70,7 +75,7 @@ class ImageClientFragment : Fragment() {
         }
         recyclerView.adapter = mAdapter
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 val lastVisiblePosition = mLayoutManager!!.findLastVisibleItemPosition()
                 if (lastVisiblePosition >= mAdapter!!.fetchedItemCount) {
                     Log.d(TAG,
@@ -79,15 +84,15 @@ class ImageClientFragment : Fragment() {
 
                     val pageId = lastVisiblePosition / LIMIT
                     // Fetch new images once the last fetched item becomes visible
-                    activity.loaderManager
-                            .restartLoader(pageId, null, mLoaderCallback)
+                    LoaderManager.getInstance(this@ImageClientFragment)
+                        .restartLoader(pageId, null, mLoaderCallback)
                 }
             }
         })
 
-        val showButton = rootView!!.findViewById<Button>(R.id.button_show)
+        val showButton = rootView.findViewById<Button>(R.id.button_show)
         showButton.setOnClickListener {
-            activity.loaderManager.restartLoader(0, null, mLoaderCallback)
+            LoaderManager.getInstance(this).restartLoader(0, null, mLoaderCallback)
             showButton.visibility = View.GONE
         }
     }
@@ -96,13 +101,13 @@ class ImageClientFragment : Fragment() {
 
         override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
             val activity = this@ImageClientFragment.activity
-            return object : CursorLoader(activity) {
+            return object : CursorLoader(activity as Context) {
                 override fun loadInBackground(): Cursor {
                     val bundle = Bundle()
                     bundle.putInt(ContentResolver.QUERY_ARG_OFFSET, mOffset.toInt())
                     bundle.putInt(ContentResolver.QUERY_ARG_LIMIT, LIMIT)
-                    return activity.contentResolver
-                            .query(ImageContract.CONTENT_URI, null, bundle, null)
+                    return activity!!.contentResolver
+                            .query(ImageContract.CONTENT_URI, null, bundle, null)!!
                 }
             }
         }
@@ -128,7 +133,7 @@ class ImageClientFragment : Fragment() {
             val activity = this@ImageClientFragment.activity
             mAdapter!!.notifyItemRangeChanged(beforeCount, cursorCount)
             val offsetSnapShot = mOffset.get()
-            val message = activity.resources
+            val message = activity!!.resources
                     .getString(R.string.fetched_images_out_of, offsetSnapShot + 1,
                             offsetSnapShot + cursorCount, totalSize)
             mOffset.addAndGet(cursorCount)
@@ -142,10 +147,10 @@ class ImageClientFragment : Fragment() {
 
     companion object {
 
-        private val TAG = "ImageClientFragment"
+        private const val TAG = "ImageClientFragment"
 
         /** The number of fetched images in a single query to the DocumentsProvider.  */
-        private val LIMIT = 10
+        private const val LIMIT = 10
 
         fun newInstance(): ImageClientFragment {
 

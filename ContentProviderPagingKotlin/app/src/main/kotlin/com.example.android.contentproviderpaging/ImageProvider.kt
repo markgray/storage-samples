@@ -33,7 +33,7 @@ import java.io.IOException
  */
 class ImageProvider : ContentProvider() {
 
-    private var mBaseDir: File? = null
+    private lateinit var mBaseDir: File
 
     override fun onCreate(): Boolean {
         Log.d(TAG, "onCreate")
@@ -45,25 +45,33 @@ class ImageProvider : ContentProvider() {
         return true
     }
 
-    override fun query(uri: Uri, strings: Array<String>?, s: String?,
-                       strings1: Array<String>?, s1: String?): Cursor? {
+    override fun query(
+        uri: Uri,
+        strings: Array<String>?,
+        s: String?,
+        strings1: Array<String>?,
+        s1: String?
+    ): Cursor? {
         throw UnsupportedOperationException()
     }
 
-    override fun query(uri: Uri, projection: Array<String>?, queryArgs: Bundle,
-                       cancellationSignal: CancellationSignal?): Cursor? {
-        val match = sUriMatcher.match(uri)
+    override fun query(
+        uri: Uri,
+        projection: Array<String>?,
+        queryArgs: Bundle?,
+        cancellationSignal: CancellationSignal?
+    ): Cursor? {
         // We only support a query for multiple images, return null for other form of queries
         // including a query for a single image.
-        when (match) {
+        when (sUriMatcher.match(uri)) {
             IMAGES -> {
             }
             else -> return null
         }
         val result = MatrixCursor(resolveDocumentProjection(projection))
 
-        val files = mBaseDir!!.listFiles()
-        val offset = queryArgs.getInt(ContentResolver.QUERY_ARG_OFFSET, 0)
+        val files = mBaseDir.listFiles()
+        val offset = queryArgs!!.getInt(ContentResolver.QUERY_ARG_OFFSET, 0)
         val limit = queryArgs.getInt(ContentResolver.QUERY_ARG_LIMIT, Integer.MAX_VALUE)
         Log.d(TAG, "queryChildDocuments with Bundle, Uri: " +
                 uri + ", offset: " + offset + ", limit: " + limit)
@@ -74,11 +82,11 @@ class ImageProvider : ContentProvider() {
             throw IllegalArgumentException("Limit must not be less than 0")
         }
 
-        if (offset >= files.size) {
+        if (offset >= files!!.size) {
             return result
         }
 
-        val maxIndex = Math.min(offset + limit, files.size)
+        val maxIndex = (offset + limit).coerceAtMost(files.size)
         for (i in offset until maxIndex) {
             includeFile(result, files[i])
         }
@@ -105,18 +113,18 @@ class ImageProvider : ContentProvider() {
                 honoredArgs[index++] = ContentResolver.QUERY_ARG_OFFSET
             }
             if (queryArgs.containsKey(ContentResolver.QUERY_ARG_LIMIT)) {
-                honoredArgs[index++] = ContentResolver.QUERY_ARG_LIMIT
+                honoredArgs[index] = ContentResolver.QUERY_ARG_LIMIT
             }
             bundle.putStringArray(ContentResolver.EXTRA_HONORED_ARGS, honoredArgs)
         }
         return bundle
     }
 
+    @Suppress("RedundantNullableReturnType")
     override fun getType(uri: Uri): String? {
-        val match = sUriMatcher.match(uri)
-        when (match) {
-            IMAGES -> return "vnd.android.cursor.dir/images"
-            IMAGE_ID -> return "vnd.android.cursor.item/images"
+        return when (sUriMatcher.match(uri)) {
+            IMAGES -> "vnd.android.cursor.dir/images"
+            IMAGE_ID -> "vnd.android.cursor.item/images"
             else -> throw IllegalArgumentException(String.format("Unknown URI: %s", uri))
         }
     }
@@ -154,12 +162,12 @@ class ImageProvider : ContentProvider() {
      * have a backend, so it simulates by reading content from the device's internal storage.
      */
     private fun writeDummyFilesToStorage(context: Context) {
-        if (mBaseDir!!.list().isNotEmpty()) {
+        if (mBaseDir.list()!!.isNotEmpty()) {
             return
         }
 
         val imageResIds = getResourceIdArray(context, R.array.image_res_ids)
-        for (i in 0..REPEAT_COUNT_WRITE_FILES - 1) {
+        for (i in 0 until REPEAT_COUNT_WRITE_FILES) {
             for (resId in imageResIds) {
                 writeFileToInternalStorage(context, resId, "-$i.jpeg")
             }
@@ -199,7 +207,7 @@ class ImageProvider : ContentProvider() {
         val ar = context.resources.obtainTypedArray(arrayResId)
         val len = ar.length()
         val resIds = IntArray(len)
-        for (i in 0..len - 1) {
+        for (i in 0 until len) {
             resIds[i] = ar.getResourceId(i, 0)
         }
         ar.recycle()
@@ -208,11 +216,11 @@ class ImageProvider : ContentProvider() {
 
     companion object {
 
-        private val TAG = "ImageDocumentsProvider"
+        private const val TAG = "ImageDocumentsProvider"
 
-        private val IMAGES = 1
+        private const val IMAGES = 1
 
-        private val IMAGE_ID = 2
+        private const val IMAGE_ID = 2
 
         private val sUriMatcher = UriMatcher(UriMatcher.NO_MATCH)
 
@@ -222,7 +230,7 @@ class ImageProvider : ContentProvider() {
         }
 
         // Indicated how many same images are going to be written as dummy images
-        private val REPEAT_COUNT_WRITE_FILES = 10
+        private const val REPEAT_COUNT_WRITE_FILES = 10
 
         private fun resolveDocumentProjection(projection: Array<String>?): Array<String> {
             return projection ?: ImageContract.PROJECTION_ALL
