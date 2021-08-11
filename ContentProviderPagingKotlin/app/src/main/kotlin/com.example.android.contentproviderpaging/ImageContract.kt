@@ -16,28 +16,63 @@
 
 package com.example.android.contentproviderpaging
 
+import android.database.Cursor
+import android.database.MatrixCursor
 import android.net.Uri
 import android.provider.BaseColumns
+import androidx.loader.content.Loader
+import java.io.File
 
 /**
  * The contract for the [ImageProvider].
  */
 internal object ImageContract {
+    /**
+     * The authority to use to access our [ImageProvider], it is the same as the android:authorities
+     * attribute of the `provider` element in our AndroidManifest.xml file which specifies the
+     * authorities under which this content provider can be found.
+     */
+    const val AUTHORITY = "com.example.android.contentproviderpaging.documents"
 
-    val AUTHORITY = "com.example.android.contentproviderpaging.documents"
-
+    /**
+     * The [Uri] that is used to send a query to [ImageProvider], used in the `loadInBackground`
+     * override of the `LoaderCallback` used to create a new [Loader] instance that is ready to
+     * start loading in [ImageClientFragment].
+     */
     val CONTENT_URI = Uri.parse("content://$AUTHORITY/images")!!
 
+    /**
+     * The column names used by [ImageProvider].
+     */
     internal interface Columns : BaseColumns {
         companion object {
+            /**
+             * The file name of the file or directory, which is just the last name in the
+             * [ABSOLUTE_PATH] to the file. Comes from the [File.getName] method (aka kotlin
+             * `name` property)
+             */
+            const val DISPLAY_NAME = "display_name"
 
-            val DISPLAY_NAME = "display_name"
+            /**
+             * The absolute path of the file or directory, comes from the [File.getAbsolutePath]
+             * method (aka kotlin `absolutePath` property)
+             */
+            const val ABSOLUTE_PATH = "absolute_path"
 
-            val ABSOLUTE_PATH = "absolute_path"
-
-            val SIZE = "size"
+            /**
+             * The length of the file (the return value is unspecified if the pathname denotes a
+             * directory), comes from the [File.length] method.
+             */
+            const val SIZE = "size"
         }
     }
 
-    val PROJECTION_ALL = arrayOf(BaseColumns._ID, Columns.DISPLAY_NAME, Columns.ABSOLUTE_PATH, Columns.SIZE)
+    /**
+     * The projection for all of its columns which [ImageProvider] defaults to if the projection
+     * that its `query` override is passed is `null` (as it always is in our case). This projection
+     * is used in the construction of the [MatrixCursor] which is used to build the [Cursor] for
+     * each row that the `query` override of [ImageProvider] returns.
+     */
+    val PROJECTION_ALL =
+        arrayOf(BaseColumns._ID, Columns.DISPLAY_NAME, Columns.ABSOLUTE_PATH, Columns.SIZE)
 }
