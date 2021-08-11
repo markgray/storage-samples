@@ -316,18 +316,39 @@ class ImageClientFragment : Fragment() {
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show()
         }
 
+        /**
+         * Called when the previously created [Loader] parameter [loader] is being reset, and thus
+         * making its data unavailable. The application should at this point remove any references
+         * it has to the [Loader]'s data. This will always be called from the process's main thread.
+         *
+         * We ignore.
+         *
+         * @param loader The Loader that is being reset.
+         */
         override fun onLoaderReset(loader: Loader<Cursor>) {
 
         }
     }
 
     companion object {
-
+        /**
+         * TAG used for logging.
+         */
         private const val TAG = "ImageClientFragment"
 
-        /** The number of fetched images in a single query to the DocumentsProvider.  */
+        /**
+         * The number of fetched images in a single query to the `DocumentsProvider`.
+         */
         private const val LIMIT = 10
 
+        /**
+         * Factory method to construct a new instance of [ImageClientFragment]. We initialize our
+         * [Bundle] variable `val args` to a new instance and our [ImageClientFragment] variable
+         * `val fragment` to a new instance, set the construction arguments for `fragment` to
+         * `args`, and return `fragment` to the caller.
+         *
+         * @return a new instance of [ImageClientFragment] with an empty arguments [Bundle].
+         */
         fun newInstance(): ImageClientFragment {
 
             val args = Bundle()
