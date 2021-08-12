@@ -25,12 +25,15 @@ import android.content.res.Resources
 import android.content.res.TypedArray
 import android.database.Cursor
 import android.database.MatrixCursor
+import android.database.MatrixCursor.RowBuilder
 import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.util.Log
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 
 /**
  * [ContentProvider] that demonstrates how the paging support introduced in Android O works.
@@ -171,7 +174,27 @@ class ImageProvider : ContentProvider() {
 
     /**
      * Constructs the extras [Bundle] that our [query] override stores in the [Cursor] that it returns
-     * to its caller.
+     * to its caller. First we initialize our [Bundle] variable `val bundle` to a new instance and
+     * store the size of our [Array] of [File] parameter [files] (the total number of files we can
+     * provide) in it under the key [ContentResolver.EXTRA_TOTAL_COUNT] (indicates total row count
+     * of recordset when paging is supported).
+     *
+     * We initialize our [Int] variable `var size` to 0. If our [Bundle] parameter [queryArgs] contains
+     * the key [ContentResolver.QUERY_ARG_OFFSET] we increment `size`, and if [queryArgs] contains
+     * the key [ContentResolver.QUERY_ARG_LIMIT] we increment `size`.
+     *
+     * If `size is greater than 0:
+     *  - We initialize our [Array] of [String] variable `val honoredArgs` to an array of size `size`
+     *  initialized with null values.
+     *  - We initialize our [Int] variable `var index` to 0.
+     *  - If [queryArgs] contains the key [ContentResolver.QUERY_ARG_OFFSET] we set the `index` entry
+     *  of `honoredArgs` to [ContentResolver.QUERY_ARG_OFFSET] and post increment `index`.
+     *  - If [queryArgs] contains the key [ContentResolver.QUERY_ARG_LIMIT] we set the `index` entry
+     *  of `honoredArgs` to [ContentResolver.QUERY_ARG_LIMIT].
+     *  - We store the `honoredArgs` in `bundle` under the key [ContentResolver.EXTRA_HONORED_ARGS]
+     *  (Allows provider to report back to client which query keys are honored in a [Cursor])
+     *
+     * Finally we return `bundle` to the caller.
      *
      * @param queryArgs the `queryArgs` [Bundle] parameter passed to our [query] override.
      * @param files the [Array] of all of the [File] objects we can provide.
@@ -192,7 +215,7 @@ class ImageProvider : ContentProvider() {
             size++
         }
         if (size > 0) {
-            val honoredArgs = arrayOfNulls<String>(size)
+            val honoredArgs: Array<String?> = arrayOfNulls(size)
             var index = 0
             if (queryArgs.containsKey(ContentResolver.QUERY_ARG_OFFSET)) {
                 honoredArgs[index++] = ContentResolver.QUERY_ARG_OFFSET
@@ -205,6 +228,21 @@ class ImageProvider : ContentProvider() {
         return bundle
     }
 
+    /**
+     * Implement this to handle requests for the MIME type of the data at the given URI. The
+     * returned MIME type should start with `vnd.android.cursor.item` for a single record, or
+     * `vnd.android.cursor.dir/` for multiple items. We branch on the value returned by the
+     * [UriMatcher.match] method of our field [sUriMatcher] when it tries to match our [Uri]
+     * parameter [uri]:
+     *  - [IMAGES] (matches the authority [ImageContract.AUTHORITY] and the path "images") we
+     *  return the [String] "vnd.android.cursor.dir/images".
+     *  - [IMAGE_ID] (matches the authority [ImageContract.AUTHORITY] and the path "images/#") we
+     *  return the [String] "vnd.android.cursor.item/images".
+     *  - For all other matches (or non-match) we throw [IllegalArgumentException]
+     *
+     * @param uri the [Uri] to query.
+     * @return a MIME type [String], or `null` if there is no type.
+     */
     @Suppress("RedundantNullableReturnType")
     override fun getType(uri: Uri): String? {
         return when (sUriMatcher.match(uri)) {
@@ -214,44 +252,115 @@ class ImageProvider : ContentProvider() {
         }
     }
 
+    /**
+     * Implement this to handle requests to insert a new row. As a courtesy, call
+     * [ContentResolver.notifyChange] after inserting.
+     *
+     * We just throw [UnsupportedOperationException].
+     *
+     * @param uri The content:// [Uri] of the insertion request.
+     * @param contentValues A set of column_name/value pairs to add to the database.
+     * @return The [Uri] for the newly inserted item.
+     */
     override fun insert(uri: Uri, contentValues: ContentValues?): Uri? {
         throw UnsupportedOperationException()
     }
 
-    override fun delete(uri: Uri, s: String?, strings: Array<String>?): Int {
-        throw UnsupportedOperationException()
-    }
-
-    override fun update(uri: Uri, contentValues: ContentValues?, s: String?,
-                        strings: Array<String>?): Int {
+    /**
+     * Implement this to handle requests to delete one or more rows. The implementation should apply
+     * the selection clause when performing deletion, allowing the operation to affect multiple rows
+     * in a directory. As a courtesy, call [ContentResolver.notifyChange] after deleting.
+     *
+     * The implementation is responsible for parsing out a row ID at the end of the [Uri], if a
+     * specific row is being deleted.
+     *
+     * We just throw [UnsupportedOperationException].
+     *
+     * @param uri The full [Uri] to query, including a row ID (if a specific record is requested).
+     * @param selection An optional restriction to apply to rows when deleting.
+     * @param selectionArgs You may include ?s in [selection], which will be replaced by the values
+     * from [selectionArgs], in order that they appear in the selection. The values will be bound
+     * as [String]s.
+     * @return The number of rows affected.
+     */
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
         throw UnsupportedOperationException()
     }
 
     /**
-     * Add a representation of a file to a cursor.
+     * Implement this to handle requests to update one or more rows. The implementation should update
+     * all rows matching the selection to set the columns according to the provided values map.
+     * As a courtesy, call [ContentResolver.notifyChange] after updating.
+     *
+     * We just throw [UnsupportedOperationException].
+     *
+     * @param uri The [Uri] to query. This can potentially have a record ID if this is an update
+     * request for a specific record.
+     * @param contentValues A set of column_name/value pairs to update in the database.
+     * @param selection An optional filter to match rows to update.
+     * @param selectionArgs You may include ?s in [selection], which will be replaced by the values
+     * from [selectionArgs], in order that they appear in the selection. The values will be bound
+     * as [String]s.
+     * @return the number of rows affected.
+     */
+    override fun update(
+        uri: Uri,
+        contentValues: ContentValues?,
+        selection: String?,
+        selectionArgs: Array<String>?
+    ): Int {
+        throw UnsupportedOperationException()
+    }
 
+    /**
+     * Add a representation of a file to a cursor. We initialize our [RowBuilder] variable `val row`
+     * by using the [MatrixCursor.newRow] method of our parameter [result] to add a new row to the
+     * end of [result] and return a builder for that row. We then use the [RowBuilder.add] method of
+     * `row` to add a column with the column name [ImageContract.Columns.DISPLAY_NAME] containing
+     * the name of the file or directory denoted by our [File] parameter [file], to add a column
+     * with the column name [ImageContract.Columns.SIZE] containing the length of [file], and to add
+     * a column with the column name [ImageContract.Columns.ABSOLUTE_PATH] containing the absolute
+     * path of [file].
+     *
      * @param result the cursor to modify
-     * *
-     * @param file   the File object representing the desired file (may be null if given docID)
+     * @param file   the [File] object representing the desired file (may be `null` if given docID)
      */
     private fun includeFile(result: MatrixCursor, file: File) {
-        val row = result.newRow()
+        val row: RowBuilder = result.newRow()
         row.add(ImageContract.Columns.DISPLAY_NAME, file.name)
         row.add(ImageContract.Columns.SIZE, file.length())
         row.add(ImageContract.Columns.ABSOLUTE_PATH, file.absolutePath)
     }
 
     /**
-     * Preload sample files packaged in the apk into the internal storage directory.  This is a
-     * dummy function specific to this demo.  The MyCloud mock cloud service doesn't actually
+     * Preload sample files packaged in the apk into the internal storage directory. This is a
+     * dummy function specific to this demo. The MyCloud mock cloud service doesn't actually
      * have a backend, so it simulates by reading content from the device's internal storage.
+     *
+     * If the array of strings naming the files and directories in the directory denoted by the
+     * abstract pathname of our [File] field [mBaseDir] is not empty we return (we have been called
+     * already and done our work).
+     *
+     * Otherwise we initialize our [IntArray] variable `val imageResIds` to the [IntArray] that is
+     * returned by [getResourceIdArray] when it reads the array with ID [R.array.image_res_ids]
+     * from our resources (this array consists of `item`s like "@raw/cat_1" which are references to
+     * images stored in our "raw" resources directory).
+     *
+     * In an outer loop we loop over [Int] variable `i` from 0 until [REPEAT_COUNT_WRITE_FILES], and
+     * in an inner loop we loop over all the [Int] variable `resId` in `imageResIds` calling our
+     * method [writeFileToInternalStorage] to have it write a copy of the resource image with ID
+     * `resId` to a [File] in our internal storage with the name formed by appending the extension
+     * created from `i` concatenated with the string ".jpeg" at the end of the entry name of the
+     * resource identifier `resId` (ie: "cat_1-0.jpeg" to "cat_13-9.jpeg").
+     *
+     * @param context the [Context] this provider is running in.
      */
     private fun writeDummyFilesToStorage(context: Context) {
         if (mBaseDir.list()!!.isNotEmpty()) {
             return
         }
 
-        val imageResIds = getResourceIdArray(context, R.array.image_res_ids)
+        val imageResIds: IntArray = getResourceIdArray(context, R.array.image_res_ids)
         for (i in 0 until REPEAT_COUNT_WRITE_FILES) {
             for (resId in imageResIds) {
                 writeFileToInternalStorage(context, resId, "-$i.jpeg")
@@ -260,20 +369,42 @@ class ImageProvider : ContentProvider() {
     }
 
     /**
-     * Write a file to internal storage.  Used to set up our dummy "cloud server".
-
-     * @param context   the Context
-     * *
+     * Write a raw resources jpeg file to internal storage. Used to set up our dummy "cloud server".
+     * We initialize our [InputStream] variable `val ins` by retrieving from the [Context] this
+     * provider is running in a `Resources` instance for the application's package and using its
+     * [Resources.openRawResource] method to open a data stream for reading the raw resource with ID
+     * [resId]. We initialize our [ByteArray] variable `val buffer` to a new array of size 1024, with
+     * all elements initialized to zero. Then in a `try` block intended to catch [IOException] in
+     * order to re-throw it as an [RuntimeException]:
+     *  - We initialize our [String] variable `val filename` to the string formed by retrieving from
+     *  the [Context] this provider is running in a `Resources` instance for the application's package
+     *  and using its [Resources.getResourceEntryName] method to fetch the entry name for resource
+     *  identifier [resId] and appending our [String] parameter [extension] to the end of it.
+     *  - We initialize our [FileOutputStream] variable `val fos` by using the [Context.openFileOutput]
+     *  method of the [Context] this provider is running in to open a file named `filename` using the
+     *  operating mode [Context.MODE_PRIVATE] (the default mode, where the created file can only be
+     *  accessed by the calling application).
+     *  - We loop while `true` initializing our [Int] variable `val size` to the value that the
+     *  [InputStream.read] method of `ins` returns when it reads up to 1024 bytes into `buffer`
+     *      - If `size` is less than 0 we break out of the loop.
+     *      - Otherwise we write`size` bytes of buffer starting at index 0 to `fos` using its
+     *      [FileOutputStream.write] method and loop around to read the next 1024 bytes from `ins`
+     *
+     * When done looping we use the [InputStream.close] method of `ins` to close it. We use the
+     * [FileOutputStream.write] method of `fos` to write the entire contents of `buffer` to it.
+     *  Finally we use the [FileOutputStream.close] method of `fos` to close the file output stream
+     *  and release any system resources associated with the stream.
+     *
+     * @param context   the [Context] this provider is running in.
      * @param resId     the resource ID of the file to write to internal storage
-     * *
      * @param extension the file extension (ex. .png, .mp3)
      */
     private fun writeFileToInternalStorage(context: Context, resId: Int, extension: String) {
-        val ins = context.resources.openRawResource(resId)
+        val ins: InputStream = context.resources.openRawResource(resId)
         val buffer = ByteArray(1024)
         try {
             val filename = context.resources.getResourceEntryName(resId) + extension
-            val fos = context.openFileOutput(filename, Context.MODE_PRIVATE)
+            val fos: FileOutputStream = context.openFileOutput(filename, Context.MODE_PRIVATE)
             while (true) {
                 val size = ins.read(buffer, 0, 1024)
                 if (size < 0) break
@@ -347,7 +478,9 @@ class ImageProvider : ContentProvider() {
         private val sUriMatcher = UriMatcher(UriMatcher.NO_MATCH)
 
         init {
+            // Add a Uri to match the path "images" which returns IMAGES when it matches
             sUriMatcher.addURI(ImageContract.AUTHORITY, "images", IMAGES)
+            // Add a Uri to match the path "images" which returns IMAGES when it matches
             sUriMatcher.addURI(ImageContract.AUTHORITY, "images/#", IMAGE_ID)
         }
 
