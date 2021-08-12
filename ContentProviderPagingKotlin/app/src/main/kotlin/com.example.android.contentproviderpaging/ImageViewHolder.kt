@@ -16,17 +16,26 @@
 
 package com.example.android.contentproviderpaging
 
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 
 /**
- * ViewHolder that represents an image.
+ * [ViewHolder] that represents an image.
+ *
+ * @param itemView the [View] that we are holding, inflated from the [R.layout.viewholder_image]
+ * layout file.
  */
-internal class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+internal class ImageViewHolder(itemView: View) : ViewHolder(itemView) {
+    /**
+     * The [ImageView] in our [itemView] that displays the jpeg.
+     */
+    var mImageView: ImageView = itemView.findViewById(R.id.imageview)
 
-    var mImageView: ImageView = itemView.findViewById<ImageView>(R.id.imageview)
-    var mTextView: TextView = itemView.findViewById<TextView>(R.id.textview_image_label)
+    /**
+     * The [TextView] in our [itemView] that displays the image number.
+     */
+    var mTextView: TextView = itemView.findViewById(R.id.textview_image_label)
 
 }
