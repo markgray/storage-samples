@@ -64,6 +64,7 @@ class FileExplorerActivity : AppCompatActivity() {
             binding.filesTreeView.visibility = View.VISIBLE
 
             // TODO: Use getStorageDirectory instead https://developer.android.com/reference/android/os/Environment.html#getStorageDirectory()
+            @Suppress("DEPRECATION")
             open(getExternalStorageDirectory())
         } else {
             binding.rationaleView.visibility = View.VISIBLE
@@ -99,7 +100,7 @@ class FileExplorerActivity : AppCompatActivity() {
 
         adapter.clear()
         adapter.addAll(filesList.map {
-            if (it.path == selectedItem.parentFile.path) {
+            if (it.path == selectedItem.parentFile!!.path) {
                 renderParentLink(this)
             } else {
                 renderItem(this, it)
