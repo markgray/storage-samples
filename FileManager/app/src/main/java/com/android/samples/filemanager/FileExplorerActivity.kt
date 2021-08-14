@@ -64,7 +64,7 @@ class FileExplorerActivity : AppCompatActivity() {
             binding.filesTreeView.visibility = View.VISIBLE
 
             // TODO: Use getStorageDirectory instead https://developer.android.com/reference/android/os/Environment.html#getStorageDirectory()
-            @Suppress("DEPRECATION")
+            @Suppress("DEPRECATION") // See ActionOpenDocumentTree for modern way to do this.
             open(getExternalStorageDirectory())
         } else {
             binding.rationaleView.visibility = View.VISIBLE

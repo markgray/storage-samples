@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("PermissionUtils")
+
 package com.android.samples.filemanager
 
 import android.Manifest
@@ -47,8 +48,7 @@ fun getStoragePermissionName(): String {
 fun openPermissionSettings(activity: AppCompatActivity) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         requestStoragePermissionApi30(activity)
-    }
-    else {
+    } else {
         activity.startActivity(
             Intent(
                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -109,6 +109,7 @@ fun checkStoragePermissionApi30(activity: AppCompatActivity): Boolean {
 fun requestStoragePermissionApi30(activity: AppCompatActivity) {
     val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
 
+    @Suppress("DEPRECATION") // TODO: Replace with ActivityResultLauncher, see ActionOpenDocumentTree
     activity.startActivityForResult(intent, MANAGE_EXTERNAL_STORAGE_PERMISSION_REQUEST)
 }
 

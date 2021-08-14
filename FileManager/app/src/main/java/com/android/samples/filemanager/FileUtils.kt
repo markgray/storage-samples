@@ -33,6 +33,7 @@ fun getMimeType(url: String): String {
 fun getFilesList(selectedItem: File): List<File> {
     val rawFilesList = selectedItem.listFiles()?.filter { !it.isHidden }
 
+    @Suppress("DEPRECATION") // See ActionOpenDocumentTree for modern way to do this.
     return if (selectedItem == Environment.getExternalStorageDirectory()) {
         rawFilesList?.toList() ?: listOf()
     } else {
