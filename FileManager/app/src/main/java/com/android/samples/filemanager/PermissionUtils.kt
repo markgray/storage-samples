@@ -108,9 +108,7 @@ fun checkStoragePermissionApi30(activity: AppCompatActivity): Boolean {
 @RequiresApi(30)
 fun requestStoragePermissionApi30(activity: AppCompatActivity) {
     val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
-
-    @Suppress("DEPRECATION") // TODO: Replace with ActivityResultLauncher, see ActionOpenDocumentTree
-    activity.startActivityForResult(intent, MANAGE_EXTERNAL_STORAGE_PERMISSION_REQUEST)
+    activity.startActivity(intent)
 }
 
 @RequiresApi(19)

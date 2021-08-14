@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.samples.filemanager.databinding.ActivityFileExplorerBinding
 import java.io.File
 
+@Suppress("unused") // used to be used for startActivityForResult but startActivity is OK
 const val MANAGE_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1
 const val READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 2
 
