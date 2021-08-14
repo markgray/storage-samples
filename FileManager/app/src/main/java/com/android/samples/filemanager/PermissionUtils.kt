@@ -108,6 +108,8 @@ fun checkStoragePermissionApi30(activity: AppCompatActivity): Boolean {
 @RequiresApi(30)
 fun requestStoragePermissionApi30(activity: AppCompatActivity) {
     val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+    // This used to be startActivityForResult, but onResume was used for the return from the
+    // launched activity instead of onActivityResult, so startActivity is all that is needed
     activity.startActivity(intent)
 }
 
