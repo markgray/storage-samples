@@ -16,6 +16,7 @@
 
 package com.android.samples.filemanager
 
+import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -24,15 +25,39 @@ import android.os.Environment.getExternalStorageDirectory
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.android.samples.filemanager.databinding.ActivityFileExplorerBinding
 import java.io.File
 
-@Suppress("unused") // used to be used for startActivityForResult but startActivity is OK
+/**
+ * This used to be used as the request code for the call to `startActivityForResult` that was used
+ * to request the permission `Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION` but startActivity
+ * is all that is needed since `onResume` handles the return instead of `onActivityResult`
+ */
+@Suppress("unused")
 const val MANAGE_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1
+/**
+ * This is the request code that is used in the call to [ActivityCompat.requestPermissions] that is
+ * used on devices running Android versions older than R.
+ */
 const val READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 2
 
+/**
+ * This sample demonstrates how to create a simple File Manager application working from
+ * API 19 (KitKat) to API 30 (Android 11).
+ */
 class FileExplorerActivity : AppCompatActivity() {
+    /**
+     * Flag used to indicate whether our app has the MANAGE_EXTERNAL_STORAGE_PERMISSION permission:
+     * [Manifest.permission.READ_EXTERNAL_STORAGE] for Api19 or "android:manage_external_storage"
+     * (the hidden `AppOpsManager.OPSTR_MANAGE_EXTERNAL_STORAGE`) for Api30 and above.
+     */
     private var hasPermission = false
+
+    /**
+     * The `ViewBinding` which is inflated from the layout file layout/activity_file_explorer.xml
+     * which we use as our UI.
+     */
     private lateinit var binding: ActivityFileExplorerBinding
     private lateinit var currentDirectory: File
     private lateinit var filesList: List<File>
