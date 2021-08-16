@@ -17,11 +17,13 @@
 package com.android.samples.filemanager
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Environment.getExternalStorageDirectory
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -78,7 +80,7 @@ class FileExplorerActivity : AppCompatActivity() {
     private lateinit var currentDirectory: File
 
     /**
-     * [List] of all of the [File] objects in the director [currentDirectory].
+     * [List] of all of the [File] objects in the directory [currentDirectory].
      */
     private lateinit var filesList: List<File>
 
@@ -90,7 +92,16 @@ class FileExplorerActivity : AppCompatActivity() {
     private lateinit var adapter: ArrayAdapter<String>
 
     /**
-     * Called when the activity is starting.
+     * Called when the activity is starting. First we call our super's implementaton of `onCreate`.
+     * We then initialize our [ActivityFileExplorerBinding] field [binding] by having the
+     * [ActivityFileExplorerBinding.inflate] method use the [LayoutInflater] instance that this
+     * Window retrieved from its [Context] to inflate and bind to its associated layout file
+     * (layout/activity_file_explorer.xml). We then have the `MaterialToolbar` in [binding] with
+     * ID [R.id.toolbar] inflate the menu resource with ID [R.menu.file_manager_menu] into itself
+     * (it consists of a single `item` with the title "Settings"). Next we set our content view to
+     * the outermost View in the associated layout file of [binding] (its `root` property). Finally
+     * we call our [setupUi] method to have it finish the initialization and configuration of the
+     * views in [binding].
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use this.
      */
@@ -104,6 +115,11 @@ class FileExplorerActivity : AppCompatActivity() {
         setupUi()
     }
 
+    /**
+     * Called after [onRestoreInstanceState], [onRestart], or [onPause], for your activity to start
+     * interacting with the user. This is an indicator that the activity became active and ready to
+     * receive input. It is on top of an activity stack and visible to user.
+     */
     override fun onResume() {
         super.onResume()
 
