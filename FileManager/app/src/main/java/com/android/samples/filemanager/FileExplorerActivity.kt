@@ -56,13 +56,44 @@ class FileExplorerActivity : AppCompatActivity() {
 
     /**
      * The `ViewBinding` which is inflated from the layout file layout/activity_file_explorer.xml
-     * which we use as our UI.
+     * which we use as our UI. It consists of a `ConstraintLayout` root view holding at its top a
+     * `MaterialToolbar`, with two `LinearLayout` and a `ListView` occupying the same space below
+     * the `MaterialToolbar` whose visisbility is switched between "visible" and "gone" depending
+     * on the state of the app at the moment. The `LinearLayout` with ID [R.id.rationaleView] is
+     * visible when the app does not have permission to access the file system and it holds a
+     * `TextView` explaining why it needs the user's permission to access the file system and a
+     * `Button` (labled "Give Permission") which when clicked will call our [requestStoragePermission]
+     * method to allow the user to grant us that permission. The `LinearLayout` with ID
+     * [R.id.legacyStorageView] is visible when the app is running on an Android "Q" device and
+     * tells the user that he needs to enable the `requestLegacyExternalStorage` flag in the app's
+     * AndroidManifest.xml file. The `ListView` with ID [R.id.filesTreeView] is visible when the app
+     * has a directory listing it can display in it.
      */
     private lateinit var binding: ActivityFileExplorerBinding
+
+    /**
+     * The [File] object of the directory that the user has chosen to have displayed in the `ListView`
+     * with ID [R.id.filesTreeView].
+     */
     private lateinit var currentDirectory: File
+
+    /**
+     * [List] of all of the [File] objects in the director [currentDirectory].
+     */
     private lateinit var filesList: List<File>
+
+    /**
+     * The [ArrayAdapter] that feeds views to the `ListView` with ID [R.id.filesTreeView]. Its
+     * dataset is an array of [String] which holds the value of [File.getName] (kotlin `name`
+     * property) of all of the [File] objects in [filesList].
+     */
     private lateinit var adapter: ArrayAdapter<String>
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState we do not override [onSaveInstanceState] so do not use this.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
