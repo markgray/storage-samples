@@ -25,8 +25,11 @@ import android.os.Environment
 import android.os.Environment.getExternalStorageDirectory
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import com.android.samples.filemanager.databinding.ActivityFileExplorerBinding
 import java.io.File
@@ -168,7 +171,26 @@ class FileExplorerActivity : AppCompatActivity() {
     }
 
     /**
-     * Finishes the setup and configuration of our UI.
+     * Finishes the setup and configuration of our UI. First we set the [Toolbar.OnMenuItemClickListener]
+     * of the [ActivityFileExplorerBinding.toolbar] `MaterialToolbar` of [binding] to a lambda which
+     * starts the activity [SettingsActivity] to inform the user of the "SDK codename" of the device,
+     * the "SDK version" of the device, that status of the "Legacy External Storage" flag, the name
+     * of the permission we need, and whether the permission has been granted. It also has buttons to
+     * "Open Settings", and to "Request Permission" that the user can click to perform these tasks.
+     * The lambda then returns `true` to consume the event.
+     *
+     * Next we set the [View.OnClickListener] of the [ActivityFileExplorerBinding.permissionButton]
+     * `Button` of [binding] to a lambda which calls our [requestStoragePermission] method to allow
+     * the user to grant us permission to access the shared/external file directory of the device.
+     *
+     * We initialize our [ArrayAdapter] of [String] field [adapter] to a new instance which uses the
+     * system layout file with ID [android.R.layout.simple_list_item_1] to instantiate views and a
+     * new [mutableListOf] instance of [String] as the objects to represent in the [ListView]. We
+     * set the adapter of the [ActivityFileExplorerBinding.filesTreeView] `ListView` to [adapter],
+     * and set its [AdapterView.OnItemClickListener] to a lambda which initializes its [File] variable
+     * `val selectedItem` to the [File] in the position of the clicked item in our [List] of [File]
+     * field [filesList] and then calls our [open] method with `selectedItem` to have it do what needs
+     * to be done to open the `selectedItem` file or directory.
      */
     private fun setupUi() {
         binding.toolbar.setOnMenuItemClickListener {
@@ -183,11 +205,16 @@ class FileExplorerActivity : AppCompatActivity() {
         adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, mutableListOf<String>())
         binding.filesTreeView.adapter = adapter
         binding.filesTreeView.setOnItemClickListener { _, _, position, _ ->
-            val selectedItem = filesList[position]
+            val selectedItem: File = filesList[position]
             open(selectedItem)
         }
     }
 
+    /**
+     * Called to open its [File] parameter [selectedItem].
+     *
+     * @param selectedItem the [File] of the directory or file that needs to be opened.
+     */
     private fun open(selectedItem: File) {
         if (selectedItem.isFile) {
             return openFile(this, selectedItem)
