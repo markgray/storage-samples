@@ -54,7 +54,7 @@ class FileExplorerActivity : AppCompatActivity() {
      * [Manifest.permission.READ_EXTERNAL_STORAGE] for Api19 or "android:manage_external_storage"
      * (the hidden `AppOpsManager.OPSTR_MANAGE_EXTERNAL_STORAGE`) for Api30 and above.
      */
-    private var hasPermission = false
+    private var hasPermission: Boolean = false
 
     /**
      * The `ViewBinding` which is inflated from the layout file layout/activity_file_explorer.xml
@@ -118,7 +118,29 @@ class FileExplorerActivity : AppCompatActivity() {
     /**
      * Called after [onRestoreInstanceState], [onRestart], or [onPause], for your activity to start
      * interacting with the user. This is an indicator that the activity became active and ready to
-     * receive input. It is on top of an activity stack and visible to user.
+     * receive input. It is on top of an activity stack and visible to user. First we call our super's
+     * implementation of [onResume], then we set our [Boolean] field [hasPermission] to the value that
+     * is returned from our [checkStoragePermission] method when it checks whether we have permission
+     * to access shared storage on the device. If [hasPermission] is `true` we check whether the
+     * device is running Android Q and if so we check whether [Environment.isExternalStorageLegacy]
+     * is `false` which indicates that the shared/external storage media is NOT a legacy view that
+     * includes files not owned by the app which needs to be enabled in the AndroidManifest file for
+     * Android Q using the `requestLegacyExternalStorage` flag, so we change the visibility of the
+     * [ActivityFileExplorerBinding.rationaleView] `LinearLayout` of [binding] to GONE, and change
+     * the visibility of the [ActivityFileExplorerBinding.legacyStorageView] `LinearLayout` of [binding]
+     * to VISIBLE to inform the user that he needs to enable the `requestLegacyExternalStorage` flag
+     * in order for the app to work on Q and then we return. If we are not running on Q we set the
+     * visibility of the [ActivityFileExplorerBinding.rationaleView] `LinearLayout` of [binding] to
+     * GONE, and the  visibility of the [ActivityFileExplorerBinding.filesTreeView] `ListView` of
+     * [binding] to VISIBLE then call our [open] method with the [File] returned by the method
+     * [getExternalStorageDirectory] (the primary shared/external storage directory) to have [open]
+     * read the [File] entries in that directory into our [List] of [File] field [filesList] and then
+     * display their names in the [ActivityFileExplorerBinding.filesTreeView] `ListView` of [binding].
+     *
+     * If [hasPermission] is `false` we set the visibility of the [ActivityFileExplorerBinding.rationaleView]
+     * `LinerLayout` to VISIBLE, and the visibility of the [ActivityFileExplorerBinding.filesTreeView]
+     * to GONE in order to tell the user that they need to give us permission to access shared storage
+     * by clicking the "Give Permission" button in the `LinearLayout`.
      */
     override fun onResume() {
         super.onResume()
@@ -145,6 +167,9 @@ class FileExplorerActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Finishes the setup and configuration of our UI.
+     */
     private fun setupUi() {
         binding.toolbar.setOnMenuItemClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
