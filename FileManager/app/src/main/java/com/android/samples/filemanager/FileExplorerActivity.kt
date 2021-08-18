@@ -219,6 +219,27 @@ class FileExplorerActivity : AppCompatActivity() {
      * [ArrayAdapter] of [String] field [adapter] which will be displayed in the [ListView] that
      * it is providing views to).
      *
+     * First we check whether the file denoted by the abstract pathname of  our [File] parameter
+     * [selectedItem] is a normal file (ie. not a directory) and if it is we call our [openFile]
+     * method to have it create and launch an [Intent] with the action [Intent.ACTION_VIEW] to allow
+     * the user to view the contents (to save typing the code returns the value returned by [openFile]
+     * which is a bit dubious since [openFile] returns nothing).
+     *
+     * Otherwise [selectedItem] is a directory, so we set our [File] field [currentDirectory] to
+     * [selectedItem], and set our [List] of [File] field [filesList] to the [List] of [File] that
+     * is returned by our [getFilesList] method when it uses the [File.listFiles] method of
+     * [currentDirectory] to read the [File] entries it contains. We then remove all elements from
+     * our [ArrayAdapter] of [String] field [adapter] using its [ArrayAdapter.clear] method and use
+     * its [ArrayAdapter.addAll] method to add the [List] of [String] that is created by the [map]
+     * extension function applied to [filesList] with the lambda of [map] adding the [String] that
+     * is created by our [renderParentLink] method if the `path` of the [File] `it` is working on
+     * is the path of the parent of [selectedItem], and adding the [String] that is created by our
+     * [renderItem] method if `it` is not a path to the parent.
+     *
+     * Finally we call the [ArrayAdapter.notifyDataSetChanged] method of [adapter] to notify its
+     * attached observers that the underlying data has been changed and any [View] reflecting the
+     * data set should refresh itself.
+     *
      * @param selectedItem the [File] of the directory or file that needs to be opened.
      */
     private fun open(selectedItem: File) {
