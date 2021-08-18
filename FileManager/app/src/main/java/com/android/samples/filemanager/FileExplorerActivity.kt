@@ -211,7 +211,13 @@ class FileExplorerActivity : AppCompatActivity() {
     }
 
     /**
-     * Called to open its [File] parameter [selectedItem].
+     * Called to "open" its [File] parameter [selectedItem], either by creating and launching an
+     * [Intent] with the action [Intent.ACTION_VIEW] to allow the user to view the contents if the
+     * [File] parameter [selectedItem] is a file, or by replacing the [File] entries in our [List]
+     * of [File] field [filesList] with the list of [File] entries of [selectedItem] if it is a
+     * directory (the name of the [File] entries will then be used to replace the dataset of our
+     * [ArrayAdapter] of [String] field [adapter] which will be displayed in the [ListView] that
+     * it is providing views to).
      *
      * @param selectedItem the [File] of the directory or file that needs to be opened.
      */
