@@ -33,7 +33,12 @@ private const val AUTHORITY = "${BuildConfig.APPLICATION_ID}.provider"
 
 /**
  * Returns the mime type of its [String] parameter [url], where [url] is the string value of the
- * content [Uri] for a [File].
+ * content [Uri] for a [File]. We use the [MimeTypeMap.getFileExtensionFromUrl] method to retrieve
+ * the file extension (or an empty string if there is no extension) of our [String] parameter [url]
+ * and initialize our [String] variable `val ext` to it. We retrieve the singleton instance of
+ * [MimeTypeMap] and use its [MimeTypeMap.getMimeTypeFromExtension] to discern the MIME type for
+ * the extension `ext` (defaulting to "text/plain" if it returns `null`) and return the MIME type
+ * to the caller.
  *
  * @param url the string value of the content [Uri] for a [File] whose mime type we need to know.
  * @return the [String] representing the MIME type deduced from the extension of the [File].
@@ -43,14 +48,21 @@ fun getMimeType(url: String): String {
     return MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext) ?: "text/plain"
 }
 
+/**
+ * Returns a [List] of [File] objects denoting the files in the directory that is denoted by our
+ * [File] parameter [selectedItem].
+ *
+ * @param selectedItem the directory whose [File] entries we should return in a [List].
+ * @return a [List] of the [File] entries of our directory parameter [selectedItem].
+ */
 fun getFilesList(selectedItem: File): List<File> {
-    val rawFilesList = selectedItem.listFiles()?.filter { !it.isHidden }
+    val rawFilesList: List<File>? = selectedItem.listFiles()?.filter { !it.isHidden }
 
     @Suppress("DEPRECATION") // See ActionOpenDocumentTree for modern way to do this.
     return if (selectedItem == Environment.getExternalStorageDirectory()) {
         rawFilesList?.toList() ?: listOf()
     } else {
-        listOf(selectedItem.parentFile) + (rawFilesList?.toList() ?: listOf())
+        listOf(selectedItem.parentFile!!) + (rawFilesList?.toList() ?: listOf())
     }
 }
 
