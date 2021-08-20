@@ -31,10 +31,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-
-// AppOpsManager.OPSTR_MANAGE_EXTERNAL_STORAGE is a @SystemAPI at the moment
-// We should remove the annotation for applications to avoid hardcoded value
+/**
+ * This is the value of the [String] constant `AppOpsManager.OPSTR_MANAGE_EXTERNAL_STORAGE` which
+ * is the permission name for access to external storage on Android "R" and above. It is anotated
+ * with `@SystemAPI` at the moment which is why we have to use hardcoded value here.
+ */
 const val MANAGE_EXTERNAL_STORAGE_PERMISSION = "android:manage_external_storage"
+/**
+ * Our [getLegacyStorageStatus] method returns this [String] when running on Android builds older
+ * than "Q" since legacy view of the shared/external storage media was introduced by "Q" (stands
+ * for "Not Applicable" of course). On "Q" and above [getLegacyStorageStatus] returns the string
+ * value of the [Boolean] value returned by the [Environment.isExternalStorageLegacy] method (which
+ * will be `true` if `requestLegacyExternalStorage` is requested in the app's manifest.
+ */
 const val NOT_APPLICABLE = "N/A"
 
 fun getStoragePermissionName(): String {
