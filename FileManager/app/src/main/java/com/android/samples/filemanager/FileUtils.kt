@@ -50,7 +50,14 @@ fun getMimeType(url: String): String {
 
 /**
  * Returns a [List] of [File] objects denoting the files in the directory that is denoted by our
- * [File] parameter [selectedItem].
+ * [File] parameter [selectedItem]. We initialize our [List] of [File] variable `val rawFilesList`
+ * to the [List] of [File] objects we create by filtering our all the hidden files from the [Array]
+ * of [File] that is returned by the [File.listFiles] method of our [File] parameter [selectedItem].
+ * If [selectedItem] is the primary shared/external storage directory we return `rawFilesList` if
+ * it is not `null` or an empty read-only list if it is `null`. If [selectedItem] is NOT the primary
+ * shared/external storage directory we prepend the abstract pathname ([File]) of [selectedItem]'s
+ * parent directory to `rawFilesList` and return it (after again making sure the returned value is
+ * an empty [List] instead of `null`).
  *
  * @param selectedItem the directory whose [File] entries we should return in a [List].
  * @return a [List] of the [File] entries of our directory parameter [selectedItem].
@@ -66,10 +73,24 @@ fun getFilesList(selectedItem: File): List<File> {
     }
 }
 
+/**
+ * Returns the [String] which should be used to represent the parent directory of a directory. We
+ * return the [String] with resource ID [R.string.go_parent_label] ("⬆️ Parent folder").
+ *
+ * @param activity the [AppCompatActivity] we should use to access resource strings.
+ * @return the [String] which should be used to represent the parent directory.
+ */
 fun renderParentLink(activity: AppCompatActivity): String {
     return activity.getString(R.string.go_parent_label)
 }
 
+/**
+ * Returns the [String] which should be used to represent the [File] parameter [file].
+ *
+ * @param activity the [AppCompatActivity] to use to access [String] resources.
+ * @param file the [File] we want to represent with a [String].
+ * @return the [String] which should be used to represent the [File] parameter [file].
+ */
 fun renderItem(activity: AppCompatActivity, file: File): String {
     return if (file.isDirectory) {
         activity.getString(R.string.folder_item, file.name)
