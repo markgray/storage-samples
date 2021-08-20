@@ -85,7 +85,11 @@ fun renderParentLink(activity: AppCompatActivity): String {
 }
 
 /**
- * Returns the [String] which should be used to represent the [File] parameter [file].
+ * Returns the [String] which should be used to represent the [File] parameter [file]. If our [File]
+ * parameter [file] is a directory we return the formatted string produced by applying the format
+ * in the resource [String] whose ID is [R.string.folder_item] ("🗂 %1$s") to the name property of
+ * [file], otherwise we return the formatted string produced by applying the format in the resource
+ * [String] whose ID is [R.string.file_item] ("📄 %1$s") to the name property of [file]
  *
  * @param activity the [AppCompatActivity] to use to access [String] resources.
  * @param file the [File] we want to represent with a [String].
@@ -99,7 +103,22 @@ fun renderItem(activity: AppCompatActivity, file: File): String {
     }
 }
 
-
+/**
+ * Creates and launches an [Intent] whose action is [Intent.ACTION_VIEW] to allow the user to "view"
+ * our [File] parameter [selectedItem] in an activity that is appropriate for the MIME type of the
+ * [File]. First we initialize our [Uri] variable `val uri` to the content uri returned by the method
+ * [FileProvider.getUriForFile] for the [AUTHORITY] authority and our [File] parameter [selectedItem].
+ * Then we initialize our [String] variable `val mime` to the MIME type returned by our [getMimeType]
+ * method when given the string value or `uri`. We initialize our [Intent] variable `val intent` to
+ * a new instance whose intent action is [Intent.ACTION_VIEW], add the [Intent.FLAG_GRANT_READ_URI_PERMISSION]
+ * flag to `intent`, and set its data to `uri` and its type to `mime`. Then to save some typing we
+ * use our return statement to call the  [AppCompatActivity.startActivity] method of our parameter
+ * [activity] (why this is better than just falling off the end of the method is beyond me).
+ *
+ * @param activity the [AppCompatActivity] we use to retrieve the context of our `Application`
+ * and also use for its [AppCompatActivity.startActivity] method.
+ * @param selectedItem the [File] object whose [Uri] we pass to the activity we start.
+ */
 fun openFile(activity: AppCompatActivity, selectedItem: File) {
     // Get URI and MIME type of file
     val uri: Uri = FileProvider.getUriForFile(activity.applicationContext, AUTHORITY, selectedItem)
