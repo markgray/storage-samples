@@ -34,7 +34,11 @@ import androidx.core.content.ContextCompat
 /**
  * This is the value of the [String] constant `AppOpsManager.OPSTR_MANAGE_EXTERNAL_STORAGE` which
  * is the permission name for access to external storage on Android "R" and above. It is anotated
- * with `@SystemAPI` at the moment which is why we have to use hardcoded value here.
+ * with `@SystemAPI` at the moment which is why we have to use hardcoded value here. The use of
+ * this is a bit odd: it appears that while [AppOpsManager] uses this when checking whether we have
+ * the manage external storage permission the settings app uses on Android "R" the [String] constant
+ * "android.settings.MANAGE_ALL_FILES_ACCESS_PERMISSION" when we want to ask for the permission and
+ * the AndroidManifest permission name for Android "R" is "android.permission.MANAGE_EXTERNAL_STORAGE"
  */
 const val MANAGE_EXTERNAL_STORAGE_PERMISSION = "android:manage_external_storage"
 /**
@@ -46,6 +50,17 @@ const val MANAGE_EXTERNAL_STORAGE_PERMISSION = "android:manage_external_storage"
  */
 const val NOT_APPLICABLE = "N/A"
 
+/**
+ * Returns the name of the permission used to request access to external storage, which depends on the
+ * version of Android that we are running on. It is only called by our [SettingsActivity.getInfoList]
+ * method to be used as part of the info displayed to the user when they click on our options menu.
+ * If the device we are running on is Android "R" or above we return our [String] constant
+ * [MANAGE_EXTERNAL_STORAGE_PERMISSION], otherwise we return the [Manifest.permission.READ_EXTERNAL_STORAGE]
+ * system constant ("android.permission.READ_EXTERNAL_STORAGE").
+ *
+ * @return the [String] naming the permission (according to the [AppOpsManager]) for the version of
+ * Android we are running on.
+ */
 fun getStoragePermissionName(): String {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         MANAGE_EXTERNAL_STORAGE_PERMISSION
@@ -54,6 +69,13 @@ fun getStoragePermissionName(): String {
     }
 }
 
+/**
+ * Launches an [Intent] which will start a Settings provider activity that will ask the user to give
+ * us permission to access external storage.
+ *
+ * @param activity the [AppCompatActivity] we can use to access application info and call its method
+ * [AppCompatActivity.startActivity] to start another activity.
+ */
 fun openPermissionSettings(activity: AppCompatActivity) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         requestStoragePermissionApi30(activity)
