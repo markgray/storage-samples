@@ -70,8 +70,19 @@ fun getStoragePermissionName(): String {
 }
 
 /**
- * Launches an [Intent] which will start a Settings provider activity that will ask the user to give
- * us permission to access external storage.
+ * Launches an [Intent] which will start a Settings provider activity that will allow the user to
+ * give us permission to access external storage. We branch on [Build.VERSION.SDK_INT] (the SDK
+ * version of the software currently running on this hardware device):
+ *  - greater than or equal to [Build.VERSION_CODES.R] (API 30) we call our [requestStoragePermissionApi30]
+ *  method to have it build and launch an [Intent] that will have the settings provider allow the
+ *  user to give us permission to access external storage on Android "R" and above.
+ *  - less than [Build.VERSION_CODES.R] we start an activity using an [Intent] whose action is
+ *  [Settings.ACTION_APPLICATION_DETAILS_SETTINGS] and whose [Intent] data [Uri] uses the scheme
+ *  "package" and the scheme-specific-part is the name of this application's package (the resulting
+ *  [Uri] is "package:com.android.samples.filemanager" in our case).
+ *
+ * It is called by the `onClickListener` of the button with ID [R.id.openSettingsButton] ("Open Settings")
+ * in the UI of [SettingsActivity].
  *
  * @param activity the [AppCompatActivity] we can use to access application info and call its method
  * [AppCompatActivity.startActivity] to start another activity.
@@ -89,6 +100,16 @@ fun openPermissionSettings(activity: AppCompatActivity) {
     }
 }
 
+/**
+ * Returns a [String] describing whether the shared/external storage media is a legacy view that
+ * includes files not owned by the app ("true", "false" or "N/A"). Legacy view was first introduced
+ * in Android "Q" so for "Q" and above we return the [String] value of the [Boolean] returned by the
+ * [Environment.isExternalStorageLegacy] method to the caller, and for Android older than "Q" we
+ * return our [String] constant [NOT_APPLICABLE] ("N/A").
+ *
+ * @return a [String] describing whether the shared/external storage media is a legacy view ("true",
+ * "false" or "N/A").
+ */
 fun getLegacyStorageStatus(): String {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Environment.isExternalStorageLegacy().toString()
