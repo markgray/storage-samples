@@ -167,7 +167,16 @@ fun checkStoragePermission(activity: AppCompatActivity): Boolean {
 
 /**
  * Requests access to external storage using the methods which are appropriate for the version of
- * Android we are running on.
+ * Android we are running on. If [Build.VERSION.SDK_INT] (the SDK version of the software currently
+ * running on this hardware device) is greater than or equal to [Build.VERSION_CODES.R] we call our
+ * method [requestStoragePermissionApi30] to have it ask for permission to access external storage
+ * using the API for Android "R" and above, otherwise we call our method [requestStoragePermissionApi19]
+ * to have it ask for permission to access external storage using the the API used for Android versions
+ * older than "R".
+ *
+ * It is called from the `OnClickListener` of the button with ID [R.id.permissionButton] ("Give
+ * Permission") in the UI for [FileExplorerActivity] and from the `OnClickListener` of the button
+ * with ID [R.id.requestPermissionButton] ("Request Permission") in the UI for [SettingsActivity].
  *
  * @param activity the [AppCompatActivity] to use to access app resources and methods.
  */
@@ -182,10 +191,26 @@ fun requestStoragePermission(activity: AppCompatActivity) {
     }
 }
 
+/**
+ * When running on hardware devices running software whose SDK version is API 30 or newer, this
+ * method will check whether we have permission to access external storage and return `true` if
+ * we do have permission, and `false` if we do not have permission. We initialize our [AppOpsManager]
+ * variable `val appOps` to the handle to the [AppOpsManager] system-level service (used for runtime
+ * permissions access control and tracking). Then we initialize our [Int] variable `val mode` to the
+ * value returned by the [AppOpsManager.unsafeCheckOpNoThrow] method of `appOps` to check for the
+ * operation [MANAGE_EXTERNAL_STORAGE_PERMISSION] (our hardcoded value of the `@SystemAPI` anotated
+ * constant `AppOpsManager.OPSTR_MANAGE_EXTERNAL_STORAGE` which is used to check for permission to
+ * manage external storage), the user id of our application, and our package name. Then we return
+ * `true` if `mode` is equal to [AppOpsManager.MODE_ALLOWED] (the given caller is allowed to perform
+ * the given operation) and `false` for any other value.
+ *
+ * @param activity the [AppCompatActivity] we should use to access app resources and methods.
+ * @return `true` if we have permission to access external storage, and `false` if we do not.
+ */
 @RequiresApi(30)
 fun checkStoragePermissionApi30(activity: AppCompatActivity): Boolean {
-    val appOps = activity.getSystemService(AppOpsManager::class.java)
-    val mode = appOps.unsafeCheckOpNoThrow(
+    val appOps: AppOpsManager = activity.getSystemService(AppOpsManager::class.java)
+    val mode: Int = appOps.unsafeCheckOpNoThrow(
         MANAGE_EXTERNAL_STORAGE_PERMISSION,
         activity.applicationInfo.uid,
         activity.packageName
@@ -194,6 +219,17 @@ fun checkStoragePermissionApi30(activity: AppCompatActivity): Boolean {
     return mode == AppOpsManager.MODE_ALLOWED
 }
 
+/**
+ * When running on hardware devices running software whose SDK version is API 30 or newer, this
+ * method will launch an [Intent] with the action [Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION]
+ * which will start a [Settings] activity that will allow the user to grant us permission to access
+ * external storage if he wants to. We initialize our [Intent] variable `val intent` to a new instance
+ * with the action [Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION] (show screen for controlling
+ * which apps have access to manage external storage). Then we use the [AppCompatActivity.startActivity]
+ * method of [activity] to launch `intent`.
+ *
+ * @param activity the [AppCompatActivity] we should use to access its `startActivity` method.
+ */
 @RequiresApi(30)
 fun requestStoragePermissionApi30(activity: AppCompatActivity) {
     val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
@@ -202,14 +238,34 @@ fun requestStoragePermissionApi30(activity: AppCompatActivity) {
     activity.startActivity(intent)
 }
 
+/**
+ * When running on hardware devices running software whose SDK version is older than API 30, this
+ * method will check whether we have permission to access external storage and return `true` if
+ * we do have permission, and `false` if we do not have permission. We initialize our [Int] variable
+ * `val status` to the value returned by [ContextCompat.checkSelfPermission] when passed our
+ * [AppCompatActivity] parameter [activity], and the [Manifest.permission.READ_EXTERNAL_STORAGE]
+ * permission constant (allows an application to read from external storage). Then we return
+ * `true` if `status` is equal to [PackageManager.PERMISSION_GRANTED] (returned if the permission
+ * has been granted to the given package) and `false` for any other value.
+ *
+ * @param activity the [AppCompatActivity] we should use to access our apps resources.
+ * @return `true` if we have permission to access external storage, and `false` if we do not.
+ */
 @RequiresApi(19)
 fun checkStoragePermissionApi19(activity: AppCompatActivity): Boolean {
-    val status =
+    val status: Int =
         ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE)
 
     return status == PackageManager.PERMISSION_GRANTED
 }
 
+/**
+ * When running on hardware devices running software whose SDK version is older than API 30, this
+ * method will use the [ActivityCompat.requestPermissions] method to request that permission to read
+ * external storage be granted to this application.
+ *
+ * @param activity the [AppCompatActivity] we should use to access app resources.
+ */
 @RequiresApi(19)
 fun requestStoragePermissionApi19(activity: AppCompatActivity) {
     val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
