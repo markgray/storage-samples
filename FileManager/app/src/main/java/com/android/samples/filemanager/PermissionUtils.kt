@@ -107,6 +107,9 @@ fun openPermissionSettings(activity: AppCompatActivity) {
  * [Environment.isExternalStorageLegacy] method to the caller, and for Android older than "Q" we
  * return our [String] constant [NOT_APPLICABLE] ("N/A").
  *
+ * It is only called by our [SettingsActivity.getInfoList] method to be used as part of the info
+ * displayed to the user when they click on our options menu.
+ *
  * @return a [String] describing whether the shared/external storage media is a legacy view ("true",
  * "false" or "N/A").
  */
@@ -118,6 +121,20 @@ fun getLegacyStorageStatus(): String {
     }
 }
 
+/**
+ * Returns "true" or "false" [String] indicating whether permission to access external storage has
+ * been granted or not. If [Build.VERSION.SDK_INT] (the SDK version of the software currently running
+ * on this hardware device) is greater than or equal to [Build.VERSION_CODES.R] we return the string
+ * value of the [Boolean] returned by our [checkStoragePermissionApi30] method, otherwise we return
+ * the string value of the [Boolean] returned by our [checkStoragePermissionApi19] method.
+ *
+ * It is only called by our [SettingsActivity.getInfoList] method to be used as part of the info
+ * displayed to the user when they click on our options menu.
+ *
+ * @param activity the [AppCompatActivity] to use to access resources and methods.
+ * @return "true" or "false" [String] indicating whether permission to access external storage has
+ * been granted or not.
+ */
 fun getPermissionStatus(activity: AppCompatActivity): String {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         checkStoragePermissionApi30(activity).toString()
@@ -126,6 +143,20 @@ fun getPermissionStatus(activity: AppCompatActivity): String {
     }
 }
 
+/**
+ * Returns `true` if we have permission to access external storage, and `false` if we do not have
+ * permission. If [Build.VERSION.SDK_INT] (the SDK version of the software currently running
+ * on this hardware device) is greater than or equal to [Build.VERSION_CODES.R] we return the
+ * [Boolean] returned by our [checkStoragePermissionApi30] method, otherwise we return the [Boolean]
+ * returned by our [checkStoragePermissionApi19] method.
+ *
+ * Called by the `onResume` override of [FileExplorerActivity] to decide if the user needs to be
+ * asked to grant us permission to access external storage (if we return `false`) or if the app
+ * already has permission and can begin displaying the contents of external storage ((if we return
+ * `true`).
+ *
+ * @param activity the [AppCompatActivity] to use to access app resources and methods.
+ */
 fun checkStoragePermission(activity: AppCompatActivity): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         checkStoragePermissionApi30(activity)
@@ -134,6 +165,12 @@ fun checkStoragePermission(activity: AppCompatActivity): Boolean {
     }
 }
 
+/**
+ * Requests access to external storage using the methods which are appropriate for the version of
+ * Android we are running on.
+ *
+ * @param activity the [AppCompatActivity] to use to access app resources and methods.
+ */
 fun requestStoragePermission(activity: AppCompatActivity) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         requestStoragePermissionApi30(activity)
