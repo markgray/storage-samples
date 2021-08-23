@@ -262,13 +262,20 @@ fun checkStoragePermissionApi19(activity: AppCompatActivity): Boolean {
 /**
  * When running on hardware devices running software whose SDK version is older than API 30, this
  * method will use the [ActivityCompat.requestPermissions] method to request that permission to read
- * external storage be granted to this application.
+ * external storage be granted to this application. We initialize our [Array] of [String] variable
+ * `val permissions` to a new instance holding just the system defined [String] constant
+ * [Manifest.permission.READ_EXTERNAL_STORAGE]. Then we call the [ActivityCompat.requestPermissions]
+ * method with our [AppCompatActivity] parameter [activity] as the target activity, `permissions` as
+ * the requested permission(s), and [READ_EXTERNAL_STORAGE_PERMISSION_REQUEST] as the Application
+ * specific request code (Note that we do not use [ActivityCompat.OnRequestPermissionsResultCallback]
+ * to receive results. Our logic uses `onResume` to check whether we have the permission or not
+ * since it is called again once the user has granted us the permission).
  *
  * @param activity the [AppCompatActivity] we should use to access app resources.
  */
 @RequiresApi(19)
 fun requestStoragePermissionApi19(activity: AppCompatActivity) {
-    val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+    val permissions: Array<String> = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     ActivityCompat.requestPermissions(
         activity,
         permissions,
