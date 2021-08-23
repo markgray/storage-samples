@@ -20,12 +20,37 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.ListView
+import androidx.appcompat.widget.Toolbar
 import com.android.samples.filemanager.databinding.ActivitySettingsBinding
 
+/**
+ * The activity is launched by the lambda which is set as the [Toolbar.OnMenuItemClickListener] of
+ * the [Toolbar] of our [FileExplorerActivity] which is called whenever the user clicks on the
+ * options menu (which holds only a "Settings" icon). Its UI consists of a [ListView] which displays
+ * the "SDK codename" of the device, the "SDK version" of the device, that status of the "Legacy
+ * External Storage" flag, the name of the permission we need, and whether the permission has been
+ * granted. It also had buttons to "Open Settings", and to "Request Permission" that the user can
+ * click to perform these tasks.
+ */
 class SettingsActivity : AppCompatActivity() {
+    /**
+     * The `ViewBinding` which is inflated from the layout file layout/activity_settings.xml
+     * which we use as our UI. It consists of a `ConstraintLayout` root view holding at its top a
+     * `MaterialToolbar`, with a [ListView] and two [Button] widgets below the `MaterialToolbar`.
+     */
     private lateinit var binding: ActivitySettingsBinding
+    /**
+     * The [ArrayAdapter] which feeds views holding [String]s to the [ListView] in our UI.
+     */
     private lateinit var adapter: ArrayAdapter<String>
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
