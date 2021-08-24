@@ -16,9 +16,13 @@
 
 package com.android.samples.filemanager
 
+import android.Manifest
+import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View.OnClickListener
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
@@ -47,7 +51,21 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var adapter: ArrayAdapter<String>
 
     /**
-     * Called when the activity is starting.
+     * Called when the activity is starting. First we call our super's implementation of `onCreate`.
+     * We then initialize our [ActivitySettingsBinding] field [binding] by having the
+     * [ActivitySettingsBinding.inflate] method use the [LayoutInflater] instance that this
+     * Window retrieved from its [Context] to inflate and bind to its associated layout file
+     * (layout/activity_settings.xml), and set our content view to the outermost View in the
+     * associated layout file of [binding] (its `root` property). We initialize our [ArrayAdapter]
+     * field [adapter] to a new instance constructed to use the system layout file with resource
+     * ID [android.R.layout.simple_list_item_1] for instantiating views, and to use the [List]
+     * of [String] returned by our [getInfoList] method as the objects to represent in its views.
+     * We set the adapter of the [ListView] bound to [ActivitySettingsBinding.infoList] in [binding]
+     * to [adapter]. Next we set the [OnClickListener] of the [ActivitySettingsBinding.openSettingsButton]
+     * button of [binding] (labeled "Open settings") to a lambda which calls our method
+     * [openPermissionSettings], and the [OnClickListener] of the [ActivitySettingsBinding.requestPermissionButton]
+     * button of [binding] (labeled "Request permission") to a lambda which calls our method
+     * [requestStoragePermission].
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
@@ -68,6 +86,27 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Returns a [List] of [String] containing information about the software running on the device
+     * we are on, and external storage permission information related to this app. This [List] is
+     * used as the data set for the [ListView] displayed in our UI. The information consists of:
+     *  1. "SDK codename:" displays the value of [Build.VERSION.CODENAME] which is the current
+     *  development codename, or the string "REL" if this is a release build.
+     *  2. "SDK version:" displays the string value of [Build.VERSION.SDK_INT] which is the SDK
+     *  version of the software currently running on this hardware device.
+     *  3. "Legacy External Storage:" displays the value returned by [getLegacyStorageStatus] which
+     *  indicates whether "Legacy View" is used to access external storage. It is `true` only on "Q",
+     *  "N/A" on older SDKs, and `false` on "R".
+     *  4. "Permission used:" displays the value returned by [getStoragePermissionName] which is
+     *  the name of the permission used to request access to external storage, either our hard coded
+     *  [MANAGE_EXTERNAL_STORAGE_PERMISSION] on SDK on "R" and above, or the value of the system
+     *  constant [Manifest.permission.READ_EXTERNAL_STORAGE] on all other SDKs.
+     *  5. "Permission granted:" displays the value returned by [getPermissionStatus] which is `true`
+     *  or `false` depending on whether we have been granted permission to access external storage.
+     *
+     * @return a [List] of [String] displaying information about the device we are running on and
+     * external storage permission information related to this app.
+     */
     private fun getInfoList(): List<String> {
         return listOf(
             getString(R.string.sdk_codename_info, Build.VERSION.CODENAME),
