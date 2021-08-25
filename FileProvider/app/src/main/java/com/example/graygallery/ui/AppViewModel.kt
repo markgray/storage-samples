@@ -43,6 +43,7 @@ private const val FILEPATH_XML_KEY = "files-path"
 private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500"
 val ACCEPTED_MIMETYPES = arrayOf("image/jpeg", "image/png")
 
+@Suppress("BlockingMethodInNonBlockingContext")
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val httpClient by lazy { OkHttpClient() }
 
@@ -62,7 +63,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun loadImages() {
         viewModelScope.launch {
             val images = withContext(Dispatchers.IO) {
-                imagesFolder.listFiles().toList()
+                imagesFolder.listFiles()!!.toList()
             }
 
             _images.postValue(images)
@@ -152,6 +153,7 @@ private fun getImagesFolder(context: Context): File {
 }
 
 // TODO: Make the function suspend
+@Suppress("SameParameterValue")
 private fun getAttributesFromXmlNode(
     xml: XmlResourceParser,
     nodeName: String
