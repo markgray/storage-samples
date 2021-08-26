@@ -22,6 +22,7 @@ import android.content.res.XmlResourceParser
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -39,10 +40,29 @@ import okhttp3.Request
 import java.io.File
 import java.io.FileOutputStream
 
+/**
+ * This is the element name in our xml/filepaths.xml file that contains the "path" attribute that
+ * specifies the path of the folder (in the directory on the filesystem where files created with
+ * `openFileOutput` are stored) that we use to store the image files we wish to share. In our case
+ * the "path" attribute value of the "files-path" element is "images/".
+ */
 private const val FILEPATH_XML_KEY = "files-path"
+
+/**
+ * The URL that we use to fetch random images from the Internet.
+ */
 private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500"
+
+/**
+ * This is used as the "input" [Array] of [String] when launching the [ActivityResultLauncher]
+ * field `selectPicture` of [DashboardFragment] when the [R.id.selectPicture] button (labeled
+ * "Select picture") is clicked in the UI of [DashboardFragment].
+ */
 val ACCEPTED_MIMETYPES = arrayOf("image/jpeg", "image/png")
 
+/**
+ * This [AndroidViewModel] is used by both [DashboardFragment] and [GalleryFragment].
+ */
 @Suppress("BlockingMethodInNonBlockingContext")
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val httpClient by lazy { OkHttpClient() }
@@ -138,11 +158,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 }
 
 private fun getImagesFolder(context: Context): File {
-    val xml = context.resources.getXml(R.xml.filepaths)
+    val xml: XmlResourceParser = context.resources.getXml(R.xml.filepaths)
 
-    val attributes = getAttributesFromXmlNode(xml, FILEPATH_XML_KEY)
+    val attributes: Map<String, String> = getAttributesFromXmlNode(xml, FILEPATH_XML_KEY)
 
-    val folderPath = attributes["path"]
+    val folderPath: String = attributes["path"]
         ?: error("You have to specify the sharable directory in res/xml/filepaths.xml")
 
     return File(context.filesDir, folderPath).also {

@@ -24,13 +24,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
-import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import com.example.graygallery.databinding.FragmentDashboardBinding
 import com.google.android.material.snackbar.Snackbar
 
@@ -42,12 +40,13 @@ class DashboardFragment : Fragment() {
         viewModel.saveImageFromCamera(bitmap)
     }
 
-    private val selectPicture = registerForActivityResult(GetContentWithMimeTypes()) { uri ->
+    private val selectPicture: ActivityResultLauncher<Array<String>> = registerForActivityResult(GetContentWithMimeTypes()) { uri ->
         uri?.let {
             viewModel.copyImageFromUri(uri)
         }
     }
 
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -73,7 +72,7 @@ class DashboardFragment : Fragment() {
             viewModel.clearFiles()
         }
 
-        viewModel.notification.observe(viewLifecycleOwner, Observer {
+        viewModel.notification.observe(viewLifecycleOwner, {
             Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
         })
 
@@ -89,7 +88,7 @@ class GetContentWithMimeTypes : ActivityResultContract<Array<String>, Uri?>() {
         return Intent(Intent.ACTION_GET_CONTENT)
             .addCategory(Intent.CATEGORY_OPENABLE)
             .setType("*/*")
-            .putExtra(Intent.EXTRA_MIME_TYPES, input);
+            .putExtra(Intent.EXTRA_MIME_TYPES, input)
 
     }
 
