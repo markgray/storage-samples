@@ -17,6 +17,7 @@
 package com.example.graygallery.ui
 
 import android.app.Application
+import android.content.ContentResolver
 import android.content.Context
 import android.content.res.XmlResourceParser
 import android.graphics.Bitmap
@@ -65,12 +66,32 @@ val ACCEPTED_MIMETYPES = arrayOf("image/jpeg", "image/png")
  */
 @Suppress("BlockingMethodInNonBlockingContext")
 class AppViewModel(application: Application) : AndroidViewModel(application) {
+    /**
+     * This is the [OkHttpClient] instance that is used by our [saveRandomImageFromInternet] method
+     * to download a random image from the [RANDOM_IMAGE_URL] website.
+     */
     private val httpClient by lazy { OkHttpClient() }
 
+    /**
+     * The application [Context]. We use it whenever we require a [Context]. In our case our
+     * [copyImageFromUri] method uses it to retrieve a [ContentResolver] instance for our
+     * application's package, and our [File] field [imagesFolder] uses it when it calls our
+     * [getImagesFolder] method to get the path to our "images/" folder.
+     */
     private val context: Context
         get() = getApplication()
 
+    /**
+     * The [MutableLiveData] wrapped [String] that is displayed in a `Snackbar` by [DashboardFragment]
+     * or [GalleryFragment] whenever it changes value. `private` to prevent modification by other
+     * classes, `public` read only access is provided by our [notification] field.
+     */
     private val _notification = MutableLiveData<String>()
+    /**
+     * Public read only access to our [_notification] field. Observers are added to it in the
+     * `onCreateView` overrides of both [DashboardFragment] and [GalleryFragment] which will
+     * show a `Snackbar` whenever its [String] contents changes value.
+     */
     val notification: LiveData<String>
         get() = _notification
 
