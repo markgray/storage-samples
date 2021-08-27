@@ -116,6 +116,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val images: LiveData<List<File>>
         get() = _images
 
+    /**
+     * Reads the directory contents of our [File] field [imagesFolder] (the path to our "images/"
+     * folder) and posts a task to a main thread to set the value of our [_images] field to the
+     * [List] of [File] pathnames it reads from the directory.
+     */
     fun loadImages() {
         viewModelScope.launch {
             val images: List<File> = withContext(Dispatchers.IO) {
