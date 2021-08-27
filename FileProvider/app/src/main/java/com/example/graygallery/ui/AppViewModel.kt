@@ -95,15 +95,30 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     val notification: LiveData<String>
         get() = _notification
 
+    /**
+     * This is the path to our "images/" folder in the directory on the filesystem where private
+     * files associated with this application are stored. We use it to store our images in.
+     */
     private val imagesFolder: File by lazy { getImagesFolder(context) }
 
+    /**
+     * The [MutableLiveData] wrapped [List] of [File] abstract pathnames denoting the files in our
+     * "images/" folder. Private to prevent modification by other classes, public read only access
+     * is provided by our [images] field.
+     */
     private val _images = MutableLiveData(emptyList<File>())
+    /**
+     * Public read only access to our [images] field. An observer is added to it in the `onCreateView`
+     * override of [GalleryFragment] whose lambda will submit the [List] to the adapter of the
+     * `RecyclerView` in the UI of [GalleryFragment] to be diffed, and displayed whenever it changes
+     * value.
+     */
     val images: LiveData<List<File>>
         get() = _images
 
     fun loadImages() {
         viewModelScope.launch {
-            val images = withContext(Dispatchers.IO) {
+            val images: List<File> = withContext(Dispatchers.IO) {
                 imagesFolder.listFiles()!!.toList()
             }
 
