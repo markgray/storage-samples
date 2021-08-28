@@ -24,6 +24,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -33,6 +34,7 @@ import com.example.graygallery.utils.Source
 import com.example.graygallery.utils.copyImageFromStream
 import com.example.graygallery.utils.generateFilename
 import com.example.graygallery.utils.applyGrayscaleFilter
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -118,8 +120,16 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Reads the directory contents of our [File] field [imagesFolder] (the path to our "images/"
-     * folder) and posts a task to a main thread to set the value of our [_images] field to the
+     * folder) and posts a task to the main thread to set the value of our [_images] field to the
      * [List] of [File] pathnames it reads from the directory.
+     *
+     * We launch a new coroutine without blocking the current thread using the [CoroutineScope] tied
+     * to this [AppViewModel], and in its lambda we launch a suspending block using the coroutine
+     * context of [Dispatchers.IO] (suspending until it completes). The lambda of this block returns
+     * the result of calling the [File.listFiles] method of [imagesFolder] and converting the [Array]
+     * of [File] that it returns to a [List] of [File] and this value is used to initialize the [List]
+     * of [File] variable `val images`. When the outer `viewModelScope` [CoroutineScope] resumes it
+     * posts a task to the main thread to set the value of our [_images] field to `images`.
      */
     fun loadImages() {
         viewModelScope.launch {
@@ -131,6 +141,19 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Saves its [Bitmap] parameter [bitmap] as a JPEG image in our [imagesFolder] directory. It is
+     * used to save the [Bitmap] returned by the activity launched by the [TakePicturePreview]
+     * `ActivityResultContract` of the [DashboardFragment.takePicture] field, which is executed
+     * by the `OnClickListener` of the "Take picture" button of the UI of [DashboardFragment].
+     *
+     * We initialize our [File] variable `val imageFile` to a [File] created in our [imagesFolder]
+     * directory whose name is the [String] returned by our [generateFilename] method for the enum
+     * [Source.CAMERA]
+     *
+     * @param bitmap the [Bitmap] we are supposed to convert to a JPEG and then store in our
+     * [imagesFolder] directory.
+     */
     fun saveImageFromCamera(bitmap: Bitmap) {
         val imageFile = File(imagesFolder, generateFilename(Source.CAMERA))
         val imageStream = FileOutputStream(imageFile)
@@ -198,6 +221,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 }
 
+/**
+ * Returns the [File] pathname for the folder in the directory holding application files which we
+ * use to store our images (in our case: "/data/user/0/com.example.graygallery/files/images")
+ */
 private fun getImagesFolder(context: Context): File {
     val xml: XmlResourceParser = context.resources.getXml(R.xml.filepaths)
 

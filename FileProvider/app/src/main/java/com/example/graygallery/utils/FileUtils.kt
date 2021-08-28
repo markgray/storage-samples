@@ -20,12 +20,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
+import java.util.*
 
 enum class Source {
     CAMERA, FILEPICKER, INTERNET;
 
     override fun toString(): String {
-        return name.toLowerCase()
+        return name.lowercase(Locale.getDefault())
     }
 }
 
