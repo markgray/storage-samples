@@ -149,7 +149,23 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
      *
      * We initialize our [File] variable `val imageFile` to a [File] created in our [imagesFolder]
      * directory whose name is the [String] returned by our [generateFilename] method for the enum
-     * [Source.CAMERA]
+     * [Source.CAMERA] (it returns the [String] "camera-" concatenated with the string value of
+     * the current time in milliseconds concatenated to the string ".jpg"). Then we initialize our
+     * [FileOutputStream] variable `val imageStream` to a file output stream for writing to the file
+     * `imageFile`.
+     *
+     * We launch a new coroutine without blocking the current thread using the [CoroutineScope] tied
+     * to this [AppViewModel], and in its lambda we launch a suspending block using the coroutine
+     * context of [Dispatchers.IO] (suspending until it completes). In this block we use a `try`
+     * block intended to catch and log any [Exception] to initialize our [Bitmap] variable
+     * `val grayscaleBitmap` to the [Bitmap] created by our `suspend` method [applyGrayscaleFilter]
+     * from our [bitmap] parameter using the [Dispatchers.Default] `CoroutineDispatcher` and when
+     * our block resumes we use the [Bitmap.compress] method of `grayscaleBitmap` to write a
+     * compressed JPEG version of the bitmap to the outputstream `imageStream`. We then flush and
+     * close `imageStream`. Finally we post a task to the main thread to set the value of our
+     * [String] field [_notification] to the string "Camera image saved" (observers added to its
+     * public [notification] "accessor" property in both [DashboardFragment] and [GalleryFragment]
+     * will show a `Snackbar` whenever its [String] contents changes value).
      *
      * @param bitmap the [Bitmap] we are supposed to convert to a JPEG and then store in our
      * [imagesFolder] directory.
@@ -177,6 +193,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Downloads an image from its [Uri] parameter [uri] and saves it in our [imagesFolder] directory.
+     *
+     * @param uri the [Uri] for the image we are to download and save.
+     */
     fun copyImageFromUri(uri: Uri) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
