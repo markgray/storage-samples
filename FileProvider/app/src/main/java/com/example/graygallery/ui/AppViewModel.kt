@@ -38,10 +38,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
 
 /**
  * This is the element name in our xml/filepaths.xml file that contains the "path" attribute that
@@ -195,6 +198,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Downloads an image from its [Uri] parameter [uri] and saves it in our [imagesFolder] directory.
+     * We launch a new coroutine without blocking the current thread using the [CoroutineScope] tied
+     * to this [AppViewModel], and in its lambda we launch a suspending block using the coroutine
+     * context of [Dispatchers.IO] (suspending until it completes). In this block we fetch a
+     * [ContentResolver] instance for our application's package and call its method
+     * [ContentResolver.openInputStream] to open an [InputStream] to the content associated with our
+     * content [Uri] parameter [uri] and if that is not `null` we use the [let] extension function
+     * on that [InputStream] to call a function block with the [InputStream] as its value which calls
+     * our [copyImageFromStream] method to copy the contents of the [InputStream] to our [imagesFolder]
+     * directory. We then post a task to the main thread to set the value of our [String] field
+     * [_notification] to the string "Image copied" (observers added to its public [notification]
+     * "accessor" property in both [DashboardFragment] and [GalleryFragment] will show the [String]
+     * in a `Snackbar` whenever its contents changes value).
      *
      * @param uri the [Uri] for the image we are to download and save.
      */
@@ -210,12 +225,22 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Downloads a random image from the URL [RANDOM_IMAGE_URL] ("https://source.unsplash.com/random/500x500")
+     * and saves it in our [imagesFolder] directory. We launch a new coroutine without blocking the
+     * current thread using the [CoroutineScope] tied to this [AppViewModel], and in its lambda we
+     * initialize our [Request] variable `val request` to an instance whose URL target is our constant
+     * [RANDOM_IMAGE_URL]. Then we launch a suspending block using the coroutine context of
+     * [Dispatchers.IO] (suspending until it completes). In this block we initialize our [Response]
+     * variable `val response` to the [Response] returned when we `execute` the [Call] returned by the
+     * [OkHttpClient.newCall] method for `request`.
+     */
     fun saveRandomImageFromInternet() {
         viewModelScope.launch {
-            val request = Request.Builder().url(RANDOM_IMAGE_URL).build()
+            val request: Request = Request.Builder().url(RANDOM_IMAGE_URL).build()
 
             withContext(Dispatchers.IO) {
-                val response = httpClient.newCall(request).execute()
+                val response: Response = httpClient.newCall(request).execute()
 
                 response.body?.let { responseBody ->
                     val imageFile = File(imagesFolder, generateFilename(Source.INTERNET))
