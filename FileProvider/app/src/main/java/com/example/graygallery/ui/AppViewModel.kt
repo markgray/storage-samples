@@ -31,9 +31,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.graygallery.R
 import com.example.graygallery.utils.Source
+import com.example.graygallery.utils.applyGrayscaleFilter
 import com.example.graygallery.utils.copyImageFromStream
 import com.example.graygallery.utils.generateFilename
-import com.example.graygallery.utils.applyGrayscaleFilter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -233,7 +233,23 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
      * [RANDOM_IMAGE_URL]. Then we launch a suspending block using the coroutine context of
      * [Dispatchers.IO] (suspending until it completes). In this block we initialize our [Response]
      * variable `val response` to the [Response] returned when we `execute` the [Call] returned by the
-     * [OkHttpClient.newCall] method for `request`.
+     * [OkHttpClient.newCall] method for `request`. If the [Response.body] `ResponseBody` of `response`
+     * is not `null` we use the [let] extension function on it to call a function block with it as its
+     * argument and in that block we:
+     *  - Initialize our [File] variable `val imageFile` to a new [File] in our [imagesFolder] directory
+     *  whose name is created by our [generateFilename] method for the argument [Source.INTERNET]
+     *  (this name will be of the form: "internet-" concatenated to the string value of the current
+     *  time in milliseconds, concatenated to the string ".jpg")
+     *  - We set the content `imageFile` to the array of bytes in the [ByteArray] returned by the
+     *  `bytes` method of `responseBody`
+     *  - We then post a task to the main thread to set the value of our [String] field [_notification]
+     *  to the string "Image downloaded" (observers added to its public [notification] "accessor"
+     *  property in both [DashboardFragment] and [GalleryFragment] will show the [String] in a
+     *  `Snackbar` whenever its contents changes value).
+     *
+     * If the [Response.isSuccessful] method of `response` returns `false` we post a task to the main
+     * thread to set the value of our [String] field [_notification] to the string "Failed to download
+     * image" to have [DashboardFragment] and [GalleryFragment] show that string in a `Snackbar`.
      */
     fun saveRandomImageFromInternet() {
         viewModelScope.launch {
@@ -256,6 +272,18 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Deletes our [imagesFolder] directory and all of its children. We launch a new coroutine without
+     * blocking the current thread using the [CoroutineScope] tied to this [AppViewModel], and in its
+     * lambda we launch a suspending block using the coroutine context of [Dispatchers.IO] (suspending
+     * until it completes). In this block we call the [File.deleteRecursively] method of [imagesFolder]
+     * to delete the directory and all of its children, post a task to the main thread to set the value
+     * of our [MutableLiveData] wrapped [List] of [File] abstract pathnames field [_images] to an empty
+     * list, and post a task to the main thread to set the value of our [String] field [_notification]
+     * to the string "Images cleared" (observers added to its public [notification] "accessor" property
+     * in both [DashboardFragment] and [GalleryFragment] will show the [String] in a `Snackbar` whenever
+     * its contents changes value).
+     */
     fun clearFiles() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -269,7 +297,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
 /**
  * Returns the [File] pathname for the folder in the directory holding application files which we
- * use to store our images (in our case: "/data/user/0/com.example.graygallery/files/images")
+ * use to store our images (in our case: "/data/user/0/com.example.graygallery/files/images"),
+ * creating that folder if it does not already exist.
  */
 private fun getImagesFolder(context: Context): File {
     val xml: XmlResourceParser = context.resources.getXml(R.xml.filepaths)
