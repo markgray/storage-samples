@@ -337,6 +337,21 @@ private fun getImagesFolder(context: Context): File {
  * parameter [nodeName], and returns all of the attributes of that element in a [Map] of [String] to
  * [String] with the name of each attribute as the key and the value of that attribute as the value.
  *
+ * While the event type of [xml] is not equal to [XmlResourceParser.END_DOCUMENT] (logical end of the
+ * xml document) we check whether the event type of [xml] is [XmlResourceParser.START_TAG] (start tag
+ * was read) and if so we check if the name of the current element is our [String] parameter [nodeName]
+ * and if so we check if the number of attributes of the current start tag is equal to 0 and return
+ * an empty [Map] if it is. Otherwise:
+ *  - We initialize our [Map] of [String] to [String] variable `val attributes` to a new instance.
+ *  - We loop from `index` 0 to the number of attributes of the current start tag setting the value
+ *  of the `attributes` whose key is the attribute name of the local name of the specified attribute
+ *  at index `index` in [xml] to the value of the attribute at index `index` in [xml].
+ *  - When done with all of the attributes in [xml] we return `attributes` to the caller.
+ *
+ * If the event type of [xml] is NOT [XmlResourceParser.START_TAG], or the name of the current element
+ * is NOT [nodeName] we call the [XmlResourceParser.next] method of [xml] to get the next parsing
+ * event of [xml].
+ *
  * @param xml the [XmlResourceParser] we are to parse for the attributes of the element [nodeName].
  * @param nodeName the name of the element whose attributes we are to extract and return.
  * @return a [Map] of [String] to [String] of the attribute names and their values for the element
