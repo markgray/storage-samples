@@ -19,6 +19,7 @@ package com.example.graygallery.ui
 import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
+import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.Bitmap
 import android.net.Uri
@@ -299,6 +300,21 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
  * Returns the [File] pathname for the folder in the directory holding application files which we
  * use to store our images (in our case: "/data/user/0/com.example.graygallery/files/images"),
  * creating that folder if it does not already exist.
+ *
+ * We initialize our [XmlResourceParser] variable `val xml` by using the [Resources.getXml] method of
+ * a [Resources] instance for the application's package to retrieve an [XmlResourceParser] which we
+ * can use to read the generic XML resource file whose ID is [R.xml.filepaths]. We initialize our
+ * [Map] of [String] to [String] variable `val attributes` by using our [getAttributesFromXmlNode]
+ * method to parse `xml` looking for the element name [FILEPATH_XML_KEY] ("files-path") and then to
+ * extract the attribute name and value of all of its attributes to use as their key and value in the
+ * [Map] it returns. We then initialize our [String] variable `val folderPath` to the value stored in
+ * `attributes` under the key "path" (throwing an [IllegalStateException] if this is `null`). Finally
+ * we return a [File] whose parent directory is the absolute path to the directory on the filesystem
+ * where private files associated with this Context's application package are stored and whose child
+ * path is `folderPath` using the [also] extension function to create the `folderPath` directory if
+ * it does not already exist.
+ *
+ * This method is used to "lazily" initialize the [File] field [AppViewModel.imagesFolder].
  */
 private fun getImagesFolder(context: Context): File {
     val xml: XmlResourceParser = context.resources.getXml(R.xml.filepaths)
@@ -316,6 +332,16 @@ private fun getImagesFolder(context: Context): File {
 }
 
 // TODO: Make the function suspend
+/**
+ * Parses its [XmlResourceParser] parameter [xml] looking for the element whose name is our [String]
+ * parameter [nodeName], and returns all of the attributes of that element in a [Map] of [String] to
+ * [String] with the name of each attribute as the key and the value of that attribute as the value.
+ *
+ * @param xml the [XmlResourceParser] we are to parse for the attributes of the element [nodeName].
+ * @param nodeName the name of the element whose attributes we are to extract and return.
+ * @return a [Map] of [String] to [String] of the attribute names and their values for the element
+ * in [xml] whose name is [nodeName].
+ */
 @Suppress("SameParameterValue")
 private fun getAttributesFromXmlNode(
     xml: XmlResourceParser,
