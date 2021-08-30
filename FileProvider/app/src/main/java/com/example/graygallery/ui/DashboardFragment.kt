@@ -40,11 +40,12 @@ class DashboardFragment : Fragment() {
         viewModel.saveImageFromCamera(bitmap)
     }
 
-    private val selectPicture: ActivityResultLauncher<Array<String>> = registerForActivityResult(GetContentWithMimeTypes()) { uri ->
-        uri?.let {
-            viewModel.copyImageFromUri(uri)
+    private val selectPicture: ActivityResultLauncher<Array<String>> =
+        registerForActivityResult(GetContentWithMimeTypes()) { uri ->
+            uri?.let {
+                viewModel.copyImageFromUri(uri)
+            }
         }
-    }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(
