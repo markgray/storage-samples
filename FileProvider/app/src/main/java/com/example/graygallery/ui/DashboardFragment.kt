@@ -19,6 +19,7 @@ package com.example.graygallery.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -57,11 +58,27 @@ class DashboardFragment : Fragment() {
      */
     private lateinit var binding: FragmentDashboardBinding
 
+    /**
+     * This [ActivityResultLauncher] calls the [AppViewModel.saveImageFromCamera] method of our field
+     * [viewModel] with the [Bitmap] returned by the [TakePicturePreview] system [ActivityResultContract]
+     * which launches an [Intent] with the action `MediaStore.ACTION_IMAGE_CAPTURE` (take a small
+     * picture) to capture the [Bitmap] from the phone's camera. [AppViewModel.saveImageFromCamera]
+     * then encodes the [Bitmap] as a JPEG and stores it in the "images/" directory of the apps private
+     * storage area.
+     */
     private val takePicture: ActivityResultLauncher<Void> =
         registerForActivityResult(TakePicturePreview()) { bitmap ->
             viewModel.saveImageFromCamera(bitmap)
         }
 
+    /**
+     * This [ActivityResultLauncher] registers our custom [ActivityResultContract] class
+     * [GetContentWithMimeTypes] for the activity result that is returned when the [Intent] with the
+     * action [Intent.ACTION_GET_CONTENT] that its [ActivityResultContract.createIntent] method creates
+     * is launched. Our lambda callback calls the [AppViewModel.copyImageFromUri] method of our field
+     * [viewModel] with the [Uri] that is returned from the activity that got launched to download
+     * the [Uri] and store it in the "images/" directory of the apps private storage area.
+     */
     private val selectPicture: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(GetContentWithMimeTypes()) { uri ->
             uri?.let {
@@ -69,6 +86,22 @@ class DashboardFragment : Fragment() {
             }
         }
 
+    /**
+     * Called to have the fragment instantiate its user interface view. This will be called between
+     * [onCreate] and [onViewCreated]. First we call our super's implementation of `onCreateView`,
+     * then we call the [FragmentDashboardBinding.inflate] method to have it use our [LayoutInflater]
+     * parameter [inflater] to inflate its associated layout file layout/fragment_dashboard.xml and
+     * bind to it with our [ViewGroup] parameter [container] supplying the `LayoutParams`.
+     *
+     * @param inflater The [LayoutInflater] object that can be used to inflate
+     * any views in the fragment.
+     * @param container If non-`null`, this is the parent view that the fragment's
+     * UI will be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return Return the [View] for the fragment's UI, or null.
+     */
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(
         inflater: LayoutInflater,
