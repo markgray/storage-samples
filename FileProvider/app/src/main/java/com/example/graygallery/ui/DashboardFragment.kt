@@ -24,12 +24,14 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.TakePicturePreview
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
 import com.example.graygallery.databinding.FragmentDashboardBinding
 import com.google.android.material.snackbar.Snackbar
@@ -91,7 +93,35 @@ class DashboardFragment : Fragment() {
      * [onCreate] and [onViewCreated]. First we call our super's implementation of `onCreateView`,
      * then we call the [FragmentDashboardBinding.inflate] method to have it use our [LayoutInflater]
      * parameter [inflater] to inflate its associated layout file layout/fragment_dashboard.xml and
-     * bind to it with our [ViewGroup] parameter [container] supplying the `LayoutParams`.
+     * bind to it with our [ViewGroup] parameter [container] supplying the `LayoutParams` and then
+     * initialize our [FragmentDashboardBinding] field [binding] to the binding returned. We next
+     * proceed to set the [OnClickListener] of our four buttons:
+     *  - [FragmentDashboardBinding.takePicture] of [binding] (labeled "Take picture") is set to a
+     *  lambda which calls the [ActivityResultLauncher.launch] method of our [takePicture] field
+     *  with `null` as its argument, which launches an activity for the [Bitmap] result it returns
+     *  then calls the [AppViewModel.saveImageFromCamera] method of our [viewModel] field to compress
+     *  the [Bitmap] into a JPEG which it stores in our "images/" folder.
+     *  - [FragmentDashboardBinding.selectPicture] of [binding] (labeled "Select picture") is set to
+     *  a lambda which calls the [ActivityResultLauncher.launch] method of our [selectPicture] field
+     *  with our array of mime-types [ACCEPTED_MIMETYPES] as its argument to have it launch an activity
+     *  for the [Uri] it returns when the user selects some image using the activity launched by the
+     *  [Intent] action [Intent.ACTION_GET_CONTENT] then calls the [AppViewModel.copyImageFromUri]
+     *  method of our [viewModel] field to have it fetch the content pointed to by the [Uri] and
+     *  store it in our "images/" folder.
+     *  - [FragmentDashboardBinding.addRandomImage] of [binding] (labeled "Add Unsplash random image")
+     *  is set to a lambda which calls the [AppViewModel.saveRandomImageFromInternet] method of our
+     *  [viewModel] field to have it download a random image from the "UnSplash" website and store
+     *  it in our "images/" folder.
+     *  - [FragmentDashboardBinding.clearFiles] of [binding] (labeled "Clear files") is set to a
+     *  lambda which calls the [AppViewModel.clearFiles] method of our [viewModel] field to have it
+     *  delete all the files in our "images/" folder and the folder as well.
+     *
+     * Next we add an observer to the [AppViewModel.notification] property of our [viewModel] field
+     * with a [LifecycleOwner] that represents the Fragment's View lifecycle as the [LifecycleOwner]
+     * which controls the observer, and an observer lambda which makes and shows a [Snackbar]
+     * displaying the string value of the [AppViewModel.notification] property whenever it changes
+     * value. Finally we return the outermost [View] in the layout file associated with [binding] to
+     * the caller as our UI.
      *
      * @param inflater The [LayoutInflater] object that can be used to inflate
      * any views in the fragment.
@@ -136,6 +166,10 @@ class DashboardFragment : Fragment() {
     }
 }
 
+/**
+ * The [ActivityResultContract] that is used for the [ActivityResultLauncher] field
+ * [DashboardFragment.selectPicture] of [DashboardFragment].
+ */
 class GetContentWithMimeTypes : ActivityResultContract<Array<String>, Uri?>() {
     override fun createIntent(
         context: Context,
