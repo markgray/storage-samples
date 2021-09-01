@@ -17,6 +17,7 @@
 package com.example.graygallery.ui
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -168,9 +169,25 @@ class DashboardFragment : Fragment() {
 
 /**
  * The [ActivityResultContract] that is used for the [ActivityResultLauncher] field
- * [DashboardFragment.selectPicture] of [DashboardFragment].
+ * [DashboardFragment.selectPicture] of [DashboardFragment] as the argument to its
+ * [Fragment.registerForActivityResult] override.
  */
 class GetContentWithMimeTypes : ActivityResultContract<Array<String>, Uri?>() {
+    /**
+     * Creates an [Intent] that can be used for [Activity.startActivityForResult]. We construct a
+     * new instance of [Intent] whose action is [Intent.ACTION_GET_CONTENT] (allows the user to
+     * select a particular kind of data and return it), add the category [Intent.CATEGORY_OPENABLE]
+     * to it (used to indicate that an [Intent] only wants URIs that can be opened with
+     * [ContentResolver.openFileDescriptor]), set its MIME data type to any type, and then add our
+     * [Array] of [String] parameter [input] as an extra with the name [Intent.EXTRA_MIME_TYPES]
+     * (extra used to communicate a set of acceptable MIME types). Finally we return the [Intent]
+     * to the caller.
+     *
+     * @param context a [Context] that an be used to access resources.
+     * @param input the [Array] of [String] mime types to use as the [Intent.EXTRA_MIME_TYPES] extra
+     * of the [Intent] we return.
+     * @return an [Intent] with the action [Intent.ACTION_GET_CONTENT].
+     */
     override fun createIntent(
         context: Context,
         input: Array<String>
@@ -182,6 +199,16 @@ class GetContentWithMimeTypes : ActivityResultContract<Array<String>, Uri?>() {
 
     }
 
+    /**
+     * An optional method you can implement that can be used to potentially provide a result in
+     * lieu of starting an activity. We just return `null` indicating that the call should proceed
+     * to start an activity.
+     *
+     * @param context a [Context] that could be used to retrieve resources.
+     * @param input  the [Array] of [String] mime types to use
+     * @return the result wrapped in a [ActivityResultContract.SynchronousResult]. We return `null`
+     * indicating that the call should proceed to start an activity.
+     */
     override fun getSynchronousResult(
         context: Context,
         input: Array<String>
@@ -189,6 +216,9 @@ class GetContentWithMimeTypes : ActivityResultContract<Array<String>, Uri?>() {
         return null
     }
 
+    /**
+     * Convert [Intent] result obtained from [Activity.onActivityResult] to a [Uri].
+     */
     override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
         return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.data
     }
