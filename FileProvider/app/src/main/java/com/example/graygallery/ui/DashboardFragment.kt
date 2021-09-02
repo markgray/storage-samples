@@ -217,7 +217,16 @@ class GetContentWithMimeTypes : ActivityResultContract<Array<String>, Uri?>() {
     }
 
     /**
-     * Convert [Intent] result obtained from [Activity.onActivityResult] to a [Uri].
+     * Convert [Intent] result obtained from [Activity.onActivityResult] to a [Uri]. If our [Intent]
+     * parameter [intent] is `null` or our [resultCode] parameter is NOT [Activity.RESULT_OK] we
+     * return `null`, otherwise we return the [Intent] stored as the `data` property of our [Intent]
+     * parameter [intent].
+     *
+     * @param resultCode The integer result code returned by the child activity through its
+     * `setResult` method, one of [Activity.RESULT_OK] or [Activity.RESULT_CANCELED].
+     * @param intent An [Intent], which can return result data to the caller (various data can be
+     * attached as [Intent] "extras").
+     * @return the [Uri] that was stored as the `data` of [intent].
      */
     override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
         return if (intent == null || resultCode != Activity.RESULT_OK) null else intent.data
