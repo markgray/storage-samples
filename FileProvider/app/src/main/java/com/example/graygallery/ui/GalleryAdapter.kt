@@ -66,14 +66,18 @@ class GalleryAdapter(private val onClick: (File) -> Unit) :
     /**
      * Called by [RecyclerView] to display the data at the specified position. This method should
      * update the contents of the [ImageViewHolder.itemView] to reflect the item at the given
-     * position.
+     * position. We initialize our [File] variable `val file` to the [File] at position `position`
+     * in our dataset, then set the tag associated with the [ImageViewHolder.rootView] view of our
+     * [ImageViewHolder] parameter [holder] to `file`. Then we call the [ImageView.load] extension
+     * function on the [ImageViewHolder.imageView] view of [holder] to have it load the image in
+     * `file` into itself, enabling a crossfade animation when the load completes successfully.
      *
      * @param holder The [ImageViewHolder] which should be updated to represent the contents of the
      * item at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
      */
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-        val file = getItem(position)
+        val file: File = getItem(position)
         holder.rootView.tag = file
 
         holder.imageView.load(file) {
@@ -82,16 +86,41 @@ class GalleryAdapter(private val onClick: (File) -> Unit) :
     }
 }
 
+/**
+ * This is the [DiffUtil.ItemCallback] implementation we have our [ListAdapter] super use for
+ * calculating the diff between two non-`null` items in our dataset.
+ */
 class ListItemCallback : DiffUtil.ItemCallback<File>() {
+    /**
+     * Called to check whether two objects represent the same item. We return the [Boolean] result
+     * of comparing the [String] `name` property (value returned by [File.getName]) of our two
+     * parameters for equality.
+     *
+     * @param oldItem The item in the old list.
+     * @param newItem The item in the new list.
+     * @return `true` if the two items represent the same object or `false` if they are different.
+     */
     override fun areItemsTheSame(oldItem: File, newItem: File) =
         oldItem.name == newItem.name
 
+    /**
+     * Called to check whether two items have the same data. We return the [Boolean] result of
+     * comparing our two parameters for structural equality.
+     *
+     * @param oldItem The item in the old list.
+     * @param newItem The item in the new list.
+     * @return `true` if the contents of the items are the same or `false` if they are different.
+     */
     override fun areContentsTheSame(oldItem: File, newItem: File) =
         oldItem == newItem
 }
 
 /**
  * Basic [RecyclerView.ViewHolder] for our gallery.
+ *
+ * @param view the [View] we should use as our [rootView] (aka [itemView]).
+ * @param onClick the function that the [OnClickListener] of the [ImageView] in [rootView] should
+ * call with the [File] that is stored in the `tag` of [rootView].
  */
 class ImageViewHolder(view: View, onClick: (File) -> Unit) : RecyclerView.ViewHolder(view) {
     val rootView = view
