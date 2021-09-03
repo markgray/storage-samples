@@ -123,7 +123,16 @@ class ListItemCallback : DiffUtil.ItemCallback<File>() {
  * call with the [File] that is stored in the `tag` of [rootView].
  */
 class ImageViewHolder(view: View, onClick: (File) -> Unit) : RecyclerView.ViewHolder(view) {
+    /**
+     * A copy of the [View] parameter `view` of our constructor. It is the `ConstraintLayout` root
+     * view of the layout file with resource ID [R.layout.gallery_item_layout] in our case
+     */
     val rootView = view
+    /**
+     * The [ImageView] in the the [View] parameter `view` of our constructor with resource ID
+     * [R.id.image]. Its [OnClickListener] is set to a lambda in our `init` block which calls the
+     * `onClick` parameter function with the [File] that is stored in the `tag` of [rootView].
+     */
     val imageView: ImageView = view.findViewById(R.id.image)
 
     init {
