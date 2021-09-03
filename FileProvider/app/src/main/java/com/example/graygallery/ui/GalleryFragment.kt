@@ -25,7 +25,6 @@ import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.graygallery.databinding.FragmentGalleryBinding
 import com.google.android.material.snackbar.Snackbar
@@ -37,6 +36,7 @@ class GalleryFragment : Fragment() {
     private val viewModel by viewModels<AppViewModel>()
     private lateinit var binding: FragmentGalleryBinding
 
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,11 +60,11 @@ class GalleryFragment : Fragment() {
             view.adapter = galleryAdapter
         }
 
-        viewModel.images.observe(viewLifecycleOwner, Observer { images ->
+        viewModel.images.observe(viewLifecycleOwner, { images ->
             galleryAdapter.submitList(images)
         })
 
-        viewModel.notification.observe(viewLifecycleOwner, Observer {
+        viewModel.notification.observe(viewLifecycleOwner, {
             Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
         })
 
