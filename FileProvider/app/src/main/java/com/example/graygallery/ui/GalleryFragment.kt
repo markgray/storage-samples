@@ -17,7 +17,9 @@
 package com.example.graygallery.ui
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +28,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.example.graygallery.databinding.FragmentGalleryBinding
@@ -66,6 +69,23 @@ class GalleryFragment : Fragment() {
      * that calls our [viewImageUsingExternalApp] method to have it launch an activity that allows
      * the user to view the [File] associated with the image that was clicked in the [GalleryAdapter].
      *
+     * We use the [also] extension function on the [FragmentGalleryBinding.gallery] `RecyclerView` of
+     * our [binding] field to:
+     *  - Call the [RecyclerView.setLayoutManager] method of the [RecyclerView] (kotlin `layoutManager`
+     *  property) to set its [RecyclerView.LayoutManager] to a new instance of [GridLayoutManager] with
+     *  [GALLERY_COLUMNS] (3) columns in the grid.
+     *  - Call the [RecyclerView.setAdapter] method of the [RecyclerView] (kotlin `adapter` property)
+     *  to set its [RecyclerView.Adapter] to our `galleryAdapter` variable.
+     *
+     * Next we add an observer to the [AppViewModel.images] field of our [viewModel] field whose
+     * lambda calls the [ListAdapter.submitList] method of `galleryAdapter` to submit the new [List]
+     * of [File] value of the field to be diffed, and displayed whenever it changes value. Then we
+     * add an observer to the [AppViewModel.notification] field of our [viewModel] field whose lambda
+     * shows a [Snackbar] with the [String] value of that field whenever it changes value.
+     *
+     * Finally we return the outermost [View] in the layout file associated with [binding] to the
+     * caller as our UI.
+     *
      * @param inflater The [LayoutInflater] object that can be used to inflate
      * any views in the fragment.
      * @param container If non-`null`, this is the parent view that the fragment's
@@ -91,7 +111,7 @@ class GalleryFragment : Fragment() {
                 viewImageUsingExternalApp(image)
             }
 
-        binding.gallery.also { view ->
+        binding.gallery.also { view: RecyclerView ->
             view.layoutManager = GridLayoutManager(
                 activity,
                 GALLERY_COLUMNS
@@ -99,7 +119,7 @@ class GalleryFragment : Fragment() {
             view.adapter = galleryAdapter
         }
 
-        viewModel.images.observe(viewLifecycleOwner, { images ->
+        viewModel.images.observe(viewLifecycleOwner, { images: List<File> ->
             galleryAdapter.submitList(images)
         })
 
@@ -112,10 +132,17 @@ class GalleryFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Launches an [Intent] with the action [Intent.ACTION_VIEW] to start an activity which will
+     * allow the user to view our [File] parameter [imageFile].
+     *
+     * @param imageFile the [File] we want the activity we launch to display. In our case it is the
+     * [File] associated with the image in our [RecyclerView] that the user has clicked.
+     */
     private fun viewImageUsingExternalApp(imageFile: File) {
-        val context = requireContext()
+        val context: Context = requireContext()
         val authority = "${context.packageName}.fileprovider"
-        val contentUri = FileProvider.getUriForFile(context, authority, imageFile)
+        val contentUri: Uri = FileProvider.getUriForFile(context, authority, imageFile)
 
         val viewIntent = Intent(Intent.ACTION_VIEW).apply {
             data = contentUri
@@ -125,7 +152,11 @@ class GalleryFragment : Fragment() {
         try {
             startActivity(viewIntent)
         } catch (e: ActivityNotFoundException) {
-            Snackbar.make(binding.root, "Couldn't find suitable app to display the image", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(
+                binding.root,
+                "Couldn't find suitable app to display the image",
+                Snackbar.LENGTH_SHORT
+            ).show()
         }
     }
 }
