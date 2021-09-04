@@ -54,10 +54,20 @@ class GalleryFragment : Fragment() {
     /**
      * Called to have the fragment instantiate its user interface view. This will be called between
      * [onCreate] and [onViewCreated]. It is recommended to only inflate the layout in this method
-     * and move logic that operates on the returned [View] to [onViewCreated].
+     * and move logic that operates on the returned [View] to [onViewCreated]. First we call our
+     * super's implementation of `onCreateView`, then we call the [FragmentGalleryBinding.inflate]
+     * method to have it use our [LayoutInflater] parameter [inflater] to inflate its associated
+     * layout file layout/fragment_gallery.xml and bind to it with our [ViewGroup] parameter
+     * [container] supplying the `LayoutParams` and we then initialize our [FragmentGalleryBinding]
+     * field [binding] to the binding returned. Next we call the [AppViewModel.loadImages] method of
+     * our field [viewModel] to have it read the directory contents of our "images/" folder into its
+     * [List] of [File] dataset [AppViewModel._images]. Then we initialize our [GalleryAdapter]
+     * variable val galleryAdapter` to a new instance whose `onClick` function field is a lambda
+     * that calls our [viewImageUsingExternalApp] method to have it launch an activity that allows
+     * the user to view the [File] associated with the image that was clicked in the [GalleryAdapter].
      *
      * @param inflater The [LayoutInflater] object that can be used to inflate
-     * any views in the fragment,
+     * any views in the fragment.
      * @param container If non-`null`, this is the parent view that the fragment's
      * UI will be attached to. The fragment should not add the view itself,
      * but this can be used to generate the `LayoutParams` of the view.
@@ -77,7 +87,7 @@ class GalleryFragment : Fragment() {
         viewModel.loadImages()
 
         val galleryAdapter =
-            GalleryAdapter { image ->
+            GalleryAdapter { image: File ->
                 viewImageUsingExternalApp(image)
             }
 
