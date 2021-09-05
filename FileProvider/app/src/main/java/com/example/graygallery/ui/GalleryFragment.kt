@@ -134,7 +134,26 @@ class GalleryFragment : Fragment() {
 
     /**
      * Launches an [Intent] with the action [Intent.ACTION_VIEW] to start an activity which will
-     * allow the user to view our [File] parameter [imageFile].
+     * allow the user to view our [File] parameter [imageFile]. First we initialize our [Context]
+     * variable `val context` to the [Context] this fragment is currently associated with. We then
+     * initialize our [String] variable `val authority` to a string formed by concatenating the name
+     * of this application's package followed by the string ".fileprovider" (a `provider` element in
+     * our AndroidManifest.xml file has a "android:authorities" attribute that uses this string, and
+     * its "android:name" attribute assigns the `provider` responsibility to the default functionality
+     * that is provided by [androidx.core.content.FileProvider]). Next we initialize our [Uri] variable
+     * `val contentUri` to the content URI returned by the [FileProvider.getUriForFile] method when
+     * passed `context` for its [Context], `authority` for the authority of the [FileProvider] defined
+     * by the `<provider>` element in our app's manifest, and `imageFile` as the [File] pointing to
+     * the filename for which we want a content [Uri]. Then we initialize our [Intent] variable
+     * `val viewIntent` to a new instance whose action is [Intent.ACTION_VIEW] and use the [apply]
+     * extension function on it to set its `data` property to `contentUri`, and then add the flag
+     * [Intent.FLAG_GRANT_READ_URI_PERMISSION] (the recipient of the [Intent] will be granted
+     * permission to perform read operations on the [Uri] in the [Intent]'s data).
+     *
+     * Finally wrapped in a `try` block intendened to catch [ActivityNotFoundException] we call
+     * [startActivity] to launch launch the activity specified by `viewIntent` (the `catch` block
+     * will make and display a [Snackbar] with the message "Couldn't find suitable app to display
+     * the image" if an Activity can not be found to execute the `viewIntent` [Intent]).
      *
      * @param imageFile the [File] we want the activity we launch to display. In our case it is the
      * [File] associated with the image in our [RecyclerView] that the user has clicked.
