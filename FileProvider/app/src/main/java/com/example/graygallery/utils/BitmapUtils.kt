@@ -46,5 +46,6 @@ suspend fun applyGrayscaleFilter(original: Bitmap): Bitmap {
     }
 }
 
-fun byteArrayToBitmap(byteArray: ByteArray) =
+@Suppress("unused")
+fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? =
     BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
