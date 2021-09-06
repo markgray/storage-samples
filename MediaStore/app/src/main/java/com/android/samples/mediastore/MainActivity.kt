@@ -35,7 +35,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -82,11 +81,11 @@ class MainActivity : AppCompatActivity() {
             view.adapter = galleryAdapter
         }
 
-        viewModel.images.observe(this, Observer<List<MediaStoreImage>> { images ->
+        viewModel.images.observe(this, { images ->
             galleryAdapter.submitList(images)
         })
 
-        viewModel.permissionNeededForDelete.observe(this, Observer { intentSender ->
+        viewModel.permissionNeededForDelete.observe(this, { intentSender ->
             intentSender?.let {
                 // On Android 10+, if the app doesn't have permission to modify
                 // or delete an item, it returns an `IntentSender` that we can
