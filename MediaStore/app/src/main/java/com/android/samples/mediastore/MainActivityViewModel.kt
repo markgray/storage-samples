@@ -28,6 +28,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -276,7 +277,7 @@ private fun ContentResolver.registerObserver(
     uri: Uri,
     observer: (selfChange: Boolean) -> Unit
 ): ContentObserver {
-    val contentObserver = object : ContentObserver(Handler()) {
+    val contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean) {
             observer(selfChange)
         }
