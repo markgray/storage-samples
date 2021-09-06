@@ -34,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -42,7 +43,9 @@ import com.android.samples.mediastore.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-/** The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission. */
+/**
+ * The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission.
+ */
 private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
 
 /**
@@ -56,7 +59,14 @@ private const val DELETE_PERMISSION_REQUEST = 0x1033
  */
 class MainActivity : AppCompatActivity() {
 
+    /**
+     * The [AndroidViewModel] subclass we use as our view model.
+     */
     private val viewModel: MainActivityViewModel by viewModels()
+    /**
+     * The [ActivityMainBinding] view binding that is inflated, bound, and set as our content view
+     * and which is generated from the layout file layout/activity_main.xml
+     */
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
