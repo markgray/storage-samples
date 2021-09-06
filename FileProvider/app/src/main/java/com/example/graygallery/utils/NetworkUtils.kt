@@ -16,8 +16,21 @@
 
 package com.example.graygallery.utils
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import okhttp3.ResponseBody
+import java.io.InputStream
 
-fun getBitmapFromResponseBody(responseBody: ResponseBody) =
+/**
+ * Convenience method to call the [BitmapFactory.decodeStream] method to decode the [InputStream]
+ * returned by the [ResponseBody.byteStream] method of our parameter [responseBody] into a [Bitmap]
+ * and return it to the caller.
+ *
+ * @param responseBody the [ResponseBody] whose [ResponseBody.byteStream] method's [InputStream] we
+ * are to decode into a [Bitmap].
+ * @return the [Bitmap] decoded from the [InputStream] returned by the [ResponseBody.byteStream]
+ * method of our parameter [responseBody]
+ */
+@Suppress("unused")
+fun getBitmapFromResponseBody(responseBody: ResponseBody): Bitmap =
     BitmapFactory.decodeStream(responseBody.byteStream())
