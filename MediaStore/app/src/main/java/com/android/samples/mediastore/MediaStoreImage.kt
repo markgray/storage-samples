@@ -20,7 +20,8 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.recyclerview.widget.DiffUtil
-import java.util.*
+import androidx.recyclerview.widget.ListAdapter
+import java.util.Date
 
 /**
  * Simple data class to hold information about an image included in the device's MediaStore.
@@ -44,10 +45,33 @@ data class MediaStoreImage(
     val contentUri: Uri
 ) {
     companion object {
+        /**
+         * This is the [DiffUtil.ItemCallback] implementation used by the `GalleryAdapter` custom
+         * [ListAdapter] to calculate the diff between two non-null [MediaStoreImage] objects in its
+         * dataset when a new [List] is submitted.
+         */
         val DiffCallback = object : DiffUtil.ItemCallback<MediaStoreImage>() {
+            /**
+             * Called to check whether two objects represent the same item. We return the [Boolean]
+             * result of comparing the [MediaStoreImage.id] property or our two parameters for
+             * equality (the [MediaStoreImage.id] is unique for each image).
+             *
+             * @param oldItem The item in the old list.
+             * @param newItem The item in the new list.
+             * @return `true` if the two items represent the same object or `false` if they are
+             * different.
+             */
             override fun areItemsTheSame(oldItem: MediaStoreImage, newItem: MediaStoreImage) =
                 oldItem.id == newItem.id
 
+            /**
+             * Called to check whether two items have the same data. We return the [Boolean]
+             * result of comparing our two parameters for equality.
+             *
+             * @param oldItem The item in the old list.
+             * @param newItem The item in the new list.
+             * @return True if the contents of the items are the same or false if they are different.
+             */
             override fun areContentsTheSame(oldItem: MediaStoreImage, newItem: MediaStoreImage) =
                 oldItem == newItem
         }
