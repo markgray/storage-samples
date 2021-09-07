@@ -35,6 +35,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,8 +44,24 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
+/**
+ * The [AndroidViewModel] view model used by our application.
+ */
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
+    /**
+     * The [MutableLiveData] wrapped [List] of [MediaStoreImage] that serves as our dataset. Private
+     * to prevent other classes from changing it, read-only access is provided by our [images] field.
+     * Our [loadImages] method posts the [List] of [MediaStoreImage] objects that our [queryImages]
+     * method builds from the [Cursor] returned from the [ContentResolver.query] method for the [Uri]
+     * [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] ("content://media/external/images/media").
+     */
     private val _images = MutableLiveData<List<MediaStoreImage>>()
+    /**
+     * Public read-only access to our [_images] field. An observer is added to it in the `onCreate`
+     * override of [MainActivity] whose lambda calls the [ListAdapter.submitList] method of the
+     * `GalleryAdapter` feeding views to its [RecyclerView] with the [List] value whenever it changes
+     * value.
+     */
     val images: LiveData<List<MediaStoreImage>> get() = _images
 
     private var contentObserver: ContentObserver? = null
