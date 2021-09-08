@@ -18,6 +18,7 @@ package com.android.samples.mediastore
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.app.PendingIntent
 import android.app.RecoverableSecurityException
 import android.content.ContentProvider
 import android.content.ContentResolver
@@ -64,15 +65,43 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      */
     val images: LiveData<List<MediaStoreImage>> get() = _images
 
+    /**
+     * The [ContentObserver] we register in our [loadImages] method to receive call backs for any
+     * changes that occur in the content of the `Uri` [MediaStore.Images.Media.EXTERNAL_CONTENT_URI]
+     * ("content://media/external/images/media"). The lambda that is executed when this occurs is
+     * a call to [loadImages] to reload our dataset.
+     */
     private var contentObserver: ContentObserver? = null
 
+    /**
+     * When an attempt to delete an image fails because of a [SecurityException] this serves as a
+     * signal to the Activity that it needs to request permission and try the delete again if
+     * permission is granted. It is set to the [MediaStoreImage] argument to our [performDeleteImage]
+     * method when the method catches [SecurityException] when it tries to delete the image using
+     * the [ContentResolver.delete] method.
+     */
     private var pendingDeleteImage: MediaStoreImage? = null
+
+    /**
+     * This [MutableLiveData] wrapped [IntentSender] is built to hold the [PendingIntent] that the
+     * [RecoverableSecurityException] suggests as the primary action to involve the end user to
+     * recover from the exception. It is set by our [performDeleteImage] method when it catches a
+     * [RecoverableSecurityException] to a [IntentSender] object that wraps the existing sender of
+     * the [PendingIntent] that is the action intent of the primary action that will initiate the
+     * recovery from the [RecoverableSecurityException]. It is private to prevent other classes from
+     * modifying it, public read-only access is provided by our [permissionNeededForDelete] field.
+     */
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
+    /**
+     * Public read-only access to our [_permissionNeededForDelete] field. An observer is added to it
+     * in the `onCreate` override of [MainActivity] whose lambda launches the activity described by
+     * the [IntentSender] for its result.
+     */
     val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
     /**
      * Performs a one shot load of images from [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] into
-     * the [_images] [LiveData] above.
+     * our [LiveData] wrapped [List] of [MediaStoreImage] field [_images].
      */
     fun loadImages() {
         viewModelScope.launch {
