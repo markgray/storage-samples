@@ -38,6 +38,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -101,11 +103,26 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     /**
      * Performs a one shot load of images from [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] into
-     * our [LiveData] wrapped [List] of [MediaStoreImage] field [_images].
+     * our [LiveData] wrapped [List] of [MediaStoreImage] field [_images]. We launch a new coroutine
+     * without blocking the current thread using the [CoroutineScope] tied to this `ViewModel`. The
+     * coroutine block consists of a lambda which:
+     *  - Initializes our [List] of [MediaStoreImage] variable `val imageList` to the [List] returned
+     *  by our [queryImages] method when it queries a [ContentResolver] instance for our application's
+     *  package for the [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] content [Uri] and builds a
+     *  [MediaStoreImage] object for each of the rows of the [Cursor] returned.
+     *  - Posts a task to a main thread to set value of our [MutableLiveData] wrapped [List] of
+     *  [MediaStoreImage] field [_images] to `imageList`.
+     *  - If our [ContentObserver] field [contentObserver] is `null` we set it to an instance that
+     *  is registered to observe [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] for changes and to
+     *  execute a lambda which calls this [loadImages] method again when the content of the [Uri]
+     *  changes.
+     *
+     * This is called from the `showImages` method of [MainActivity], and by the [ContentObserver]
+     * that we register.
      */
     fun loadImages() {
         viewModelScope.launch {
-            val imageList = queryImages()
+            val imageList: List<MediaStoreImage> = queryImages()
             _images.postValue(imageList)
 
             if (contentObserver == null) {
@@ -118,6 +135,19 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /**
+     * Requests the [MediaStore] to delete the image associated with our [MediaStoreImage] parameter
+     * [image]. We launch a new coroutine without blocking the current thread using the [CoroutineScope]
+     * tied to this `ViewModel`. The coroutine block consists of a lambda which calls our `suspend`
+     * function [performDeleteImage] with our parameter [image].
+     *
+     * It is called from our [deletePendingImage] method and from the [MaterialAlertDialogBuilder]
+     * shown by the `deleteImage` method of [MainActivity].
+     *
+     * @param image the [MediaStoreImage] containing the information needed to delete the image (the
+     * URL of the row to delete is in its [MediaStoreImage.contentUri] property, and its `_ID` is in
+     * in its [MediaStoreImage.id] property).
+     */
     fun deleteImage(image: MediaStoreImage) {
         viewModelScope.launch {
             performDeleteImage(image)
