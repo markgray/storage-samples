@@ -95,7 +95,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     /**
      * Public read-only access to our [_permissionNeededForDelete] field. An observer is added to it
      * in the `onCreate` override of [MainActivity] whose lambda launches the activity described by
-     * the [IntentSender] for its result.
+     * the [IntentSender] for its result whenever it changes to a non-`null` value.
      */
     val permissionNeededForDelete: LiveData<IntentSender?> = _permissionNeededForDelete
 
