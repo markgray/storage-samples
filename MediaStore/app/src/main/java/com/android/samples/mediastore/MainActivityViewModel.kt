@@ -154,6 +154,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /**
+     * This method is called upon successful return from the activity launched to have the system
+     * ask the user for permission to delete the file associated with the [MediaStoreImage] field
+     * [pendingDeleteImage]. If [pendingDeleteImage] is not `null` we use the [let] extension
+     * function to set it to `null` and to call our [deleteImage] method to delete the image
+     * associated with it.
+     */
     fun deletePendingImage() {
         pendingDeleteImage?.let { image ->
             pendingDeleteImage = null
@@ -364,4 +371,7 @@ private fun ContentResolver.registerObserver(
 }
 
 
+/**
+ * TAG used for logging
+ */
 private const val TAG = "MainActivityVM"
