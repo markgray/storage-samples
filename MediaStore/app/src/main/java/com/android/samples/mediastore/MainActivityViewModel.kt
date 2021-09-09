@@ -32,6 +32,8 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -160,6 +162,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * [pendingDeleteImage]. If [pendingDeleteImage] is not `null` we use the [let] extension
      * function to set it to `null` and to call our [deleteImage] method to delete the image
      * associated with it.
+     *
+     * It is called in the lambda of the [ActivityResultLauncher] of [IntentSenderRequest] that is
+     * registered to initialize the `requestPermissionToDelete` field of [MainActivity], and that
+     * [ActivityResultLauncher] is launched by an observer of our [permissionNeededForDelete] field
+     * when it changes to a non-`null` value.
      */
     fun deletePendingImage() {
         pendingDeleteImage?.let { image ->
@@ -168,6 +175,14 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /**
+     * Queries a [ContentResolver] instance for our application's package for all of the images that
+     * the [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] content [Uri] returns in its [Cursor] and
+     * converts that [Cursor] to a [List] of [MediaStoreImage] objects which it returns.
+     *
+     * @return a [List] of [MediaStoreImage] objects which can be used to reference all of the images
+     * that [MediaStore] is aware of.
+     */
     private suspend fun queryImages(): List<MediaStoreImage> {
         val images = mutableListOf<MediaStoreImage>()
 
