@@ -20,7 +20,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
 import android.os.Bundle
@@ -29,6 +28,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -48,11 +50,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
 
 /**
- * Code used with [IntentSender] to request user permission to delete an image with scoped storage.
- */
-private const val DELETE_PERMISSION_REQUEST = 0x1033
-
-/**
  * MainActivity for the sample that displays a gallery of images in a [RecyclerView] using
  * a [GridLayoutManager].
  */
@@ -67,6 +64,14 @@ class MainActivity : AppCompatActivity() {
      * and which is generated from the layout file layout/activity_main.xml
      */
     private lateinit var binding: ActivityMainBinding
+
+    private val requestPermissionToDelete = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.deletePendingImage()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,14 +96,8 @@ class MainActivity : AppCompatActivity() {
                 // or delete an item, it returns an `IntentSender` that we can
                 // use here to prompt the user to grant permission to delete (or modify)
                 // the image.
-                startIntentSenderForResult(
-                    intentSender,
-                    DELETE_PERMISSION_REQUEST,
-                    null,
-                    0,
-                    0,
-                    0,
-                    null
+                requestPermissionToDelete.launch(
+                    IntentSenderRequest.Builder(intentSender).build()
                 )
             }
         })
@@ -150,13 +149,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 return
             }
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == DELETE_PERMISSION_REQUEST) {
-            viewModel.deletePendingImage()
         }
     }
 
