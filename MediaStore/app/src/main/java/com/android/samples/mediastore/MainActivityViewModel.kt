@@ -376,6 +376,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * We're suppressing the lint warning because we're not actually using the date formatter
      * to format the date to display, just to specify a format to use to parse it, and so the
      * locale warning doesn't apply.
+     *
+     * @param day the day of the month (1-31)
+     * @param month the month (1-12)
+     * @param year the year
+     * @return the number of milliseconds since January 1, 1970, 00:00:00 GMT for the date specified
+     * by our parameters.
      */
     @Suppress("SameParameterValue")
     @SuppressLint("SimpleDateFormat")
@@ -386,7 +392,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     /**
      * Since we register a [ContentObserver], we want to unregister this when the `ViewModel`
-     * is being released.
+     * is being released. If our [ContentObserver] field [contentObserver] is not `null` we use
+     * the [let] extension function to call the [ContentResolver.unregisterContentObserver] method
+     * of a [ContentResolver] instance for our application's package with `it` as the argument.
      */
     override fun onCleared() {
         contentObserver?.let {
@@ -396,7 +404,21 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 }
 
 /**
- * Convenience extension method to register a [ContentObserver] given a lambda.
+ * Convenience extension method to register a [ContentObserver] given a lambda. We initialize our
+ * [ContentObserver] variable `val contentObserver` to a new instance which uses a [Handler] which
+ * uses the application's main [Looper] to run its [ContentObserver.onChange] method on. We override
+ * [ContentObserver.onChange] to call our [observer] lambda with the [Boolean] parameter of `onChange`
+ * (which is ignored by the lambda in our case). Next we call the [ContentResolver.registerContentObserver]
+ * method with our [Uri] parameter [uri] as the [Uri] to watch for changes, `true` for its [Boolean]
+ * `notifyForDescendants` parameter (when `true`, the observer will also be notified whenever a change
+ * occurs to the URI's descendants in the path hierarchy), and `contentObserver` as the object that
+ * receives callbacks when changes occur. Finally we return `contentObserver` to the caller.
+ *
+ * @param uri the [Uri] to watch for changes.
+ * @param observer a lambda which the [ContentObserver] should execute when changes occur to the
+ * [Uri] parameter [uri]
+ * @return a [ContentObserver] configured to watch the [Uri] parameter [uri] for changes and to
+ * execute the [observer] parameter lambda when they occur.
  */
 private fun ContentResolver.registerObserver(
     uri: Uri,
