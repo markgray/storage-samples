@@ -48,6 +48,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 
 /**
  * The [AndroidViewModel] view model used by our application.
@@ -307,6 +308,31 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return images
     }
 
+    /**
+     * Has the [MediaStore] delete the image associated with our [MediaStoreImage] parameter [image].
+     * We use the [CoroutineContext] of [Dispatchers.IO] to call a suspending block which consists
+     * of a `try` block intended to catch and deal with [SecurityException] and in the `try` block
+     * we use a [ContentResolver] instance for our application's package to delete the row whose URL
+     * is the [MediaStoreImage.contentUri] property of our [image] parameter, filtering for rows where
+     * the [MediaStore.Images.Media._ID] column consists of the [String] value of the [MediaStoreImage.id]
+     * property of [image].
+     *
+     * If we `catch` [SecurityException] we check if [Build.VERSION.SDK_INT] (SDK version of the
+     * software currently running on this hardware device) is greater than or equal to
+     * [Build.VERSION_CODES.Q] and if so we initialize our [RecoverableSecurityException] variable
+     * `val recoverableSecurityException` by casting the [SecurityException] if possible (rethrowing
+     * the [SecurityException] if it is not). We then set our [pendingDeleteImage] field to our
+     * parameter [image], and post a task to the main thread to set our [IntentSender] field
+     * [_permissionNeededForDelete] to a [IntentSender] that wraps the sender of the action
+     * [PendingIntent] of the primary action that will initiate recovery from the
+     * [RecoverableSecurityException] contained in `recoverableSecurityException`.
+     *
+     * If on the other hand [Build.VERSION.SDK_INT] is less than [Build.VERSION_CODES.Q] we just
+     * rethrow the [SecurityException].
+     *
+     * @param image the [MediaStoreImage] containing the information needed to delete the image
+     * associated with it from the file system.
+     */
     private suspend fun performDeleteImage(image: MediaStoreImage) {
         withContext(Dispatchers.IO) {
             try {
