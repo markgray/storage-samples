@@ -18,6 +18,7 @@ package com.android.samples.mediastore
 
 import android.Manifest
 import android.app.Activity
+import android.app.RecoverableSecurityException
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -51,8 +52,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
 
 /**
- * MainActivity for the sample that displays a gallery of images in a [RecyclerView] using
- * a [GridLayoutManager].
+ * MainActivity for the sample that displays a gallery of images retrieved using the `MediaStore`
+ * API in a [RecyclerView] whose layout manager is a [GridLayoutManager].
  */
 class MainActivity : AppCompatActivity() {
 
@@ -62,10 +63,26 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModels()
     /**
      * The [ActivityMainBinding] view binding that is inflated, bound, and set as our content view
-     * and which is generated from the layout file layout/activity_main.xml
+     * and which is generated from the layout file layout/activity_main.xml which consists of a
+     * `layout` root element (apparently data binding was considered at one time but not used) which
+     * holds a `ConstraintLayout` with either a [RecyclerView] to display our images in or when we
+     * do not yet have permission to access the images a `LinearLayout` holding an `ImageView`
+     * above a `TextView` explaining that we require access to storage, with a `MaterialButton`
+     * at the bottom which the user can click to go through the process of granting us permission.
      */
     private lateinit var binding: ActivityMainBinding
 
+    /**
+     * This [ActivityResultLauncher] is launched by an observer when our [viewModel]'s field
+     * [MainActivityViewModel.permissionNeededForDelete] changes to a non-`null` value. It's
+     * parameter is the [IntentSenderRequest] that is derived from the [RecoverableSecurityException]
+     * caught by the `performDeleteImage` method of [viewModel] when we do not have permission and
+     * launching this [ActivityResultLauncher] will launch an activity for its result that will allow
+     * the user to grant us permission. On return from that activity the lambda we register for the
+     * result will execute with the [ActivityResult] object returned, and if the `resultCode` of
+     * that [ActivityResult] is [Activity.RESULT_OK] it calls the [MainActivityViewModel.deletePendingImage]
+     * method of [viewModel] do try to delete that image again.
+     */
     private val requestPermissionToDelete: ActivityResultLauncher<IntentSenderRequest> =
         registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
@@ -75,6 +92,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
