@@ -34,6 +34,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -93,7 +94,22 @@ class MainActivity : AppCompatActivity() {
         }
 
     /**
-     * Called when the activity is starting.
+     * Called when the activity is starting. First we call our super's implementation of `onCreate`,
+     * then we initialize our [ActivityMainBinding] field [binding] to the view binding that the
+     * [DataBindingUtil.setContentView] method returns when it sets the Activity's content view to
+     * the layout file [R.layout.activity_main] and returns the associated binding. We initialize our
+     * [GalleryAdapter] variable `val galleryAdapter` to a new instance whose constructor argument is
+     * a lambda which calls our [deleteImage] method with the [MediaStoreImage] parameter passed to
+     * it (the [ImageViewHolder] used for each image in our [RecyclerView] sets the `OnClickListener`
+     * of the [ImageView] it holds to a lambda which retrieves the [MediaStoreImage] stored as the
+     * `tag` of its root view and calls this lambda with it). Our [deleteImage] method will show an
+     * [AlertDialog] which asks the user if they want to delete the file, and will call the
+     * [MainActivityViewModel.deleteImage] method of [viewModel] with the [MediaStoreImage] if the
+     * positive button is clicked.
+     *
+     * Next we use the [also] extension function on the [ActivityMainBinding.gallery] property of
+     * [binding] (the [RecyclerView]) to set its `layoutManager` to a new instance of [GridLayoutManager]
+     * with 3 columns, and to set its `adapter` to `galleryAdapter`.
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
@@ -101,11 +117,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        val galleryAdapter = GalleryAdapter { image ->
+        val galleryAdapter = GalleryAdapter { image: MediaStoreImage ->
             deleteImage(image)
         }
 
-        binding.gallery.also { view ->
+        binding.gallery.also { view: RecyclerView ->
             view.layoutManager = GridLayoutManager(this, 3)
             view.adapter = galleryAdapter
         }
