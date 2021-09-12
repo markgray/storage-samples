@@ -21,7 +21,9 @@ import android.app.Activity
 import android.app.RecoverableSecurityException
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.content.pm.PackageManager.PERMISSION_DENIED
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
@@ -111,6 +113,30 @@ class MainActivity : AppCompatActivity() {
      * [binding] (the [RecyclerView]) to set its `layoutManager` to a new instance of [GridLayoutManager]
      * with 3 columns, and to set its `adapter` to `galleryAdapter`.
      *
+     * We add an observer to the [MainActivityViewModel.images] field of [viewModel] whose lambda
+     * calls the [ListAdapter.submitList] method of `galleryAdapter` with the [List] of [MediaStoreImage]
+     * objects passed it to have it diffed against the current dataset, and then displayed in its
+     * associated [RecyclerView].
+     *
+     * We add an observer to the [MainActivityViewModel.permissionNeededForDelete] field of [viewModel]
+     * whose lambda will launch our [ActivityResultLauncher] field [requestPermissionToDelete] with
+     * an [IntentSenderRequest] built from the [IntentSender] passed it when it transitions to a
+     * non-`null` value. [requestPermissionToDelete] will launch the activity suggested by the
+     * [IntentSender] to allow the user to grant permission to delete the image file in question,
+     * and its callback will interpret the [ActivityResult] returned from that activity and delete
+     * the image file if the activity returns [Activity.RESULT_OK] as the result code.
+     *
+     * We set the [View.OnClickListener] of the [ActivityMainBinding.openAlbum] button of [binding]
+     * to a lambda which calls our [openMediaStore] method and the [View.OnClickListener] of the
+     * [ActivityMainBinding.grantPermissionButton] button of [binding] to a lambda which calls our
+     * [openMediaStore] method.
+     *
+     * If our [haveStoragePermission] method returns `false` ([Manifest.permission.READ_EXTERNAL_STORAGE]
+     * permission has not been granted to our app) we set the visibility of the `LinearView` property
+     * [ActivityMainBinding.welcomeView] of [binding] to [View.VISIBLE] (it contains the button for
+     * asking for permission and an explanation of why it is necessary), otherwise we call our
+     * [showImages] method to have it retrieve the images using the `MediaStore` API.
+     *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,11 +152,11 @@ class MainActivity : AppCompatActivity() {
             view.adapter = galleryAdapter
         }
 
-        viewModel.images.observe(this, { images ->
+        viewModel.images.observe(this, { images: List<MediaStoreImage> ->
             galleryAdapter.submitList(images)
         })
 
-        viewModel.permissionNeededForDelete.observe(this, { intentSender ->
+        viewModel.permissionNeededForDelete.observe(this, { intentSender: IntentSender? ->
             intentSender?.let {
                 // On Android 10+, if the app doesn't have permission to modify
                 // or delete an item, it returns an `IntentSender` that we can
@@ -152,6 +178,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Callback for the result from requesting permissions. This method is invoked for every call
+     * on [ActivityCompat.requestPermissions]. [ActivityCompat.requestPermissions] is called by our
+     * [requestPermission] method to request the permissions [Manifest.permission.READ_EXTERNAL_STORAGE],
+     * and [Manifest.permission.WRITE_EXTERNAL_STORAGE]. [requestPermission] is called from our
+     * [openMediaStore] method if [haveStoragePermission] determines we do not have these permissions.
+     *
+     * First we call our super's implementation of `onRequestPermissionsResult`. Then if our
+     * [requestCode] parameter is the constant [READ_EXTERNAL_STORAGE_REQUEST] that is passed to
+     * [ActivityCompat.requestPermissions] by our [requestPermission] method we check that our
+     * [grantResults] parameter is not empty and the 0 index entry of [grantResults] is equal to
+     * [PERMISSION_GRANTED] and if so we call our [showImages] method to have it retrieve the images
+     * using the `MediaStore` API and display them in our [RecyclerView].
+     *
+     * If our [grantResults] parameter is empty or the 0 index entry of [grantResults] is not equal
+     * to [PERMISSION_GRANTED] the user has denied us access so we:
+     *  - Initialize our [Boolean] variable `val showRationale` to the value returned by the method
+     *  [ActivityCompat.shouldShowRequestPermissionRationale] for the permission
+     *  [Manifest.permission.READ_EXTERNAL_STORAGE].
+     *  - If `showRationale` is `true` the user has denied us the permission but has not checked the
+     *  "Do not ask again" box so we call our [showNoAccess] method to display a rationale for why
+     *  we need the permission along with a button that allows us to ask again.
+     *  - If `showRationale` is `false` the user has checked the "Do not ask again" box so we have
+     *  to call our [goToSettings] method to launch the settings activity which will allow him
+     *  either to change his mind about allowing that permission or to remove our app.
+     *
+     * @param requestCode The request code passed to [ActivityCompat.requestPermissions]
+     * @param permissions The requested permissions. Never `null`.
+     * @param grantResults The grant results for each of the corresponding permissions which are
+     * either [PERMISSION_GRANTED] or [PERMISSION_DENIED]. Never `null`.
+     */
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -166,7 +223,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     // If we weren't granted the permission, check to see if we should show
                     // rationale for the permission.
-                    val showRationale =
+                    val showRationale: Boolean =
                         ActivityCompat.shouldShowRequestPermissionRationale(
                             this,
                             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -212,7 +269,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goToSettings() {
-        Intent(ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")).apply {
+        Intent(
+            ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.parse("package:$packageName")
+        ).apply {
             addCategory(Intent.CATEGORY_DEFAULT)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }.also { intent ->
