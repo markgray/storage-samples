@@ -19,13 +19,16 @@ package com.android.samples.mediastore
 import android.Manifest
 import android.app.Activity
 import android.app.RecoverableSecurityException
+import android.content.ContentResolver
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.pm.PackageManager.PERMISSION_DENIED
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.LayoutInflater
 import android.view.View
@@ -249,6 +252,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Queries the `MediaStore` API for all of the image files on the users device and causes them
+     * to be displayed in our [RecyclerView]. First we call the [MainActivityViewModel.loadImages]
+     * method of our field [viewModel] to have it query a [ContentResolver] for the
+     * [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] content URI and to use the [Cursor] returned
+     * to build a [List] of [MediaStoreImage] objects with the information necessary to access the
+     * image files. It posts this [List] to its private field `_images` and an observer added to its
+     * public accessor field [MainActivityViewModel.images] of [viewModel] in our [onCreate] override
+     * will submit the [List] to the [GalleryAdapter] feeding views to our [RecyclerView] to have it
+     * diffed against the current dataset, and then displayed in the [RecyclerView].
+     *
+     * Next we set the `visibility` of the [ActivityMainBinding.welcomeView] `LinearLayout` to
+     * [View.GONE] (it contains an `ImageView` and a `MaterialButton` with the label "Open Album"
+     * which when clicked calls our [openMediaStore] method which either shows the images if we
+     * already have permission to access them or calls our [requestPermission] method to have the
+     * system ask the user to grant us permission to access them if do not have permission, and is
+     * the view that the user sees when the app first starts up). Finally we set the `visibility` of
+     * the [ActivityMainBinding.permissionRationaleView] `LinearLayout` to [View.GONE] (it contains a
+     * `TextView` explaining why we need the permission and a `MaterialButton` with the label "Grant
+     * Permission" that when clicked calls our [openMediaStore] method which either shows the images
+     * if we already have permission to access them or calls our [requestPermission] method to have
+     * the system ask the user to grant us permission to access them if do not have permission, and
+     * is the view that the user sees if a previous call to [requestPermission] resulted in their
+     * denying us permission).
+     */
     private fun showImages() {
         viewModel.loadImages()
         binding.welcomeView.visibility = View.GONE

@@ -243,7 +243,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 selection,
                 selectionArgs,
                 sortOrder
-            )?.use { cursor ->
+            )?.use { cursor: Cursor ->
 
                 /**
                  * In order to retrieve the data from the [Cursor] that's returned, we need to
