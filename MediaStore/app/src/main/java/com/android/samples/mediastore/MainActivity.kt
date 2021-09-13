@@ -33,6 +33,7 @@ import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -283,11 +284,31 @@ class MainActivity : AppCompatActivity() {
         binding.permissionRationaleView.visibility = View.GONE
     }
 
+    /**
+     * Convenience method change the visibility of the [ActivityMainBinding.welcomeView]
+     * `LinearLayout` of [binding] to [View.GONE] and the visibility of the
+     * [ActivityMainBinding.welcomeView] `LinearLayout` of [binding] to [View.VISIBLE].
+     * This method is called from our [onRequestPermissionsResult] method when the user
+     * denies us access to storage without checking the "Do not ask again" checkbox, and
+     * switches the view from our "Welcome" view to a view which explains why we need to
+     * have the permission in order to run.
+     */
     private fun showNoAccess() {
         binding.welcomeView.visibility = View.GONE
         binding.permissionRationaleView.visibility = View.VISIBLE
     }
 
+    /**
+     * This method is called from the [View.OnClickListener] of the two buttons in our [binding]
+     * field [ActivityMainBinding.openAlbum] and [ActivityMainBinding.grantPermissionButton].
+     * We branch on the [Boolean] value returned from our [haveStoragePermission] method:
+     *  - `true` (we already have the [Manifest.permission.READ_EXTERNAL_STORAGE] permission)
+     *  we just call our [showImages] method to display all of the images that the `MediaStore` API
+     *  provides us in our [RecyclerView].
+     *  - `false` (we have not been granted the [Manifest.permission.READ_EXTERNAL_STORAGE] permission)
+     *  we call our [requestPermission] method to have it have the system ask the user if they want to
+     *  grant us the [Manifest.permission.READ_EXTERNAL_STORAGE] permission.
+     */
     private fun openMediaStore() {
         if (haveStoragePermission()) {
             showImages()
@@ -296,6 +317,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Creates an [Intent] to launch the settings app to show a screen of details about our
+     * application, thereby allowing the user to either change their mind about denying us the
+     * [Manifest.permission.READ_EXTERNAL_STORAGE] permission, or allowing them to uninstall our
+     * app.
+     *
+     * We construct a new instance of [Intent] with the action [ACTION_APPLICATION_DETAILS_SETTINGS]
+     * and the data [Uri] constructed from the string "package:" with the name of this application's
+     * package appended to it. We use the [apply] extension to add the category [Intent.CATEGORY_DEFAULT]
+     * to the [Intent] (only activities that provide this category will be considered), and the flags
+     * [Intent.FLAG_ACTIVITY_NEW_TASK] (this activity will become the start of a new task on this
+     * history stack). We then use the [also] extension function on the [Intent] to call the
+     * [startActivity] method to launch the activity specified by the [Intent].
+     *
+     * This method is called from our [onRequestPermissionsResult] method when the user denies
+     * us the [Manifest.permission.READ_EXTERNAL_STORAGE] permission.
+     */
     private fun goToSettings() {
         Intent(
             ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -303,14 +341,16 @@ class MainActivity : AppCompatActivity() {
         ).apply {
             addCategory(Intent.CATEGORY_DEFAULT)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }.also { intent ->
+        }.also { intent: Intent ->
             startActivity(intent)
         }
     }
 
     /**
      * Convenience method to check if [Manifest.permission.READ_EXTERNAL_STORAGE] permission
-     * has been granted to the app.
+     * has been granted to the app. We just return the [Boolean] result of comparing the value
+     * returned by the [ContextCompat.checkSelfPermission] method with [PERMISSION_GRANTED] for
+     * equality.
      */
     private fun haveStoragePermission() =
         ContextCompat.checkSelfPermission(
@@ -319,11 +359,18 @@ class MainActivity : AppCompatActivity() {
         ) == PERMISSION_GRANTED
 
     /**
-     * Convenience method to request [Manifest.permission.READ_EXTERNAL_STORAGE] permission.
+     * Convenience method to request [Manifest.permission.READ_EXTERNAL_STORAGE] permission. If our
+     * [haveStoragePermission] method returns `false` (we do not have the permission) we initialize
+     * our [Array] of [String] variable `val permissions` to a new instance containing the strings
+     * [Manifest.permission.READ_EXTERNAL_STORAGE] and [Manifest.permission.WRITE_EXTERNAL_STORAGE].
+     * Then we call the [ActivityCompat.requestPermissions] method with `permissions` as the
+     * permissions we need, and our constant [READ_EXTERNAL_STORAGE_REQUEST] as the request code to
+     * return to our [onRequestPermissionsResult] override (so it knows that the results are for
+     * this request).
      */
     private fun requestPermission() {
         if (!haveStoragePermission()) {
-            val permissions = arrayOf(
+            val permissions: Array<String> = arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
@@ -331,6 +378,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Deletes the image file associated with our [MediaStoreImage] parameter image from the file
+     * system. We build and show an [AlertDialog] whose title is "Delete?", whose message is the
+     * string formed by appending the [MediaStoreImage.displayName] field (the file name) to the
+     * string "Delete ", whose positive [Button] is labeled "Delete" and calls the
+     * [MainActivityViewModel.deleteImage] method of our [viewModel] field with [image] when clicked,
+     * and whose negative [Button] is labeled "Cancel" and calls the [DialogInterface.dismiss] method
+     * of our `dialog` when clicked.
+     *
+     * @param image the [MediaStoreImage] for the image file we are to delete from the file system.
+     */
     private fun deleteImage(image: MediaStoreImage) {
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.delete_dialog_title)
@@ -346,10 +404,30 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * A [ListAdapter] for [MediaStoreImage]s.
+     *
+     * @param onClick a lambda that each image displayed in our [RecyclerView] will call with the
+     * [MediaStoreImage] it is associated with when the image is clicked.
      */
     private inner class GalleryAdapter(val onClick: (MediaStoreImage) -> Unit) :
         ListAdapter<MediaStoreImage, ImageViewHolder>(MediaStoreImage.DiffCallback) {
 
+        /**
+         * Called when [RecyclerView] needs a new [ImageViewHolder] of the given type to represent
+         * an item. We initialize our [LayoutInflater] variable `val layoutInflater` to the
+         * [LayoutInflater] from the context of our [ViewGroup] parameter [parent]. We initialize
+         * our [View] variable `val view` by having `layoutInflater` inflate the layout file with
+         * resource ID [R.layout.gallery_layout] using [parent] for its layout params without
+         * attaching to it (the layout file consists of a `ConstraintLayout` root view containing
+         * an [ImageView]). Finally we return a new instance of [ImageViewHolder] constructed to use
+         * `view` as its root view and [GalleryAdapter.onClick] as the lambda that the
+         * [View.OnClickListener] of the [ImageView] in `view` will call with its associated
+         * [MediaStoreImage].
+         *
+         * @param parent The [ViewGroup] into which the new [View] will be added after it is bound
+         * to an adapter position.
+         * @param viewType The view type of the new View.
+         * @return A new [ImageViewHolder] that holds a [View] of the given view type.
+         */
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(R.layout.gallery_layout, parent, false)
@@ -357,7 +435,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-            val mediaStoreImage = getItem(position)
+            val mediaStoreImage: MediaStoreImage = getItem(position)
             holder.rootView.tag = mediaStoreImage
 
             Glide.with(holder.imageView)
@@ -372,8 +450,10 @@ class MainActivity : AppCompatActivity() {
 /**
  * Basic [RecyclerView.ViewHolder] for our gallery.
  */
-private class ImageViewHolder(view: View, onClick: (MediaStoreImage) -> Unit) :
-    RecyclerView.ViewHolder(view) {
+private class ImageViewHolder(
+    view: View,
+    onClick: (MediaStoreImage) -> Unit
+) : RecyclerView.ViewHolder(view) {
     val rootView = view
     val imageView: ImageView = view.findViewById(R.id.image)
 
