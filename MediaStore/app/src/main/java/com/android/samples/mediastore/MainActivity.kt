@@ -51,6 +51,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.android.samples.mediastore.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
@@ -434,6 +435,28 @@ class MainActivity : AppCompatActivity() {
             return ImageViewHolder(view, onClick)
         }
 
+        /**
+         * Called by [RecyclerView] to display the data at the specified position. This method should
+         * update the contents of the [ImageViewHolder.itemView] to reflect the item at the given
+         * position. We initialize our [MediaStoreImage] variable `val mediaStoreImage` to the item
+         * at position [position] in our dataset, then set the `tag` of the [ImageViewHolder.rootView]
+         * view in our [holder] parameter to `mediaStoreImage`. Finally we begin a load with [Glide]
+         * that will be tied to the lifecycle of the containing activity of the
+         * [ImageViewHolder.imageView] in the parameter [holder], chain a call to `load` the [Uri]
+         * in the [MediaStoreImage.contentUri] field of `mediaStoreImage` (content [Uri] for the
+         * associated image) to the [RequestManager] returned by [Glide.with], chain a call to
+         * `thumbnail` with a multiplier of 0.33f (multiplies the target by 0.33f when loading a
+         * thumbnail version of the image), chain a call to `centerCrop` (Applies `CenterCrop` to
+         * scale the image so that either the width of the image matches the given width and the
+         * height of the image is greater than the given height or vice versa, and then crop the
+         * larger dimension to match the given dimension), and finally chain a call to `into` to
+         * set the [ImageView] the resource will be loaded into to the [ImageViewHolder.imageView]
+         * field of [holder].
+         *
+         * @param holder The [ImageViewHolder] which should be updated to represent the contents of
+         * the item at the given position in the data set.
+         * @param position The position of the item within the adapter's data set.
+         */
         override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
             val mediaStoreImage: MediaStoreImage = getItem(position)
             holder.rootView.tag = mediaStoreImage
@@ -448,13 +471,28 @@ class MainActivity : AppCompatActivity() {
 }
 
 /**
- * Basic [RecyclerView.ViewHolder] for our gallery.
+ * Basic [RecyclerView.ViewHolder] for our gallery. Our `init` block sets the [View.OnClickListener]
+ * of the [ImageView] in our `view` parameter to a lambda which calls our `onClick` lambda parameter
+ * with the [MediaStoreImage] that the `onBindViewHolder` override of `GalleryAdapter` stores in the
+ * tag of our [rootView] field when this [ImageViewHolder] is bound to its [MediaStoreImage]. Our
+ * constructor saves our `view` parameter in our [rootView] field and initializes our [ImageView]
+ * field [imageView] by finding the view in `view` with ID [R.id.image].
+ *
+ * @param view the view to use as our root [View].
+ * @param onClick the lambda that the [View.OnClickListener] of the [ImageView] in our root view
+ * should call with its associated [MediaStoreImage] when the [ImageView] is clicked.
  */
 private class ImageViewHolder(
     view: View,
     onClick: (MediaStoreImage) -> Unit
 ) : RecyclerView.ViewHolder(view) {
+    /**
+     * The [View] we use as our [ImageViewHolder.itemView].
+     */
     val rootView = view
+    /**
+     * The [ImageView] in our [rootView] field that we use to display our image.
+     */
     val imageView: ImageView = view.findViewById(R.id.image)
 
     init {
@@ -464,4 +502,3 @@ private class ImageViewHolder(
         }
     }
 }
-
