@@ -29,6 +29,7 @@ import com.android.samples.safdemos.databinding.FragmentMainBinding
 import com.android.samples.safdemos.databinding.ListItemDemoBinding
 
 class MainFragment : Fragment() {
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -61,14 +62,16 @@ data class Demo(
     @IdRes val action: Int
 )
 
-private class DemoViewHolder(val binding: ListItemDemoBinding) :
-    RecyclerView.ViewHolder(binding.root)
+private class DemoViewHolder(
+    val binding: ListItemDemoBinding
+    ) : RecyclerView.ViewHolder(binding.root)
 
 private class DemoAdapter(
     private val demos: Array<Demo>,
     private val itemClickListener: (Demo) -> Unit
 ) : RecyclerView.Adapter<DemoViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+    @Suppress("ComplexRedundantLet")
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DemoViewHolder =
         LayoutInflater.from(parent.context).let { layoutInflater ->
             DemoViewHolder(ListItemDemoBinding.inflate(layoutInflater, parent, false))
         }

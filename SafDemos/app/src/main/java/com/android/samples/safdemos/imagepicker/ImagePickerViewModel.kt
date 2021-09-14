@@ -18,6 +18,7 @@ package com.android.samples.safdemos.imagepicker
 
 import androidx.lifecycle.ViewModel
 
+@Suppress("unused")
 class ImagePickerViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }

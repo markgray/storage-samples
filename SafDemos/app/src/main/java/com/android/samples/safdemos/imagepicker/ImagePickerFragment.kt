@@ -19,19 +19,37 @@ package com.android.samples.safdemos.imagepicker
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.android.samples.safdemos.databinding.FragmentImagePickerBinding
 
 const val IMAGE_MIME_TYPE = "image/*"
-const val IMAGE_PICKER_REQUEST_CODE = 1
 
 class ImagePickerFragment : Fragment() {
     private lateinit var binding: FragmentImagePickerBinding
 
+    private val resultLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == RESULT_OK) {
+                val data: Uri? = result.data?.data
+                data?.let { uri: Uri ->
+                    activity?.let {
+                        binding.preview.setImageBitmap(
+                            BitmapFactory.decodeStream(it.contentResolver.openInputStream(uri))
+                        )
+                    }
+                }
+            }
+        }
+
+    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,20 +68,7 @@ class ImagePickerFragment : Fragment() {
             type = IMAGE_MIME_TYPE
         }
 
-        startActivityForResult(intent, IMAGE_PICKER_REQUEST_CODE)
+        resultLauncher.launch(intent)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        super.onActivityResult(requestCode, resultCode, resultData)
-
-        if (requestCode == IMAGE_PICKER_REQUEST_CODE && resultCode == RESULT_OK) {
-            resultData?.data?.let { uri ->
-                activity?.let {
-                    binding.preview.setImageBitmap(
-                        BitmapFactory.decodeStream(it.contentResolver.openInputStream(uri))
-                    )
-                }
-            }
-        }
-    }
 }
