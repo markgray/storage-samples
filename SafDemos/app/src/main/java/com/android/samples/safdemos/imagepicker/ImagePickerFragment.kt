@@ -36,7 +36,9 @@ class ImagePickerFragment : Fragment() {
     private lateinit var binding: FragmentImagePickerBinding
 
     private val resultLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+        registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result: ActivityResult ->
             if (result.resultCode == RESULT_OK) {
                 val data: Uri? = result.data?.data
                 data?.let { uri: Uri ->
@@ -51,7 +53,8 @@ class ImagePickerFragment : Fragment() {
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentImagePickerBinding.inflate(layoutInflater)

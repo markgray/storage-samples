@@ -31,7 +31,8 @@ import com.android.samples.safdemos.databinding.ListItemDemoBinding
 class MainFragment : Fragment() {
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentMainBinding.inflate(layoutInflater)
