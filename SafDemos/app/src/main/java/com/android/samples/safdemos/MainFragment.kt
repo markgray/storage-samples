@@ -116,24 +116,82 @@ data class Demo(
     @IdRes val action: Int
 )
 
+/**
+ * The custom [RecyclerView.ViewHolder] we use to display a [Demo] object. It rather cleverly uses
+ * a [ListItemDemoBinding] as its constructor argument, and passes the outermost [View] in the
+ * associated layout file of that view binding to its super's constructor.
+ *
+ * @param binding the [ListItemDemoBinding] inflated from the layout file layout/list_item_demo.xml
+ */
 private class DemoViewHolder(
     val binding: ListItemDemoBinding
     ) : RecyclerView.ViewHolder(binding.root)
 
+/**
+ * The custom [RecyclerView.Adapter] that feeds views derived from [Demo] objects to the
+ * [RecyclerView] in the UI of [MainFragment].
+ *
+ * @param demos the [Array] of [Demo] objects to use as our dataset.
+ * @param itemClickListener a lambda to be called from the [View.OnClickListener] of the `root`
+ * view of the [ListItemDemoBinding] of every [DemoViewHolder] with the associated [Demo] object.
+ */
 private class DemoAdapter(
     private val demos: Array<Demo>,
     private val itemClickListener: (Demo) -> Unit
 ) : RecyclerView.Adapter<DemoViewHolder>() {
+    /**
+     * Called when [RecyclerView] needs a new [DemoViewHolder] of the given type to represent
+     * an item.  We obtain the [LayoutInflater] from the context of our [ViewGroup] parameter
+     * [parent] and use the [let] extension function to pass that [LayoutInflater] to the
+     * [ListItemDemoBinding.inflate] method to have it used to inflate the associated layout file
+     * into a [ListItemDemoBinding] instance whose layout params are provided by [parent]. We use
+     * that [ListItemDemoBinding] instance to construct the [DemoViewHolder] which we return to the
+     * caller.
+     *
+     * @param parent The [ViewGroup] into which the new [View] will be added after it is bound to
+     * an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new [DemoViewHolder] that holds a View of the given view type.
+     */
     @Suppress("ComplexRedundantLet")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DemoViewHolder =
         LayoutInflater.from(parent.context).let { layoutInflater ->
             DemoViewHolder(ListItemDemoBinding.inflate(layoutInflater, parent, false))
         }
 
+    /**
+     * Returns the total number of items in the data set held by the adapter. We just return the
+     * size of our [Array] of [Demo] field [demos].
+     *
+     * @return The total number of items in this adapter.
+     */
     override fun getItemCount() = demos.size
 
+    /**
+     * Called by [RecyclerView] to display the data at the specified position. This method should
+     * update the contents of the [DemoViewHolder] to reflect the item at the given position. We
+     * initialize our [Demo] variable `val demo` to the [Demo] in position [position]. Then:
+     *  - we set the drawable whose resource ID is in the [Demo.icon] field of `demo` to be the
+     *  content of the [ImageView] which is found in the [ListItemDemoBinding.demoIcon] field of
+     *  the [DemoViewHolder.binding] field of [holder].
+     *  - we set the text of the [TextView] found in the [ListItemDemoBinding.demoTitle] field of
+     *  the [DemoViewHolder.binding] field of [holder] to the [String] in the [Demo.title] field
+     *  of `demo`.
+     *  - we set the text of the [TextView] found in the [ListItemDemoBinding.demoText] field of
+     *  the [DemoViewHolder.binding] field of [holder] to the [String] in the [Demo.text] field
+     *  of `demo`.
+     *  - we set the [View.OnClickListener] of the `root` [View] of [ListItemDemoBinding] to a
+     *  lambda that calls the [DemoAdapter.itemClickListener] lambda with the [Demo] object in
+     *  position [position] of the [DemoAdapter.demos] dataset (same [Demo] as our `demo` variable
+     *  but allows the `demo` variable to go out of scope which has some garbage collection appeal
+     *  but probably makes no difference at all?)
+     *
+     * @param holder The [DemoViewHolder] which should be updated to represent the contents of the
+     * item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     override fun onBindViewHolder(holder: DemoViewHolder, position: Int) {
-        val demo = demos[position]
+        val demo: Demo = demos[position]
         holder.binding.demoIcon.setImageResource(demo.icon)
         holder.binding.demoTitle.text = demo.title
         holder.binding.demoText.text = demo.text
