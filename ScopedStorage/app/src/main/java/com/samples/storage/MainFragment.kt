@@ -19,19 +19,64 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.samples.storage.databinding.FragmentListBinding
+import com.samples.storage.mediastore.MediaStoreFragment
+import com.samples.storage.saf.SafFragment
 
-private val apiList = arrayOf(
+/**
+ * The dataset of [Action] objects that we use to construct an [ActionListAdapter] that will feed
+ * views to our [RecyclerView]. Each [Action] object holds a resource ID of a [String] to be
+ * displayed in the [TextView] of its view in the [RecyclerView], and a resource ID for a navigation
+ * `action` that can be found in the navigation graph of the app (the file navigation/nav_graph.xml).
+ * The [View.OnClickListener] of the [TextView] of each [Action] object is a lambda which will navigate
+ * to the destination fragment of the navigation `action`. Thus the [Action] object whose
+ * [Action.nameRes] field is the resource ID [R.string.demo_mediastore] ("MediaStore") will navigate
+ * to the [MediaStoreFragment] when clicked, and the [Action] object whose [Action.nameRes] field is
+ * the resource ID [R.string.demo_saf] ("Storage Access Framework") will navigate to the [SafFragment]
+ * when clicked.
+ */
+private val apiList: Array<Action> = arrayOf(
     Action(R.string.demo_mediastore, R.id.action_mainFragment_to_mediaStoreFragment),
     Action(R.string.demo_saf, R.id.action_mainFragment_to_safFragment)
 )
 
+/**
+ * This is the start destination of the navigation graph for our app, and just consists of a
+ * [RecyclerView] whose item views will cause us to navigate to either of the two demo fragments
+ * of the app: [MediaStoreFragment] or [SafFragment].
+ */
 class MainFragment : Fragment() {
+    /**
+     * The view binding generated from our layout file layout/fragment_list.xml (resource ID
+     * [R.layout.fragment_list]). It consists of a `FrameLayout` root view holding a single
+     * [RecyclerView] (resource ID [R.id.recyclerView]). It is private to prevent other classes
+     * from modifying it, but its read-only accessor [binding] is private too so what the hay.
+     */
     private var _binding: FragmentListBinding? = null
+    /**
+     * Read-only access to our [FragmentListBinding] field [_binding].
+     */
     private val binding get() = _binding!!
 
+    /**
+     * Called to have the fragment instantiate its user interface view. This will be called between
+     * [onCreate] and [onViewCreated]. It is recommended to only inflate the layout in this method
+     * and move logic that operates on the returned [View] to [onViewCreated]. If you return a [View]
+     * from here, you will later be called in [onDestroyView] when the view is being released.
+     *
+     * @param inflater The [LayoutInflater] object that can be used to inflate
+     * any views in the fragment.
+     * @param container If non-`null`, this is the parent view that the fragment's UI will be
+     * attached to. The fragment should not add the view itself, but this can be used to generate
+     * the LayoutParams of the view.
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return Return the [View] for the fragment's UI, or null.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

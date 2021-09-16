@@ -33,6 +33,7 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
      * Provide a reference to the type of views that you are using
      * (custom ViewHolder).
      */
+    @Suppress("RedundantEmptyInitializerBlock")
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.textView)
 
