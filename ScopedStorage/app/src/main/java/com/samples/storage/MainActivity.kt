@@ -43,7 +43,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     /**
-     * Called then the activity is starting.
+     * Called then the activity is starting. First we call our super's implementation of `onCreate`,
+     * then we set our content view to our layout file [R.layout.main_activity]. It consists of a
+     * `ConstraintLayout` root view holding a single `fragment` container whose "android:name"
+     * attribute specifies that a [NavHostFragment] will be instantiated in it. We initialize our
+     * [NavController] variable `val navController` by finding the [NavHostFragment] with the
+     * resource ID [R.id.nav_host_fragment] in our UI. We initialize our [AppBarConfiguration] field
+     * [appBarConfiguration] to a new instance constructed to use the navigation graph of
+     * `navController` (the file navigation/nav_graph.xml) for its "UP" behavior (its start
+     * destination ([MainFragment]) will be considered the only top level destination, and the "Up"
+     * button will not be displayed when on the start destination of the graph). Finally we call the
+     * [setupActionBarWithNavController] method with `navController` as the [NavController] whose
+     * navigation actions will be reflected in the title of the action bar, and [appBarConfiguration]
+     * for additional configuration options for customizing the behavior of the `ActionBar`.
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
@@ -57,6 +69,18 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
+    /**
+     * This method is called whenever the user chooses to navigate Up within your application's
+     * activity hierarchy from the action bar. We initialize our [NavController] variable
+     * `val navController` by finding the [NavHostFragment] with the resource ID [R.id.nav_host_fragment]
+     * in our UI. If the [NavController.navigateUp] method of `navController` when passed our
+     * [AppBarConfiguration] field [appBarConfiguration] (the [NavController] was able to navigate up)
+     * we return `true` to the callers, otherwise we return the value returned by our super's
+     * implementation of `onSupportNavigateUp`.
+     *
+     * @return `true` if Up navigation completed successfully and this Activity was finished,
+     * `false` otherwise.
+     */
     override fun onSupportNavigateUp(): Boolean {
         val navController: NavController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) ||
