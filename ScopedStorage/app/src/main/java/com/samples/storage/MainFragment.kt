@@ -15,6 +15,7 @@
  */
 package com.samples.storage
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -66,7 +67,17 @@ class MainFragment : Fragment() {
      * Called to have the fragment instantiate its user interface view. This will be called between
      * [onCreate] and [onViewCreated]. It is recommended to only inflate the layout in this method
      * and move logic that operates on the returned [View] to [onViewCreated]. If you return a [View]
-     * from here, you will later be called in [onDestroyView] when the view is being released.
+     * from here, you will later be called in [onDestroyView] when the view is being released. First
+     * we initialize our [FragmentListBinding] field [_binding] by having the [FragmentListBinding.inflate]
+     * method use our [LayoutInflater] parameter [inflater] to inflate and bint to its associated layout
+     * file layout/fragment_list.xml with our [ViewGroup] parameter [container] supplying the
+     * `LayoutParams`. Next we set the [RecyclerView.LayoutManager] of the [RecyclerView] field
+     * [FragmentListBinding.recyclerView] of [binding] to a new instance or [LinearLayoutManager]
+     * with its resources supplied by our current [Context], and set its [RecyclerView.Adapter] to
+     * a new instance of [ActionListAdapter] constructed to use our [Array] of [Action] field [apiList]
+     * as its dataset. The `binding.recyclerView` do nothing statement is a bit puzzling, and removing
+     * the line does not change behavior but I guess I'll just leave it in (why not?). Finally we
+     * return the outermost [View] in the layout file associated with [binding] to serve as our UI.
      *
      * @param inflater The [LayoutInflater] object that can be used to inflate
      * any views in the fragment.
@@ -92,6 +103,14 @@ class MainFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Called when the view previously created by [onCreateView] has been detached from the fragment.
+     * The next time the fragment needs to be displayed, a new view will be created. This is called
+     * after [onStop] and before [onDestroy].  It is called regardless of whether [onCreateView]
+     * returned a non-`null` view. Internally it is called after the view's state has been saved but
+     * before it has been removed from its parent. First we call our super's implementation of
+     * `onDestroyView`, then we set our [FragmentListBinding] field [_binding] to `null`.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
