@@ -24,14 +24,31 @@ import androidx.annotation.StringRes
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * This data class holds a string resource ID for a [String] that names a demo fragment, and the
+ * resource ID for a navigation action that can be used to navigate to that demo fragment.
+ *
+ * @param nameRes the resource ID for a [String] that can be used as the text of the [View] that is
+ * used by [RecyclerView] to represent this [Action] object.
+ * @param actionRes the resource ID for a navigation action that can be used to navigate to the demo
+ * fragment that this [Action] object represents.
+ */
 data class Action(@StringRes val nameRes: Int, @IdRes val actionRes: Int)
 
+/**
+ * The custom [RecyclerView.Adapter] that is used to feed views to the [RecyclerView] in the UI of
+ * [MainFragment].
+ *
+ * @param dataSet the [Array] of [Action] objects we should use as our dataset.
+ */
 class ActionListAdapter(private val dataSet: Array<Action>) :
     RecyclerView.Adapter<ActionListAdapter.ViewHolder>() {
 
     /**
-     * Provide a reference to the type of views that you are using
-     * (custom ViewHolder).
+     * Our custom [RecyclerView.ViewHolder], it just caches a reference to the [TextView] with
+     * resource ID [R.id.textView] in the [View] parameter of its constructor (its [itemView]).
+     *
+     * @param view a [View] that is inflated from the layout file [R.layout.list_row_item].
      */
     @Suppress("RedundantEmptyInitializerBlock")
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
