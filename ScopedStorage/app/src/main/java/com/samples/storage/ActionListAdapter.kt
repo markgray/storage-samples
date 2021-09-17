@@ -15,12 +15,14 @@
  */
 package com.samples.storage
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.annotation.StringRes
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 
@@ -52,6 +54,12 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
      */
     @Suppress("RedundantEmptyInitializerBlock")
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        /**
+         * Cached reference to the [TextView] in our [itemView] with resource ID [R.id.textView]
+         * that the [ActionListAdapter.onBindViewHolder] override uses to display the [String] with
+         * the resource ID of the [Action.nameRes] field of the [Action] that it is binding to our
+         * [ViewHolder].
+         */
         val textView: TextView = view.findViewById(R.id.textView)
 
         init {
@@ -59,27 +67,60 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
         }
     }
 
-    // Create new views (invoked by the layout manager)
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
+    /**
+     * Called when [RecyclerView] needs a new [ViewHolder] of the given type to represent an item.
+     * We initialize our [View] variable `val view` by having the [LayoutInflater] from the [Context]
+     * of our [ViewGroup] parameter [parent] inflate the layout file with ID [R.layout.list_row_item]
+     * (the file layout/list_row_item.xml) using [parent] for the layout params without attaching to
+     * it. Finally we return a new instance of [ViewHolder] constructed to use `view` as its itemView.
+     * Invoked by the layout manager.
+     *
+     * @param parent The [ViewGroup] into which the new View will be added after it is bound to
+     * an adapter position.
+     * @param viewType The view type of the new [View].
+     * @return A new [ViewHolder] that holds a [View] of the given view type.
+     */
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // Create a new view, which defines the UI of the list item
-        val view = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.list_row_item, viewGroup, false)
+        val view: View = LayoutInflater.from(parent.context)
+            .inflate(R.layout.list_row_item, parent, false)
 
         return ViewHolder(view)
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        val context = viewHolder.textView.context
+    /**
+     * Called by [RecyclerView] to display the data at the specified position. This method should
+     * update the contents of the [ViewHolder.itemView] to reflect the item at the given position.
+     * We initialize our [Context] variable `val context` to the [Context] of the [TextView] field
+     * [ViewHolder.textView] in [holder]. Next we set the text of that [TextView] to the localized
+     * string from the application's package's default string table whose resource ID is given by
+     * the [Action.nameRes] field of the [Action] object at position [position] in our [Array] of
+     * [Action] dataset field [dataSet], and set the [View.OnClickListener] of that [TextView] to a
+     * lambda which finds a [NavController] associated with the [TextView] and calls the
+     * [NavController.navigate] method of that [NavController] to have it navigate to the action ID
+     * which is in the [Action.actionRes] field of the [Action] object at position [position] in our
+     * [dataSet] dataset. Invoked by the layout manager.
+     *
+     * @param holder The [ViewHolder] which should be updated to represent the contents of the item
+     * at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+      */
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val context: Context = holder.textView.context
 
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        viewHolder.textView.text = context.getString(dataSet[position].nameRes)
-        viewHolder.textView.setOnClickListener {
+        holder.textView.text = context.getString(dataSet[position].nameRes)
+        holder.textView.setOnClickListener {
             it.findNavController().navigate(dataSet[position].actionRes)
         }
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
+    /**
+     * Returns the total number of items in the data set held by the adapter. We just return the size
+     * of our [Array] of [Action] field [dataSet] to the caller. Invoked by the layout manager.
+     *
+     * @return The total number of items in this adapter.
+     */
     override fun getItemCount() = dataSet.size
 }
