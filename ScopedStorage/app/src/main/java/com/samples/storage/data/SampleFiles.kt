@@ -18,6 +18,7 @@ package com.samples.storage.data
 /**
  * List of remote sample files to be used in the different samples
  */
+@Suppress("MemberVisibilityCanBePrivate")
 object SampleFiles {
     val images = listOf(
         "https://storage.googleapis.com/android-tv/Sample%20videos/Demo%20Slam/Google%20Demo%20Slam_%20Balcony%20Toss/card.jpg",
@@ -33,6 +34,7 @@ object SampleFiles {
         "https://storage.googleapis.com/android-tv/Sample%20videos/Demo%20Slam/Google%20Demo%20Slam_%20Get%20Your%20Money's%20Worth.mp4"
     )
 
+    @Suppress("unused")
     val media = images + video
 
     val texts = listOf(
