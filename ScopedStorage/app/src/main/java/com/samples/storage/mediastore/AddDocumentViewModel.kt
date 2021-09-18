@@ -46,6 +46,9 @@ import okhttp3.Request
 import okhttp3.ResponseBody
 import java.io.File
 
+/**
+ * TAG used for logging.
+ */
 private const val TAG = "AddDocumentViewModel"
 
 class AddDocumentViewModel(

@@ -22,10 +22,12 @@ import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.lifecycleScope
 import com.samples.storage.R
 import com.samples.storage.databinding.FragmentAddDocumentBinding
@@ -52,8 +54,52 @@ class AddDocumentFragment : Fragment() {
      * Read-only access to our to our [FragmentAddDocumentBinding] field [_binding].
      */
     private val binding get() = _binding!!
+
+    /**
+     * The custom [AndroidViewModel] we use.
+     */
     private val viewModel: AddDocumentViewModel by viewModels()
 
+    /**
+     * Called to have the fragment instantiate its user interface view. This will be called between
+     * [onCreate] and [onViewCreated]. It is recommended to only inflate the layout in this method
+     * and move logic that operates on the returned [View] to [onViewCreated]. If you return a [View]
+     * from here, you will later be called in [onDestroyView] when the view is being released. First
+     * we initialize our [FragmentAddDocumentBinding] field [_binding] by having the
+     * [FragmentAddDocumentBinding.inflate] method use our [LayoutInflater] parameter [inflater] to
+     * inflate and bind to its associated layout file layout/fragment_add_document.xml with our
+     * [ViewGroup] parameter [container] supplying the `LayoutParams`.
+     *
+     * Next we add an observer whose lifespan is tied to this fragments [View] lifecycle  to the
+     * [AddDocumentViewModel.currentFileEntry] field of our [viewModel] field whose lambda will:
+     *  - If the [FileEntry] value observed changes to `null` set the visibility of the `LinearLayout`
+     *  property [FragmentAddDocumentBinding.fileDetails] field of [binding] to [View.GONE] and return.
+     *  - Otherwise sets the text of the [TextView] at [FragmentAddDocumentBinding.filename] of [binding]
+     *  to the [String] in the [FileEntry.filename] field of the value observed.
+     *  - Sets the text of the [TextView] at [FragmentAddDocumentBinding.filePath] of [binding] to
+     *  the [String] in the [FileEntry.path] field of the value observed.
+     *  - Sets the text of the [TextView] at [FragmentAddDocumentBinding.fileSizeAndMimeType] of
+     *  [binding] to a [String] describing the file size and mime type of the observed [FileEntry].
+     *  - Sets the text of the [TextView] at [FragmentAddDocumentBinding.fileAddedAt] of [binding]
+     *  to a [String] describing the [FileEntry.addedAt] date added field of the observed value.
+     *  - Finally the lambda sets the visibility of the [FragmentAddDocumentBinding.fileDetails]
+     *  field of [binding] to [View.VISIBLE].
+     *
+     * Next we add an observer whose lifespan is tied to this fragments [View] lifecycle  to the
+     * [AddDocumentViewModel.isDownloading] field of our [viewModel] field whose lambda will set
+     * the enabled property of the [FragmentAddDocumentBinding.downloadRandomFileFromInternet] to
+     * the inverse of the [Boolean] value it is observing (disabling it when we are downloading, and
+     * enabling it again when the download finishes.
+     *
+     * @param inflater The [LayoutInflater] object that can be used to inflate any views in
+     * the fragment,
+     * @param container If non-`null`, this is the parent view that the fragment's UI will be
+     * attached to. The fragment should not add the view itself, but this can be used to generate
+     * the `LayoutParams` of the view.
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return Return the [View] for the fragment's UI, or `null`.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
