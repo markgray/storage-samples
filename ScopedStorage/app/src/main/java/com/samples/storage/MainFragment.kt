@@ -69,7 +69,7 @@ class MainFragment : Fragment() {
      * and move logic that operates on the returned [View] to [onViewCreated]. If you return a [View]
      * from here, you will later be called in [onDestroyView] when the view is being released. First
      * we initialize our [FragmentListBinding] field [_binding] by having the [FragmentListBinding.inflate]
-     * method use our [LayoutInflater] parameter [inflater] to inflate and bint to its associated layout
+     * method use our [LayoutInflater] parameter [inflater] to inflate and bind to its associated layout
      * file layout/fragment_list.xml with our [ViewGroup] parameter [container] supplying the
      * `LayoutParams`. Next we set the [RecyclerView.LayoutManager] of the [RecyclerView] field
      * [FragmentListBinding.recyclerView] of [binding] to a new instance or [LinearLayoutManager]
