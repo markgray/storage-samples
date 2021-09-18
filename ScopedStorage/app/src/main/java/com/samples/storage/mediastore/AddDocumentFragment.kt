@@ -22,6 +22,7 @@ import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -30,8 +31,26 @@ import com.samples.storage.R
 import com.samples.storage.databinding.FragmentAddDocumentBinding
 import kotlinx.coroutines.launch
 
+/**
+ * Downloads a random non-media document from the Internet to our shared "Downloads" folder. It is
+ * navigated to from the [MediaStoreFragment] when the item view in its [RecyclerView] with the text
+ * "Add Document to Downloads" is clicked.
+ */
 class AddDocumentFragment : Fragment() {
+    /**
+     * The view binding generated from our layout file layout/fragment_add_document.xml (resource ID
+     * [R.layout.fragment_add_document]). It consists of a `ConstraintLayout` root view holding three
+     * separate `LinearLayout`: a "permissions section" for requesting storage permission if needed,
+     * a "file details section" for displaying information about the file that was downloaded, and a
+     * "Download Random File" from the Internet section. The visibility of the permissions section
+     * and the file details section is toggled depending on whether their contents is relevant at
+     * the moment. This field is private to prevent other classes from modifying it, read-only access
+     * is provided by our [binding] field (but it is private as well out of habit I guess).
+     */
     private var _binding: FragmentAddDocumentBinding? = null
+    /**
+     * Read-only access to our to our [FragmentAddDocumentBinding] field [_binding].
+     */
     private val binding get() = _binding!!
     private val viewModel: AddDocumentViewModel by viewModels()
 

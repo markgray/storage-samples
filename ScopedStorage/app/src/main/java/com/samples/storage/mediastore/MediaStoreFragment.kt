@@ -43,8 +43,8 @@ import com.samples.storage.databinding.FragmentListBinding
  * when clicked, the [Action] object whose [Action.nameRes] field is the resource ID
  * [R.string.mediastore_delete] ("Delete Media File") will navigate to the [DeleteMediaFragment]
  * when clicked, and the [Action] object whose [Action.nameRes] field is the resource ID
- * [R.string.mediastore_downloads] ("Add Document to Downloads") will navigate to the [EditMediaFragment]
- * when clicked.
+ * [R.string.mediastore_downloads] ("Add Document to Downloads") will navigate to the
+ * [AddDocumentFragment] when clicked.
  */
 private val demoList = arrayOf(
     Action(R.string.mediastore_add, R.id.action_mediaStoreFragment_to_addMediaFragment),
