@@ -211,6 +211,7 @@ class AddDocumentViewModel(
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun addFileToDownloadsApi21(filename: String): File {
+        @Suppress("DEPRECATION")
         val downloadsFolder = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
 
         // Get path of the destination where the file will be saved
@@ -267,6 +268,7 @@ class AddDocumentViewModel(
         return withContext(Dispatchers.IO) {
             val cursor = context.contentResolver.query(
                 uri,
+                @Suppress("DEPRECATION")
                 arrayOf(FileColumns.DATA),
                 null,
                 null,
@@ -277,7 +279,7 @@ class AddDocumentViewModel(
                 if (!cursor.moveToFirst()) {
                     return@withContext null
                 }
-
+                @Suppress("DEPRECATION")
                 return@withContext cursor.getString(cursor.getColumnIndexOrThrow(FileColumns.DATA))
             }
         }
@@ -295,6 +297,7 @@ class AddDocumentViewModel(
                     FileColumns.SIZE,
                     FileColumns.MIME_TYPE,
                     FileColumns.DATE_ADDED,
+                    @Suppress("DEPRECATION")
                     FileColumns.DATA
                 ),
                 null,
@@ -311,6 +314,7 @@ class AddDocumentViewModel(
                 val sizeColumn = cursor.getColumnIndexOrThrow(FileColumns.SIZE)
                 val mimeTypeColumn = cursor.getColumnIndexOrThrow(FileColumns.MIME_TYPE)
                 val dateAddedColumn = cursor.getColumnIndexOrThrow(FileColumns.DATE_ADDED)
+                @Suppress("DEPRECATION")
                 val dataColumn = cursor.getColumnIndexOrThrow(FileColumns.DATA)
 
                 return@withContext FileEntry(

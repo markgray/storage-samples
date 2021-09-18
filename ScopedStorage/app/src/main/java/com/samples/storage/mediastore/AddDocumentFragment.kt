@@ -43,7 +43,7 @@ class AddDocumentFragment : Fragment() {
         _binding = FragmentAddDocumentBinding.inflate(inflater, container, false)
 
         // Every time currentFileEntry is changed, we update the file details
-        viewModel.currentFileEntry.observe(viewLifecycleOwner) { fileDetails ->
+        viewModel.currentFileEntry.observe(viewLifecycleOwner) { fileDetails: FileEntry? ->
             if (fileDetails == null) {
                 binding.fileDetails.visibility = View.GONE
                 return@observe
@@ -72,7 +72,7 @@ class AddDocumentFragment : Fragment() {
         }
 
         // Every time isDownloading is changed, we toggle the download button
-        viewModel.isDownloading.observe(viewLifecycleOwner) { isDownloading ->
+        viewModel.isDownloading.observe(viewLifecycleOwner) { isDownloading: Boolean ->
             binding.downloadRandomFileFromInternet.isEnabled = !isDownloading
         }
 
