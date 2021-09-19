@@ -191,21 +191,46 @@ class AddDocumentFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Called when the view previously created by [onCreateView] has been detached from the fragment.
+     * The next time the fragment needs to be displayed, a new view will be created. This is called
+     * after [onStop] and before [onDestroy]. It is called regardless of whether [onCreateView]
+     * returned a non-`null` view. Internally it is called after the view's state has been saved but
+     * before it has been removed from its parent. First we call our super's implementation of
+     * `onDestroyView`, then we set our [FragmentAddDocumentBinding] field [_binding] to `null`.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
+    /**
+     * Called when the fragment is visible to the user and actively running. First we call our super's
+     * implementation of `onResume`, then we call our [handlePermissionSectionVisibility] method to
+     * to have it hide the "permission section" of our UI if the [AddDocumentViewModel.canAddDocument]
+     * method determines we have the permissions we need, or show the section if the method determines
+     * that the user has not yet granted us the permissions we need.
+     */
     override fun onResume() {
         super.onResume()
         handlePermissionSectionVisibility()
     }
 
+    /**
+     * The [ActivityResultLauncher] that we launch to have the system ask the user to grant us the
+     * permissions we need.
+     */
     private val actionRequestPermission: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             handlePermissionSectionVisibility()
         }
 
+    /**
+     * Calls our [hidePermissionSection] method to hide the "Permission Section" of our UI if the
+     * [AddDocumentViewModel.canAddDocument] method of [viewModel] determines we already have the
+     * permissions we need, or calls our [showPermissionSection] method to show the "Permission
+     * Section" of our UI if it determines we do not yet have the permissions.
+     */
     private fun handlePermissionSectionVisibility() {
         if (viewModel.canAddDocument) {
             hidePermissionSection()
@@ -214,11 +239,21 @@ class AddDocumentFragment : Fragment() {
         }
     }
 
+    /**
+     * Changes the visibility of the [FragmentAddDocumentBinding.permissionSection] permissions section
+     * of [binding] to [View.GONE], and the visibility of the [FragmentAddDocumentBinding.actions]
+     * "actions section" of [binding] to [View.VISIBLE].
+     */
     private fun hidePermissionSection() {
         binding.permissionSection.visibility = View.GONE
         binding.actions.visibility = View.VISIBLE
     }
 
+    /**
+     * Changes the visibility of the [FragmentAddDocumentBinding.permissionSection] permissions section
+     * of [binding] to [View.VISIBLE], and the visibility of the [FragmentAddDocumentBinding.actions]
+     * "actions section" of [binding] to [View.GONE].
+     */
     private fun showPermissionSection() {
         binding.permissionSection.visibility = View.VISIBLE
         binding.actions.visibility = View.GONE
