@@ -23,11 +23,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.recyclerview.widget.RecyclerView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.samples.storage.R
 import com.samples.storage.databinding.FragmentAddDocumentBinding
@@ -90,6 +93,30 @@ class AddDocumentFragment : Fragment() {
      * the enabled property of the [FragmentAddDocumentBinding.downloadRandomFileFromInternet] to
      * the inverse of the [Boolean] value it is observing (disabling it when we are downloading, and
      * enabling it again when the download finishes.
+     *
+     * Next we add a [View.OnClickListener] to the [FragmentAddDocumentBinding.requestPermissionButton]
+     * button of [binding] which launches our [ActivityResultLauncher] field [actionRequestPermission]
+     * with an [Array] of [String] containing the permissions [Manifest.permission.READ_EXTERNAL_STORAGE]
+     * and [Manifest.permission.WRITE_EXTERNAL_STORAGE] which launches an activity that will ask the
+     * user to grant us these permissions.
+     *
+     * Next we add a [View.OnClickListener] to the [FragmentAddDocumentBinding.downloadRandomFileFromInternet]
+     * button of [binding] which launches a new coroutine using the [LifecycleCoroutineScope] of the
+     * a [LifecycleOwner] that represents the [Fragment]'s [View] lifecycle. In the coroutine block
+     * we branch on the [Boolean] value returned from the [AddDocumentViewModel.canAddDocument] method
+     * of our [viewModel] field:
+     *  - `true`: we call the [AddDocumentViewModel.addRandomFile] method of [viewModel] to have it
+     *  download a random file from the Internet and store it in the devices "Downloads" folder.
+     *  - `false`: we call our [showPermissionSection] method to have it change the visibility of the
+     *  [FragmentAddDocumentBinding.permissionSection] view of [binding] to [View.VISIBLE] (displays
+     *  the `LinearLayout` which informs the user that: "To add files, we need to request the storage
+     *  permission" and contains a button that they can click to have the system ask them to grant us
+     *  permission), and [showPermissionSection] also changes the visibility of the
+     *  [FragmentAddDocumentBinding.permissionSection] view of [binding] to [View.GONE] (`LinearLayout`
+     *  that holds the "Download Random File" button).
+     *
+     * Finally our [onCreateView] override returns the outermost [View] in the layout file associated
+     * with [binding] to have it used for our UI.
      *
      * @param inflater The [LayoutInflater] object that can be used to inflate any views in
      * the fragment,
@@ -174,7 +201,7 @@ class AddDocumentFragment : Fragment() {
         handlePermissionSectionVisibility()
     }
 
-    private val actionRequestPermission =
+    private val actionRequestPermission: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
             handlePermissionSectionVisibility()
         }
