@@ -51,48 +51,80 @@ import java.io.File
  */
 private const val TAG = "AddDocumentViewModel"
 
+/**
+ * This is the [AndroidViewModel] that is used by the [AddDocumentFragment] fragment.
+ *
+ * @param application the [Application] class used for maintaining global application state.
+ * @param savedStateHandle handle to saved state passed down to our view model, values can be
+ * stored in it using a [String] key, and the value of an entry can observed via the [LiveData]
+ * returned by [SavedStateHandle.getLiveData] method for that [String] key. We save the current
+ * file's [FileEntry] under the key "current_file", and our [MutableLiveData] wrapped [FileEntry]
+ * field [currentFileEntry] is initialized to the [LiveData] that the [SavedStateHandle.getLiveData]
+ * method returns for the key "current_file". An observer added to [currentFileEntry] in the
+ * `onCreateView` override of [AddDocumentFragment] updates the contents of the "File Details" section
+ * of its UI with its new information whenever [currentFileEntry] changes to a non-`null` value.
+ */
 class AddDocumentViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
+    /**
+     * The [Context] of our [Application].
+     */
     private val context: Context
         get() = getApplication()
 
     /**
-     * Check ability to add document in the Download folder or not
+     * Check ability to add document in the Downloads folder or not. Convenience property for
+     * calling our [canAddDocumentPermission] method.
      */
     val canAddDocument: Boolean
         get() = canAddDocumentPermission(context)
 
     /**
      * Using lazy to instantiate the [OkHttpClient] only when accessing it, not when the viewmodel
-     * is created
+     * is created. Used by our [downloadFileFromInternet] method to download a file from a random
+     * URL.
      */
     private val httpClient by lazy { OkHttpClient() }
 
     /**
-     * We keep the current [FileEntry] in the savedStateHandle to re-render it if there is a
-     * configuration change and we expose it as a [LiveData] to the UI
+     * Flag indicating whether we are currently downloading a file from the Internet or not. It is
+     * set to `true` at the beginning of our [addRandomFile] method, and set to `false` when the
+     * download completes (successfully or not). Private to prevent other classes from modifying it,
+     * public read-only access is provided by our [isDownloading] property.
      */
     private var _isDownloading: MutableLiveData<Boolean> = MutableLiveData(false)
+    /**
+     * Public read-only access to our [_isDownloading] field. An observer is added to it in the
+     * `onCreateView` override of [AddDocumentFragment] whose lambda sets the enabled state of the
+     * "Download Random File" button in its UI to disabled when this transitions to `true` or to
+     * enabled when it transitions to `false`.
+     */
     val isDownloading: LiveData<Boolean> = _isDownloading
 
     /**
      * We keep the current [FileEntry] in the savedStateHandle to re-render it if there is a
-     * configuration change and we expose it as a [LiveData] to the UI
+     * configuration change and we expose it as a [LiveData] to the UI via this property.
      */
-    val currentFileEntry = savedStateHandle.getLiveData<FileEntry>("current_file")
+    val currentFileEntry: MutableLiveData<FileEntry> =
+        savedStateHandle.getLiveData("current_file")
 
     /**
-     * Generate random filename when saving a new file
+     * Generate random filename when saving a new file. Appends its [String] parameter [extension]
+     * to the end of the string value of the current time in milliseconds (separated by a period).
      */
     private fun generateFilename(extension: String) = "${System.currentTimeMillis()}.$extension"
 
     /**
-     * Check if the app can writes on the shared storage
+     * Check if the app can write on the shared storage. On Android 10 (API 29), we can add files to
+     * the Downloads folder without having to request the [WRITE_EXTERNAL_STORAGE] permission, so we
+     * only check on pre-API 29 devices by calling the [ContextCompat.checkSelfPermission] method
+     * with the permission string [WRITE_EXTERNAL_STORAGE] (it returns [PackageManager.PERMISSION_GRANTED]
+     * if we have the permission).
      *
-     * On Android 10 (API 29), we can add files to the Downloads folder without having to request the
-     * [WRITE_EXTERNAL_STORAGE] permission, so we only check on pre-API 29 devices
+     * @param context the [Context] of the [Application].
+     * @return `true` if we can write to the Downloads folder, `false` if cannot.
      */
     private fun canAddDocumentPermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -105,6 +137,10 @@ class AddDocumentViewModel(
         }
     }
 
+    /**
+     * Downloads a file from a random URL and writes it to the shared "Downloads" folder of the
+     * device.
+     */
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun addRandomFile() {
         _isDownloading.postValue(true)
@@ -146,7 +182,7 @@ class AddDocumentViewModel(
                         Log.d(TAG, "MediaStore updated ($path, $uri)")
 
                         viewModelScope.launch {
-                            val fileDetails = getFileDetails(uri)
+                            val fileDetails: FileEntry? = getFileDetails(uri)
                             Log.d(TAG, "New file: $fileDetails")
 
                             savedStateHandle["current_file"] = fileDetails
@@ -317,6 +353,7 @@ class AddDocumentViewModel(
                 val sizeColumn = cursor.getColumnIndexOrThrow(FileColumns.SIZE)
                 val mimeTypeColumn = cursor.getColumnIndexOrThrow(FileColumns.MIME_TYPE)
                 val dateAddedColumn = cursor.getColumnIndexOrThrow(FileColumns.DATE_ADDED)
+
                 @Suppress("DEPRECATION")
                 val dataColumn = cursor.getColumnIndexOrThrow(FileColumns.DATA)
 
