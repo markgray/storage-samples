@@ -17,6 +17,7 @@ package com.samples.storage.mediastore
 
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.app.Application
+import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
@@ -43,8 +44,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import okhttp3.ResponseBody
 import java.io.File
+import java.io.OutputStream
+import kotlin.coroutines.CoroutineContext
 
 /**
  * TAG used for logging.
@@ -139,24 +143,58 @@ class AddDocumentViewModel(
 
     /**
      * Downloads a file from a random URL and writes it to the shared "Downloads" folder of the
-     * device.
+     * device. First we post a task to the main thread to set the value of our [MutableLiveData]
+     * wrapped [Boolean] field [_isDownloading] to `true` (an observer added to its [isDownloading]
+     * accessor field in the `onCreateView` override of [AddDocumentFragment] will set the enabled
+     * state of the "Download Random File" button in its UI to disabled when this transitions to
+     * `true`). Next we initialize our [String] variable `val randomRemoteUrl` to a random [String]
+     * from the [SampleFiles.nonMedia] list of strings, and initialize our [String] variable
+     * `val extension` to the string following the last "." character in `randomRemoteUrl` (the file
+     * extension). Then we initialize our [String] variable `val filename` to the value returned by
+     * our [generateFilename] method when it appends a "." character followed by `extension` to the
+     * string value of the current time in milliseconds.
+     *
+     * Next we call a suspending block in the [CoroutineContext] of [Dispatchers.IO] with the code
+     * in the block wrapped in a `try` block intended to catch and log any [Exception] (also posting
+     * a task to the main thread to set the value of our [MutableLiveData] wrapped [Boolean] field
+     * [_isDownloading] to `false` thereby causing the observer of [isDownloading] to enable the
+     * "Download Random File" button in its UI). Within the `try` block we branch on the SDK version
+     * of the software currently running on this hardware device (the `SystemProperties` "constant"
+     * [Build.VERSION.SDK_INT]):
+     *  - [Build.VERSION_CODES.Q] or greater: We initialize our [Uri] variable `val newFileUri` to
+     *  the value returned by our [addFileToDownloadsApi29] method when it uses the MediaStore API
+     *  to create a file with the name `filename` inside the `Downloads` folder. We initialize our
+     *  [OutputStream] variable `val outputStream` to the [OutputStream] that a [ContentResolver]
+     *  for our application's package returns when we call its [ContentResolver.openOutputStream] to
+     *  open the [File] whose [Uri] is `newFileUri` with the mode "w" (if this is `null` the provider
+     *  recently crashed and we throw the [Exception] "ContentResolver couldn't open $newFileUri
+     *  outputStream"). We next initialize our [ResponseBody] variable `val responseBody` to the
+     *  [ResponseBody] that our [downloadFileFromInternet] method returns when [OkHttpClient] field
+     *  [httpClient] executes a [Request] built from our `randomRemoteUrl` variable and returns the
+     *  [ResponseBody] of the [Response] that the website returns (it is a one-shot stream from the
+     *  origin server to the client application with the raw bytes of the response body). If the
+     *  [ResponseBody] returned is `null` we post a task to the main thread to set the value of our
+     *  [MutableLiveData] wrapped [Boolean] field [_isDownloading] to `false` and return to the
+     *  caller.
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun addRandomFile() {
         _isDownloading.postValue(true)
 
-        val randomRemoteUrl = SampleFiles.nonMedia.random()
-        val extension = randomRemoteUrl.substring(randomRemoteUrl.lastIndexOf(".") + 1)
-        val filename = generateFilename(extension)
+        val randomRemoteUrl: String = SampleFiles.nonMedia.random()
+        val extension: String =
+            randomRemoteUrl.substring(randomRemoteUrl.lastIndexOf(".") + 1)
+        val filename: String = generateFilename(extension)
 
         withContext(Dispatchers.IO) {
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val newFileUri = addFileToDownloadsApi29(filename)
-                    val outputStream = context.contentResolver.openOutputStream(newFileUri, "w")
+                    val newFileUri: Uri = addFileToDownloadsApi29(filename)
+                    val outputStream: OutputStream = context.contentResolver
+                        .openOutputStream(newFileUri, "w")
                         ?: throw Exception("ContentResolver couldn't open $newFileUri outputStream")
 
-                    val responseBody = downloadFileFromInternet(randomRemoteUrl)
+                    val responseBody: ResponseBody? = downloadFileFromInternet(randomRemoteUrl)
 
                     if (responseBody == null) {
                         _isDownloading.postValue(false)
@@ -237,10 +275,10 @@ class AddDocumentViewModel(
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun downloadFileFromInternet(url: String): ResponseBody? {
         // We use OkHttp to create HTTP request
-        val request = Request.Builder().url(url).build()
+        val request: Request = Request.Builder().url(url).build()
 
         return withContext(Dispatchers.IO) {
-            val response = httpClient.newCall(request).execute()
+            val response: Response = httpClient.newCall(request).execute()
             return@withContext response.body
         }
     }
@@ -267,7 +305,7 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Create a file inside the Download folder using MediaStore API
+     * Create a file inside the Downloads folder using MediaStore API
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     @RequiresApi(Build.VERSION_CODES.Q)
