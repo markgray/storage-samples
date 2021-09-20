@@ -47,6 +47,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
 import java.io.File
+import java.io.InputStream
 import java.io.OutputStream
 import kotlin.coroutines.CoroutineContext
 
@@ -175,7 +176,13 @@ class AddDocumentViewModel(
      *  origin server to the client application with the raw bytes of the response body). If the
      *  [ResponseBody] returned is `null` we post a task to the main thread to set the value of our
      *  [MutableLiveData] wrapped [Boolean] field [_isDownloading] to `false` and return to the
-     *  caller.
+     *  caller. We use the [use] extension method on `responseBody` to execute a block which uses
+     *  the [use] extension method on `outputStream` and in that inner block we use the extension
+     *  function [InputStream.copyTo] on the [InputStream] returned by the [ResponseBody.byteStream]
+     *  method of `responseBody` to copy that stream to the [OutputStream] of `outputStream`. The
+     *  [use] extension function will then close both streams it is used on whether an exception is
+     *  thrown or not. When done copying to the file we log the fact that we downloaded to the
+     *  `newFileUri` [Uri].
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun addRandomFile() {
@@ -211,7 +218,7 @@ class AddDocumentViewModel(
 
                     Log.d(TAG, "File downloaded ($newFileUri)")
 
-                    val path = getMediaStoreEntryPathApi29(newFileUri)
+                    val path: String = getMediaStoreEntryPathApi29(newFileUri)
                         ?: throw Exception("ContentResolver couldn't find $newFileUri")
 
                     // We scan the newly added file to make sure MediaStore.Downloads is always up
