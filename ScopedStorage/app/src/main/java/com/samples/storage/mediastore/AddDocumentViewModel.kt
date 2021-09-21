@@ -201,7 +201,31 @@ class AddDocumentViewModel(
      *  - Older than [Build.VERSION_CODES.Q]: We initialize our [File] variable `val file` to the
      *  path to the [File] that our [addFileToDownloadsApi21] method creates in the Downloads folder
      *  for the file name `filename` using the java.io API, and initialize our [FileOutputStream]
-     *  variable `val outputStream` to a new instance for `file`.
+     *  variable `val outputStream` to a new instance for writing to `file`. We next initialize our
+     *  [ResponseBody] variable `val responseBody` to the [ResponseBody] that our [downloadFileFromInternet]
+     *  method returns when [OkHttpClient] field [httpClient] executes a [Request] built from our
+     *  `randomRemoteUrl` variable and returns the [ResponseBody] of the [Response] that the website
+     *  returns (it is a one-shot stream from the origin server to the client application with the
+     *  raw bytes of the response body). If the [ResponseBody] returned is `null` we post a task to
+     *  the main thread to set the value of our [MutableLiveData] wrapped [Boolean] field
+     *  [_isDownloading] to `false` and return to the caller. We use the [use] extension method on
+     *  `responseBody` to execute a block which uses the [use] extension method on `outputStream`
+     *  and in that inner block we use the extension function [InputStream.copyTo] on the [InputStream]
+     *  returned by the [ResponseBody.byteStream] method of `responseBody` to copy that stream to the
+     *  [OutputStream] of `outputStream`. The [use] extension function will then close both streams
+     *  it is used on whether an exception is thrown or not. When done copying to the file we log
+     *  the fact that we downloaded to the absolute pathname of the [File] `file`. Next we scan the
+     *  newly added file to make sure [MediaStore.Downloads] is up to date by calling our suspend
+     *  function [scanFilePath] to have it use the [MediaScannerConnection.scanFile] method to have
+     *  it scan the file system path of `file` for the mime type that is found in the
+     *  [ResponseBody.contentType] property of `responseBody` passing in a lambda for the callback
+     *  which initializes its [FileEntry] variable `val fileDetails` to the file details that our
+     *  [getFileDetails] method extracts using the MediaStore API on the scanned [Uri] that the
+     *  [MediaScannerConnection.scanFile] method passes the lambda. We log `fileDetails` then set
+     *  the "current_file" entry of our [SavedStateHandle] field [savedStateHandle] to `fileDetails`
+     *  and finally post a task to the main thread to set the value of [_isDownloading] to `false`
+     *  (causing the observer of its accessor field [isDownloading] to enable the "Download Random
+     *  File" button in the [AddDocumentFragment] UI).
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun addRandomFile() {
@@ -297,7 +321,13 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Downloads a random file from internet and saves its content to the specified outputStream
+     * Starts the download of the file whose URL is our [String] parameter [url] by our [OkHttpClient]
+     * field [httpClient] and returns the [ResponseBody] of the [Response] received.
+     *
+     * @param url the URL address of the file on the Internet.
+     * @return the [ResponseBody] of the [Response] received from the website. A [ResponseBody] is a
+     * one-shot stream from the origin server to the client application with the raw bytes of the
+     * response body. Each response body is supported by an active connection to the webserver.
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun downloadFileFromInternet(url: String): ResponseBody? {
