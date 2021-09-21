@@ -47,6 +47,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import kotlin.coroutines.CoroutineContext
@@ -182,7 +183,25 @@ class AddDocumentViewModel(
      *  method of `responseBody` to copy that stream to the [OutputStream] of `outputStream`. The
      *  [use] extension function will then close both streams it is used on whether an exception is
      *  thrown or not. When done copying to the file we log the fact that we downloaded to the
-     *  `newFileUri` [Uri].
+     *  `newFileUri` [Uri]. Next we initialize our [String] variable `val path` to the file system
+     *  path to the [File] whose content [Uri] is `newFileUri` that our [getMediaStoreEntryPathApi29]
+     *  method returns (for example the path to "content://media/external_primary/downloads/605" is
+     *  /storage/emulated/0/Download/1632216015520.md when I download a random file on my Pixel 3).
+     *  Next we scan the newly added file to make sure [MediaStore.Downloads] is up to date by calling
+     *  our suspend function [scanFilePath] to have it use the [MediaScannerConnection.scanFile]
+     *  method to have it scan the file system path `path` for the mime type that is found in the
+     *  [ResponseBody.contentType] property of `responseBody` passing in a lambda for the callback
+     *  which initializes its [FileEntry] variable `val fileDetails` to the file details that our
+     *  [getFileDetails] method extracts using the MediaStore API on the scanned [Uri] that the
+     *  [MediaScannerConnection.scanFile] method passes the lambda. We log `fileDetails` then set
+     *  the "current_file" entry of our [SavedStateHandle] field [savedStateHandle] to `fileDetails`
+     *  and finally post a task to the main thread to set the value of [_isDownloading] to `false`
+     *  (causing the observer of its accessor field [isDownloading] to enable the "Download Random
+     *  File" button in the [AddDocumentFragment] UI).
+     *  - Older than [Build.VERSION_CODES.Q]: We initialize our [File] variable `val file` to the
+     *  path to the [File] that our [addFileToDownloadsApi21] method creates in the Downloads folder
+     *  for the file name `filename` using the java.io API, and initialize our [FileOutputStream]
+     *  variable `val outputStream` to a new instance for `file`.
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun addRandomFile() {
@@ -220,6 +239,7 @@ class AddDocumentViewModel(
 
                     val path: String = getMediaStoreEntryPathApi29(newFileUri)
                         ?: throw Exception("ContentResolver couldn't find $newFileUri")
+                    Log.d(TAG, "Path to $newFileUri is $path")
 
                     // We scan the newly added file to make sure MediaStore.Downloads is always up
                     // to date
@@ -235,10 +255,10 @@ class AddDocumentViewModel(
                         }
                     }
                 } else {
-                    val file = addFileToDownloadsApi21(filename)
-                    val outputStream = file.outputStream()
+                    val file: File = addFileToDownloadsApi21(filename)
+                    val outputStream: FileOutputStream = file.outputStream()
 
-                    val responseBody = downloadFileFromInternet(randomRemoteUrl)
+                    val responseBody: ResponseBody? = downloadFileFromInternet(randomRemoteUrl)
 
                     if (responseBody == null) {
                         _isDownloading.postValue(false)
@@ -291,7 +311,7 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Create a file inside the Download folder using java.io API
+     * Create a file inside the Downloads folder using java.io API
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun addFileToDownloadsApi21(filename: String): File {
