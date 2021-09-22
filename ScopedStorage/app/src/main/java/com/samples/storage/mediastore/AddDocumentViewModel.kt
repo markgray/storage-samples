@@ -322,7 +322,14 @@ class AddDocumentViewModel(
 
     /**
      * Starts the download of the file whose URL is our [String] parameter [url] by our [OkHttpClient]
-     * field [httpClient] and returns the [ResponseBody] of the [Response] received.
+     * field [httpClient] and returns the [ResponseBody] of the [Response] received. We initialize our
+     * [Request] variable `val request` by using a [Request.Builder] to build a [Request] whose URL
+     * target is constructed from our [String] parameter [url]. Then we use the [withContext] method
+     * to call a suspending block with the coroutine context of [Dispatchers.IO], and in the block
+     * we initialize our [Response] variable `val response` to the [Response] returned when we use
+     * our [OkHttpClient] field [httpClient] to execute the [Request] it "prepares" from `request`.
+     * When that blocking call returns the block returns the [ResponseBody] of the [Response] variable
+     * `response` as its result and [downloadFileFromInternet] returns that to its caller.
      *
      * @param url the URL address of the file on the Internet.
      * @return the [ResponseBody] of the [Response] received from the website. A [ResponseBody] is a
@@ -341,7 +348,20 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Create a file inside the Downloads folder using java.io API
+     * Create a file inside the Downloads folder using java.io API. First we initialize our variable
+     * `val downloadsFolder` to a [File] for the [DIRECTORY_DOWNLOADS] shared storage directory that
+     * the [Environment.getExternalStoragePublicDirectory] returns. Then we initialize our [File]
+     * variable `val newNonMediaFile` to a [File] in `downloadsFolder` with the name [filename].
+     * Then we use the [withContext] method to call a suspending block with the coroutine context
+     * of [Dispatchers.IO], and in the block if the [File.createNewFile] method of `newNonMediaFile`
+     * returns `false` we throw an [Exception] stating that the file already exists, otherwise the
+     * block returns `newNonMediaFile` as its result and [addFileToDownloadsApi21] returns this
+     * [File] to the caller.
+     *
+     * @param filename the name of the file we are to create in the Downloads folder.
+     * @return the [File] instance created from the [File] abstract pathname of the Downloads folder
+     * and the pathname string in our [String] parameter [filename] (ie. the [File] points to the
+     * file we created in the Downloads folder).
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun addFileToDownloadsApi21(filename: String): File {
@@ -362,7 +382,9 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Create a file inside the Downloads folder using MediaStore API
+     * Create a file inside the Downloads folder using MediaStore API.
+     *
+     * @param filename the name of the file we are to create in the Downloads folder.
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     @RequiresApi(Build.VERSION_CODES.Q)
