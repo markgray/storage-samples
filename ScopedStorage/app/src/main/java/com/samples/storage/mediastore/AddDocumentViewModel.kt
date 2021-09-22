@@ -264,6 +264,7 @@ class AddDocumentViewModel(
                     val path: String = getMediaStoreEntryPathApi29(newFileUri)
                         ?: throw Exception("ContentResolver couldn't find $newFileUri")
                     Log.d(TAG, "Path to $newFileUri is $path")
+                    Log.d(TAG, "MimeType of $newFileUri is ${responseBody.contentType()}")
 
                     // We scan the newly added file to make sure MediaStore.Downloads is always up
                     // to date
@@ -382,17 +383,34 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Create a file inside the Downloads folder using MediaStore API.
+     * Create a file inside the Downloads folder using MediaStore API. We initialize our [Uri]
+     * variable `val collection` to the content uri for the [MediaStore] collection of downloaded
+     * items on its [MediaStore.VOLUME_EXTERNAL_PRIMARY] volume (aka the `Downloads` folder) that
+     * the [MediaStore.Downloads.getContentUri] method returns. Then we use the [withContext] method
+     * to call a suspending block with the coroutine context of [Dispatchers.IO], and in the block
+     * we initialize our [ContentValues] variable `val newFile` to a new instance to which we use
+     * the [apply] method to store our [String] parameter [filename] in the [ContentValues] set
+     * under the key [MediaStore.Downloads.DISPLAY_NAME] ("_display_name"). The block then calls
+     * the [ContentResolver.insert] method of a [ContentResolver] instance for our application's
+     * package to insert a new row whose values are those of the [ContentValues] variable `newFile`
+     * in the table whose URL is `collection` (ie. tries to create a [File] whose name is [filename]
+     * in the Downloads folder) and if the [Uri] that [ContentResolver.insert] returns is non-`null`
+     * returns this as its value which [addFileToDownloadsApi29] then returns to its caller. If the
+     * call to [ContentResolver.insert] returns `null` we throw the [Exception] "MediaStore Uri
+     * couldn't be created" (a non-`null` [Uri] is a content [Uri] which can be opened to write to
+     * the newly created [File]).
      *
      * @param filename the name of the file we are to create in the Downloads folder.
+     * @return a [Uri] which can be used to open an [OutputStream] to write to the file with the
+     * name of our [String] parameter [filename] in the Downloads folder.
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     @RequiresApi(Build.VERSION_CODES.Q)
     private suspend fun addFileToDownloadsApi29(filename: String): Uri {
-        val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        val collection: Uri = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
 
         return withContext(Dispatchers.IO) {
-            val newFile = ContentValues().apply {
+            val newFile: ContentValues = ContentValues().apply {
                 put(MediaStore.Downloads.DISPLAY_NAME, filename)
             }
 
@@ -407,7 +425,16 @@ class AddDocumentViewModel(
      * When adding a file (using java.io or ContentResolver APIs), MediaStore might not be aware of
      * the new entry or doesn't have an updated version of it. That's why some entries have 0 bytes
      * size, even though the file is definitely not empty. MediaStore will eventually scan the file
-     * but it's better to do it ourselves to have a fresher state whenever we can
+     * but it's better to do it ourselves to have a fresher state whenever we can.
+     *
+     * @param path the file system path to the newly added file. On my Pixel 3 this will be something
+     * like: /storage/emulated/0/Download/1632216015520.md
+     * @param mimeType the mime type [String] that is found in the [ResponseBody.contentType]
+     * property of the [ResponseBody], for the above file this was "text/plain"
+     * @param callback a callback which will be called with the the scanned [Uri] that the
+     * [MediaScannerConnection.OnScanCompletedListener] callback of our call to the the method
+     * [MediaScannerConnection.scanFile] is called with (this is the [MediaStore] content [Uri]
+     * pointing to our newly created file).
      */
     private suspend fun scanFilePath(path: String, mimeType: String, callback: (uri: Uri) -> Unit) {
         withContext(Dispatchers.IO) {
