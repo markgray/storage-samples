@@ -22,18 +22,45 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.samples.storage.R
 import com.samples.storage.databinding.FragmentAddMediaBinding
 import kotlinx.coroutines.launch
 
+/**
+ * Allows the user to "Take Picture", "Take Video", or "Download Picture" and store them in the
+ * appropriate shared media folder. It is navigated to from the [MediaStoreFragment] when the item
+ * view in its [RecyclerView] with the text "Add Media File" is clicked.
+ */
 class AddMediaFragment : Fragment() {
+    /**
+     * The view binding generated from our layout file layout/fragment_add_media.xml (resource ID
+     * [R.layout.fragment_add_media]). It consists of a `ConstraintLayout` root view holding a
+     * "Request Permission" `LinearLayout` section, an [ImageView] which displays the image in
+     * the [AddMediaViewModel.currentMediaUri] whenever it changes, and a `LinearLayout` "Action
+     * Section" holding three buttons that the user can click to "Take Picture", "Take Video", or
+     * "Download Picture". When the user needs to grant us permission the "Request Permission"
+     * section is visible and the "Action Section" is GONE, and if we have permission the "Request
+     * Permission" section is GONE and the "Action Section" is visible. Private to prevent other
+     * classes from modifying it, read-only access is provided by our [binding] field.
+     */
     private var _binding: FragmentAddMediaBinding? = null
+    /**
+     * Read-only access to our [FragmentAddMediaBinding] field [_binding].
+     */
     private val binding get() = _binding!!
+
+    /**
+     * The custom [AndroidViewModel] we use.
+     */
     private val viewModel: AddMediaViewModel by viewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

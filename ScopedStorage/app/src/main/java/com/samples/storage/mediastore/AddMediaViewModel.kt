@@ -39,7 +39,10 @@ import okhttp3.Request
  */
 private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500"
 
-class AddMediaViewModel(application: Application, private val savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
+class AddMediaViewModel(
+    application: Application,
+    private val savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
 
     private val context: Context
         get() = getApplication()
@@ -125,6 +128,7 @@ class AddMediaViewModel(application: Application, private val savedStateHandle: 
      * [saveRandomImageFromInternet] downloads a random image from unsplash.com and saves its
      * content
      */
+    @Suppress("BlockingMethodInNonBlockingContext")
     fun saveRandomImageFromInternet(callback: () -> Unit) {
         viewModelScope.launch {
             val imageUri = createPhotoUri(Source.INTERNET)
