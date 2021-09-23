@@ -21,6 +21,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
@@ -427,6 +428,16 @@ class AddDocumentViewModel(
      * size, even though the file is definitely not empty. MediaStore will eventually scan the file
      * but it's better to do it ourselves to have a fresher state whenever we can.
      *
+     * We use the [withContext] method to call a suspending block with the coroutine context of
+     * [Dispatchers.IO] and in that block we call the [MediaScannerConnection.scanFile] convenience
+     * function to construct a [MediaScannerConnection], call `connect` on it and then when the
+     * connection is established call its `scanFile` method with the path in our [path] parameter
+     * and mime type in our [mimeType] parameter to request the media scanner to scan the file.
+     *
+     * The [MediaScannerConnection.OnScanCompletedListener] lambda we pass to
+     * [MediaScannerConnection.scanFile] will then call our [callback] parameter with the
+     * [MediaStore] content [Uri] pointing to the scanned file.
+     *
      * @param path the file system path to the newly added file. On my Pixel 3 this will be something
      * like: /storage/emulated/0/Download/1632216015520.md
      * @param mimeType the mime type [String] that is found in the [ResponseBody.contentType]
@@ -445,11 +456,26 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Get a path for a MediaStore entry as it's needed when calling MediaScanner
+     * Get a path for a MediaStore entry as it's needed when calling MediaScanner. We use the
+     * [withContext] method to call a suspending block with the coroutine context of [Dispatchers.IO]
+     * and in that block:
+     *  - We initialize our [Cursor] variable `val cursor` to the [Cursor] that a [ContentResolver]
+     *  instance for our application's package returns when we call its [ContentResolver.query]
+     *  method for our content [Uri] parameter [uri] to retrieve its [FileColumns.DATA] column.
+     *  - Then we use the [use] extension function on `cursor` returning `null` if its method
+     *  [Cursor.moveToFirst] returns `false` (indicates that the [Cursor] is empty) or return the
+     *  [String] in the [FileColumns.DATA] column of `cursor` if it returns `true`.
+     *
+     * [getMediaStoreEntryPathApi29] then returns the value returned by the [withContext] block
+     * to its caller.
+     *
+     * @param uri the [MediaStore] content [Uri] pointing to the file entry.
+     * @return the file system path to the file, ie. /storage/emulated/0/Download/1632216015520.md
+     * where the "1632216015520.md" file name differs for the different files downloaded of course.
      */
     private suspend fun getMediaStoreEntryPathApi29(uri: Uri): String? {
         return withContext(Dispatchers.IO) {
-            val cursor = context.contentResolver.query(
+            val cursor: Cursor = context.contentResolver.query(
                 uri,
                 @Suppress("DEPRECATION")
                 arrayOf(FileColumns.DATA),
@@ -469,11 +495,15 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Get file details using the MediaStore API
+     * Get file details using the MediaStore API.
+     *
+     * @param uri the [MediaStore] content [Uri] pointing to the file whose details we want.
+     * @return a [FileEntry] instance constructed from the relevant columns of the [Cursor] that the
+     * [ContentResolver] returns when we query for our [Uri] parameter [uri].
      */
     private suspend fun getFileDetails(uri: Uri): FileEntry? {
         return withContext(Dispatchers.IO) {
-            val cursor = context.contentResolver.query(
+            val cursor: Cursor = context.contentResolver.query(
                 uri,
                 arrayOf(
                     FileColumns.DISPLAY_NAME,
