@@ -495,7 +495,36 @@ class AddDocumentViewModel(
     }
 
     /**
-     * Get file details using the MediaStore API.
+     * Get file details using the MediaStore API. We use the [withContext] method to call a suspending
+     * block with the coroutine context of [Dispatchers.IO] and in that block we initialize our
+     * [Cursor] variable `val cursor` to the [Cursor] that a [ContentResolver] instance for our
+     * application's package returns when we call its [ContentResolver.query] method for our content
+     * [Uri] parameter [uri] to retrieve the columns: [FileColumns.DISPLAY_NAME] (the file name),
+     * [FileColumns.SIZE] (the file length), [FileColumns.MIME_TYPE] (MIME type of the media item),
+     * [FileColumns.DATE_ADDED] (time the media item was first added), and [FileColumns.DATA] (the
+     * file system path to the file). If the call to [ContentResolver.query] returns `null` the block
+     * returns `null`. Then we use the [use] extension method on `cursor` to:
+     *  - call its [Cursor.moveToFirst] method to move `cursor` to the first row (returning `null`
+     *  from the [withContext] block if the method returns `false` indicating the cursor is empty).
+     *  - initialize our [Int] variable `val displayNameColumn` to the zero-based index for the
+     *  column name [FileColumns.DISPLAY_NAME].
+     *  - initialize our [Int] variable `val sizeColumn` to the zero-based index for the
+     *  column name [FileColumns.SIZE].
+     *  - initialize our [Int] variable `val mimeTypeColumn` to the zero-based index for the
+     *  column name [FileColumns.MIME_TYPE].
+     *  - initialize our [Int] variable `val dateAddedColumn` to the zero-based index for the
+     *  column name [FileColumns.DATE_ADDED].
+     *  - initialize our [Int] variable `val dataColumn` to the zero-based index for the
+     *  column name [FileColumns.DATA].
+     *  - then the [withContext] block returns a new instance of [FileEntry] constructed to use the
+     *  [String] in column `displayNameColumn` for its [FileEntry.filename] property, the [Long] in
+     *  column `sizeColumn` for its [FileEntry.size] property, the [String] in column `mimeTypeColumn`
+     *  for its [FileEntry.mimeType] property, the [Long] in column `dateAddedColumn` multiplied by
+     *  1000 (to convert seconds to milliseconds) for its [FileEntry.addedAt] property, and the
+     *  [String] in column `dataColumn` for its [FileEntry.path] property.
+     *
+     * [getFileDetails] then returns the [FileEntry] returned from the [withContext] block to its
+     * caller.
      *
      * @param uri the [MediaStore] content [Uri] pointing to the file whose details we want.
      * @return a [FileEntry] instance constructed from the relevant columns of the [Cursor] that the
@@ -544,6 +573,21 @@ class AddDocumentViewModel(
     }
 }
 
+/**
+ * This is used to hold the file details of the last random file downloaded from the Internet which
+ * is stored in the [SavedStateHandle] field [AddDocumentViewModel.savedStateHandle] of the
+ * [AddDocumentViewModel] being used by the app under the key "current_file".
+ * The [AddDocumentViewModel.currentFileEntry] field is a [MutableLiveData] that can be used to
+ * access the current [FileEntry] contents stored under that key, and an observer added to it in
+ * the `onCreateView` override of [AddDocumentFragment] updates the contents of the file details
+ * section of its UI whenever the [FileEntry] changes value.
+ *
+ * @param filename the file name of the file, for example "1632216015520.md"
+ * @param size the length of the file in bytes
+ * @param mimeType the MIME type of the file, for example "text/plain"
+ * @param addedAt the time the file was first added in millseconds since January 1, 1970
+ * @param path the file system path of the file: /storage/emulated/0/Download/1632216015520.md
+ */
 @Parcelize
 data class FileEntry(
     val filename: String,
