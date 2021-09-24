@@ -53,6 +53,7 @@ class AddDocumentFragment : Fragment() {
      * is provided by our [binding] field (but it is private as well out of habit I guess).
      */
     private var _binding: FragmentAddDocumentBinding? = null
+
     /**
      * Read-only access to our to our [FragmentAddDocumentBinding] field [_binding].
      */

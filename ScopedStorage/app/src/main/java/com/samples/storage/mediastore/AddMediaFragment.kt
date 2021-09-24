@@ -17,22 +17,28 @@ package com.samples.storage.mediastore
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.samples.storage.R
 import com.samples.storage.databinding.FragmentAddMediaBinding
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -53,6 +59,7 @@ class AddMediaFragment : Fragment() {
      * classes from modifying it, read-only access is provided by our [binding] field.
      */
     private var _binding: FragmentAddMediaBinding? = null
+
     /**
      * Read-only access to our [FragmentAddMediaBinding] field [_binding].
      */
@@ -63,11 +70,61 @@ class AddMediaFragment : Fragment() {
      */
     private val viewModel: AddMediaViewModel by viewModels()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    /**
+     * Called to have the fragment instantiate its user interface view. This will be called between
+     * [onCreate] and [onViewCreated]. It is recommended to only inflate the layout in this method
+     * and move logic that operates on the returned View to [onViewCreated]. If you return a [View]
+     * from here, you will later be called in [onDestroyView] when the view is being released. First
+     * we initialize our [FragmentAddMediaBinding] field [_binding] by having the
+     * [FragmentAddMediaBinding.inflate] method use our [LayoutInflater] parameter [inflater] to
+     * inflate and bind to its associated layout file layout/fragment_add_document.xml with our
+     * [ViewGroup] parameter [container] supplying the `LayoutParams`.
+     *
+     * We add an observer to the [AddMediaViewModel.currentMediaUri] field of our [viewModel] field
+     * whose lambda will begin a load with [Glide] of the [Uri] value of the observed field into the
+     * [ImageView] in the [FragmentAddMediaBinding.mediaThumbnail] field of [binding] whenever the
+     * [Uri] changes value.
+     *
+     * We set the [View.OnClickListener] of the [FragmentAddMediaBinding.requestPermissionButton]
+     * button in [binding] to a lambda which launches our [ActivityResultLauncher] field
+     * [actionRequestPermission] to have the system ask the user to grant us the permissons
+     * [READ_EXTERNAL_STORAGE] and [WRITE_EXTERNAL_STORAGE].
+     *
+     * We set the [View.OnClickListener] of the [FragmentAddMediaBinding.takePictureButton] button
+     * in [binding] to a lambda which gets a [LifecycleOwner] that represents the [Fragment]'s [View]
+     * lifecycle and uses the [CoroutineScope] tied to this [LifecycleOwner]'s Lifecycle to launch
+     * a new coroutine without blocking the current thread. In that coroutine lambda we branch on
+     * whether the [AddMediaViewModel.canWriteInMediaStore] field of [viewModel] is `true`:
+     *  - `true`: we call the [AddMediaViewModel.createPhotoUri] method of [viewModel] to have it
+     *  create a [Uri] where the image taken by the camera will be stored using [Source.CAMERA]
+     *  ("camera-") as the prefix for the image. If this is non-`null` we use the [let] extension
+     *  function on the [Uri] created to call the [AddMediaViewModel.saveTemporarilyPhotoUri] method
+     *  of [viewModel] to have it save the [Uri] in its private [SavedStateHandle] field under the
+     *  key "temporaryPhotoUri", and then we launch our [ActivityResultLauncher] field [actionTakeVideo]
+     *  to have [MediaStore] take a picture and store it in the content [Uri].
+     *  - `false`: (Android 10 and above always returns `true`, so this can only happen on older
+     *  Android versions) we call our [showPermissionSection] to have it make the "Permissions Section"
+     *  of our UI visible (has a button the user can click to have the system grant us permissions)
+     *  and the "Action Section" of the UI [View.GONE] (until the user has granted us the permissions).
+     *
+     * @param inflater The [LayoutInflater] object that can be used to inflate
+     * any views in the fragment.
+     * @param container If non-`null`, this is the parent view that the fragment's
+     * UI will be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the `LayoutParams` of the view.
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return Return the [View] for the fragment's UI, or `null`.
+     */
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentAddMediaBinding.inflate(inflater, container, false)
 
         // Every time currentMediaUri is changed, we update the ImageView
-        viewModel.currentMediaUri.observe(viewLifecycleOwner) { uri ->
+        viewModel.currentMediaUri.observe(viewLifecycleOwner) { uri: Uri? ->
             Glide.with(this).load(uri).into(binding.mediaThumbnail)
         }
 
@@ -79,7 +136,7 @@ class AddMediaFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
 
                 if (viewModel.canWriteInMediaStore) {
-                    viewModel.createPhotoUri(Source.CAMERA)?.let { uri ->
+                    viewModel.createPhotoUri(Source.CAMERA)?.let { uri: Uri ->
                         viewModel.saveTemporarilyPhotoUri(uri)
                         actionTakePicture.launch(uri)
                     }
@@ -93,7 +150,7 @@ class AddMediaFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
 
                 if (viewModel.canWriteInMediaStore) {
-                    viewModel.createVideoUri(Source.CAMERA)?.let { uri ->
+                    viewModel.createVideoUri(Source.CAMERA)?.let { uri: Uri ->
                         actionTakeVideo.launch(uri)
                     }
                 } else {
@@ -148,23 +205,25 @@ class AddMediaFragment : Fragment() {
         binding.actions.visibility = View.GONE
     }
 
-    private val actionRequestPermission = registerForActivityResult(RequestMultiplePermissions()) {
-        handlePermissionSectionVisibility()
-    }
-
-    private val actionTakePicture = registerForActivityResult(TakePicture()) { success ->
-        if (!success) {
-            Log.d(tag, "Image taken FAIL")
-            return@registerForActivityResult
+    private val actionRequestPermission: ActivityResultLauncher<Array<String>> =
+        registerForActivityResult(RequestMultiplePermissions()) {
+            handlePermissionSectionVisibility()
         }
 
-        Log.d(tag, "Image taken SUCCESS")
+    private val actionTakePicture: ActivityResultLauncher<Uri> =
+        registerForActivityResult(TakePicture()) { success ->
+            if (!success) {
+                Log.d(tag, "Image taken FAIL")
+                return@registerForActivityResult
+            }
 
-        viewModel.temporaryPhotoUri?.let {
-            viewModel.loadCameraMedia(it)
-            viewModel.saveTemporarilyPhotoUri(null)
+            Log.d(tag, "Image taken SUCCESS")
+
+            viewModel.temporaryPhotoUri?.let {
+                viewModel.loadCameraMedia(it)
+                viewModel.saveTemporarilyPhotoUri(null)
+            }
         }
-    }
 
     private val actionTakeVideo = registerForActivityResult(CustomTakeVideo()) { uri ->
         if (uri == null) {

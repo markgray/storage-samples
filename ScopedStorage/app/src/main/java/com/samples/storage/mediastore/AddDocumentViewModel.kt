@@ -102,6 +102,7 @@ class AddDocumentViewModel(
      * public read-only access is provided by our [isDownloading] property.
      */
     private var _isDownloading: MutableLiveData<Boolean> = MutableLiveData(false)
+
     /**
      * Public read-only access to our [_isDownloading] field. An observer is added to it in the
      * `onCreateView` override of [AddDocumentFragment] whose lambda sets the enabled state of the
