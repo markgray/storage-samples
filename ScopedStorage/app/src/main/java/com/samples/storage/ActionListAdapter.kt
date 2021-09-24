@@ -104,7 +104,7 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
      * @param holder The [ViewHolder] which should be updated to represent the contents of the item
      * at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
-      */
+     */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val context: Context = holder.textView.context
 
