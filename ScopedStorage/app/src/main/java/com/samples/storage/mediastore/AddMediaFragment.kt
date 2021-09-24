@@ -100,8 +100,24 @@ class AddMediaFragment : Fragment() {
      *  ("camera-") as the prefix for the image. If this is non-`null` we use the [let] extension
      *  function on the [Uri] created to call the [AddMediaViewModel.saveTemporarilyPhotoUri] method
      *  of [viewModel] to have it save the [Uri] in its private [SavedStateHandle] field under the
-     *  key "temporaryPhotoUri", and then we launch our [ActivityResultLauncher] field [actionTakeVideo]
+     *  key "temporaryPhotoUri", and then we launch our [ActivityResultLauncher] field [actionTakePicture]
      *  to have [MediaStore] take a picture and store it in the content [Uri].
+     *  - `false`: (Android 10 and above always returns `true`, so this can only happen on older
+     *  Android versions) we call our [showPermissionSection] to have it make the "Permissions Section"
+     *  of our UI visible (has a button the user can click to have the system grant us permissions)
+     *  and the "Action Section" of the UI [View.GONE] (until the user has granted us the permissions).
+     *
+     * We set the [View.OnClickListener] of the [FragmentAddMediaBinding.takeVideoButton] button
+     * in [binding] to a lambda which gets a [LifecycleOwner] that represents the [Fragment]'s [View]
+     * lifecycle and uses the [CoroutineScope] tied to this [LifecycleOwner]'s Lifecycle to launch
+     * a new coroutine without blocking the current thread. In that coroutine lambda we branch on
+     * whether the [AddMediaViewModel.canWriteInMediaStore] field of [viewModel] is `true`:
+     *  - `true`: we call the [AddMediaViewModel.createVideoUri] method of [viewModel] to have it
+     *  create a [Uri] where the video taken by the camera will be stored using [Source.CAMERA]
+     *  ("camera-") as the prefix for the image. If this is non-`null` we use the [let] extension
+     *  function on the [Uri] created to launch our [ActivityResultLauncher] field [actionTakeVideo]
+     *  to have [MediaStore] have the camera application capture a video and store it in the content
+     *  [Uri].
      *  - `false`: (Android 10 and above always returns `true`, so this can only happen on older
      *  Android versions) we call our [showPermissionSection] to have it make the "Permissions Section"
      *  of our UI visible (has a button the user can click to have the system grant us permissions)
