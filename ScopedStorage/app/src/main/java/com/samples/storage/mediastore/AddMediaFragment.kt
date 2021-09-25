@@ -279,6 +279,19 @@ class AddMediaFragment : Fragment() {
             handlePermissionSectionVisibility()
         }
 
+    /**
+     * This is the [ActivityResultLauncher] that we launch to take a picture and save it into the
+     * provided content [Uri]. The lambda that is executed when the `true` or `false` result is
+     * returned will log the message "Image taken FAIL" if the result is `false` and return. If the
+     * result is `true` (the image was saved into the given [Uri]) it logs the message "Image taken
+     * SUCCESS", then retrieves the [AddMediaViewModel.temporaryPhotoUri] property from the
+     * [SavedStateHandle] of [viewModel] and if it is not `null` uses the [let] extension function
+     * on its [Uri] value to have the [AddMediaViewModel.loadCameraMedia] method of [viewModel]
+     * save the [Uri] in its [SavedStateHandle] under the key "currentMediaUri" (an observer added
+     * to that entry will display the [Uri] in the [ImageView] of the UI), and calls the
+     * [AddMediaViewModel.saveTemporarilyPhotoUri] method of [viewModel] to set the value stored
+     * under the key "temporaryPhotoUri" in its [SavedStateHandle] to `null`.
+     */
     private val actionTakePicture: ActivityResultLauncher<Uri> =
         registerForActivityResult(TakePicture()) { success: Boolean ->
             if (!success) {
@@ -294,6 +307,16 @@ class AddMediaFragment : Fragment() {
             }
         }
 
+    /**
+     * This is the [ActivityResultLauncher] that we launch to have the camera application capture a
+     * video and save it into the provided content [Uri]. The lambda that is executed when we return
+     * from the camera application receives back the same content [Uri] if the activity succeeded or
+     * `null` if it failed. If the [Uri] returned is `null` we log the message "Video taken FAIL"
+     * and return, otherwise we log the message "Video taken SUCCESS" and call the method
+     * [AddMediaViewModel.loadCameraMedia] of [viewModel] with the [Uri] to have it save it in its
+     * [SavedStateHandle] under the key "currentMediaUri" (an observer added to that entry will
+     * display the [Uri] in the [ImageView] of the UI).
+     */
     private val actionTakeVideo: ActivityResultLauncher<Uri> =
         registerForActivityResult(CustomTakeVideo()) { uri: Uri? ->
             if (uri == null) {
