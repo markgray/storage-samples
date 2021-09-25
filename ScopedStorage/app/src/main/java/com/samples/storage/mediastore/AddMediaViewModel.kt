@@ -41,6 +41,16 @@ import okhttp3.ResponseBody
  */
 private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500"
 
+/**
+ * This is the [AndroidViewModel] that is used by the [AddDocumentFragment] fragment.
+ *
+ * @param application the [Application] class used for maintaining global application state.
+ * @param savedStateHandle handle to saved state passed down to our view model, values can be
+ * stored in it using a [String] key, and the value of an entry can observed via the [LiveData]
+ * returned by [SavedStateHandle.getLiveData] method for that [String] key. We store the current
+ * media [Uri] in it under the key "currentMediaUri", and we expose it as a [LiveData] to the UI
+ * using our [currentMediaUri] property.
+ */
 class AddMediaViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle
