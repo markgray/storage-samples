@@ -33,6 +33,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
+import okhttp3.ResponseBody
 
 /**
  * URL returning random picture provided by Unsplash. Read more here: https://source.unsplash.com
@@ -131,18 +133,18 @@ class AddMediaViewModel(
     @Suppress("BlockingMethodInNonBlockingContext")
     fun saveRandomImageFromInternet(callback: () -> Unit) {
         viewModelScope.launch {
-            val imageUri = createPhotoUri(Source.INTERNET)
+            val imageUri: Uri? = createPhotoUri(Source.INTERNET)
             // We use OkHttp to create HTTP request
-            val request = Request.Builder().url(RANDOM_IMAGE_URL).build()
+            val request: Request = Request.Builder().url(RANDOM_IMAGE_URL).build()
 
             withContext(Dispatchers.IO) {
 
-                imageUri?.let { destinationUri ->
-                    val response = httpClient.newCall(request).execute()
+                imageUri?.let { destinationUri: Uri ->
+                    val response: Response = httpClient.newCall(request).execute()
 
                     // .use is an extension function that closes the output stream where we're
                     // saving the image content once its lambda is finished being executed
-                    response.body?.use { responseBody ->
+                    response.body?.use { responseBody: ResponseBody ->
                         context.contentResolver.openOutputStream(destinationUri, "w")?.use {
                             responseBody.byteStream().copyTo(it)
 

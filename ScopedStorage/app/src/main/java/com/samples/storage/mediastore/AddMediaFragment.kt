@@ -94,7 +94,7 @@ class AddMediaFragment : Fragment() {
      * in [binding] to a lambda which gets a [LifecycleOwner] that represents the [Fragment]'s [View]
      * lifecycle and uses the [CoroutineScope] tied to this [LifecycleOwner]'s Lifecycle to launch
      * a new coroutine without blocking the current thread. In that coroutine lambda we branch on
-     * whether the [AddMediaViewModel.canWriteInMediaStore] field of [viewModel] is `true`:
+     * whether the [AddMediaViewModel.canWriteInMediaStore] property of [viewModel] is `true`:
      *  - `true`: we call the [AddMediaViewModel.createPhotoUri] method of [viewModel] to have it
      *  create a [Uri] where the image taken by the camera will be stored using [Source.CAMERA]
      *  ("camera-") as the prefix for the image. If this is non-`null` we use the [let] extension
@@ -111,7 +111,7 @@ class AddMediaFragment : Fragment() {
      * in [binding] to a lambda which gets a [LifecycleOwner] that represents the [Fragment]'s [View]
      * lifecycle and uses the [CoroutineScope] tied to this [LifecycleOwner]'s Lifecycle to launch
      * a new coroutine without blocking the current thread. In that coroutine lambda we branch on
-     * whether the [AddMediaViewModel.canWriteInMediaStore] field of [viewModel] is `true`:
+     * whether the [AddMediaViewModel.canWriteInMediaStore] property of [viewModel] is `true`:
      *  - `true`: we call the [AddMediaViewModel.createVideoUri] method of [viewModel] to have it
      *  create a [Uri] where the video taken by the camera will be stored using [Source.CAMERA]
      *  ("camera-") as the prefix for the image. If this is non-`null` we use the [let] extension
@@ -122,6 +122,22 @@ class AddMediaFragment : Fragment() {
      *  Android versions) we call our [showPermissionSection] to have it make the "Permissions Section"
      *  of our UI visible (has a button the user can click to have the system grant us permissions)
      *  and the "Action Section" of the UI [View.GONE] (until the user has granted us the permissions).
+     *
+     * We set the [View.OnClickListener] of the [FragmentAddMediaBinding.downloadImageFromInternetButton]
+     * button in [binding] to a lambda which branches on whether the [AddMediaViewModel.canWriteInMediaStore]
+     * property of [viewModel] is `true`:
+     *  - `true`: we disable the [FragmentAddMediaBinding.downloadImageFromInternetButton] button of
+     *  [binding] then call the [AddMediaViewModel.saveRandomImageFromInternet] method to have it
+     *  download a random image and save the image in shared storage. The lambda passed to that
+     *  method will re-enable the [FragmentAddMediaBinding.downloadImageFromInternetButton] button of
+     *  [binding] when the download completes (even if an error occurs).
+     *  - `false`: (Android 10 and above always returns `true`, so this can only happen on older
+     *  Android versions) we call our [showPermissionSection] to have it make the "Permissions Section"
+     *  of our UI visible (has a button the user can click to have the system grant us permissions)
+     *  and the "Action Section" of the UI [View.GONE] (until the user has granted us the permissions).
+     *
+     * Finally we return the outermost [View] in the associated layout file of [binding] to serve as
+     * our UI.
      *
      * @param inflater The [LayoutInflater] object that can be used to inflate
      * any views in the fragment.
@@ -192,17 +208,38 @@ class AddMediaFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Called when the view previously created by [onCreateView] has been detached from the fragment.
+     * The next time the fragment needs to be displayed, a new view will be created. This is called
+     * after [onStop] and before [onDestroy]. Internally it is called after the view's state has been
+     * saved but before it has been removed from its parent. First we call our super's implementation
+     * of `onDestroy`, then we set our [FragmentAddMediaBinding] field [_binding] to `null`.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 
+    /**
+     * Called when the fragment is visible to the user and actively running. First we call our super's
+     * implementation of `onResume`, then we call our [handlePermissionSectionVisibility] to have it
+     * set the visibility of the "Permissions Section" and "Actions Section" of our UI appropriately.
+     */
     override fun onResume() {
         super.onResume()
 
         handlePermissionSectionVisibility()
     }
 
+    /**
+     * If the [AddMediaViewModel.canWriteInMediaStore] property of [viewModel] is `true` (indicating
+     * that we have permission to write to shared storage we call our [hidePermissionSection] method
+     * to have it set the visibility of the "Permissions Section" of our UI to [View.GONE] and the
+     * visibility of the "Actions Section" of our UI to [View.VISIBLE]. If the field is `false` we
+     * call our [showPermissionSection] method to have it set the visibility of the "Permissions
+     * Section" of our UI to [View.VISIBLE] and the visibility of the "Actions Section" of our UI
+     * to [View.GONE].
+     */
     private fun handlePermissionSectionVisibility() {
         if (viewModel.canWriteInMediaStore) {
             hidePermissionSection()
@@ -211,23 +248,39 @@ class AddMediaFragment : Fragment() {
         }
     }
 
+    /**
+     * Sets the visibility of the "Permissions Section" of our UI to [View.GONE] and the
+     * visibility of the "Actions Section" of our UI to [View.VISIBLE].
+     */
     private fun hidePermissionSection() {
         binding.permissionSection.visibility = View.GONE
         binding.actions.visibility = View.VISIBLE
     }
 
+    /**
+     * Sets the visibility of the "Permissions Section" of our UI to [View.VISIBLE] and the visibility
+     * of the "Actions Section" of our UI to [View.GONE].
+     */
     private fun showPermissionSection() {
         binding.permissionSection.visibility = View.VISIBLE
         binding.actions.visibility = View.GONE
     }
 
+    /**
+     * This is the [ActivityResultLauncher] that we launch to have the system ask the user to grant
+     * us the permissions we need to write to shared storage. The lambda which is executed with the
+     * result returned from that activity calls our [handlePermissionSectionVisibility] method to
+     * have it set the visibility of the "Permissions Section" of our UI and the "Actions Section"
+     * of our UI to [View.GONE] and [View.VISIBLE] (or vice versa depending on the possibly updated
+     * value of the [AddMediaViewModel.canWriteInMediaStore] property of [viewModel]).
+     */
     private val actionRequestPermission: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(RequestMultiplePermissions()) {
             handlePermissionSectionVisibility()
         }
 
     private val actionTakePicture: ActivityResultLauncher<Uri> =
-        registerForActivityResult(TakePicture()) { success ->
+        registerForActivityResult(TakePicture()) { success: Boolean ->
             if (!success) {
                 Log.d(tag, "Image taken FAIL")
                 return@registerForActivityResult
@@ -241,13 +294,14 @@ class AddMediaFragment : Fragment() {
             }
         }
 
-    private val actionTakeVideo = registerForActivityResult(CustomTakeVideo()) { uri ->
-        if (uri == null) {
-            Log.d(tag, "Video taken FAIL")
-            return@registerForActivityResult
-        }
+    private val actionTakeVideo: ActivityResultLauncher<Uri> =
+        registerForActivityResult(CustomTakeVideo()) { uri: Uri? ->
+            if (uri == null) {
+                Log.d(tag, "Video taken FAIL")
+                return@registerForActivityResult
+            }
 
-        Log.d(tag, "Video taken SUCCESS")
-        viewModel.loadCameraMedia(uri)
-    }
+            Log.d(tag, "Video taken SUCCESS")
+            viewModel.loadCameraMedia(uri)
+        }
 }
