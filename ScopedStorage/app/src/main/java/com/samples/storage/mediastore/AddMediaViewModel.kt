@@ -28,6 +28,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,28 +50,50 @@ private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500
  * stored in it using a [String] key, and the value of an entry can observed via the [LiveData]
  * returned by [SavedStateHandle.getLiveData] method for that [String] key. We store the current
  * media [Uri] in it under the key "currentMediaUri", and we expose it as a [LiveData] to the UI
- * using our [currentMediaUri] property.
+ * using our [currentMediaUri] property. We also store the "temporary photo Uri" under the key
+ * "temporaryPhotoUri" using our [saveTemporarilyPhotoUri] method. The `OnClickListener` of the
+ * "Take Picture" button of the [AddDocumentFragment] UI calls this with the content [Uri] that
+ * will hold the captured image before launching the camera activity. It is retrieved by our
+ * [temporaryPhotoUri] property on return from executing the camera activity and used to replace
+ * the contents of the [currentMediaUri] entry in this [SavedStateHandle].
  */
 class AddMediaViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
+    /**
+     * The [Context] of the [Application].
+     */
     private val context: Context
         get() = getApplication()
 
+    /**
+     * `true` if this app has permission to write to shared storage. We return the result returned
+     * by our [checkMediaStorePermission] method when passed our application context field [context].
+     * It always returns `true` for Android versions greater than or equal to Q because we use
+     * [MediaStore] for them, otherwise it calls the [checkSelfPermission] method to check whether
+     * the user has granted us the [WRITE_EXTERNAL_STORAGE] permission yet and returns `true` if
+     * the result is [PackageManager.PERMISSION_GRANTED]. It is used by [AddDocumentFragment] in
+     * four places to decide whether it needs to show the "Permission Section" of its UI in order
+     * to allow the user to click the "Request Permission" button in order to grant us the
+     * permissions we need.
+     */
     val canWriteInMediaStore: Boolean
         get() = checkMediaStorePermission(context)
 
     /**
-     * Using lazy to instantiate the [OkHttpClient] only when accessing it, not when the viewmodel
-     * is created
+     * The [OkHttpClient] that our [saveRandomImageFromInternet] uses to download a random image
+     * from the Internet. We use lazy to instantiate the [OkHttpClient] only when accessing it, not
+     * when the viewmodel is created.
      */
     private val httpClient by lazy { OkHttpClient() }
 
     /**
      * We keep the current media [Uri] in the savedStateHandle to re-render it if there is a
-     * configuration change and we expose it as a [LiveData] to the UI
+     * configuration change and we expose it here as a [LiveData] to the UI. An observer added
+     * to it in the `onCreateView` override of [AddDocumentFragment] uses [Glide] to load this
+     * content [Uri] into the `ImageView` section of its UI whenever this changes value.
      */
     val currentMediaUri: LiveData<Uri?> = savedStateHandle.getLiveData<Uri?>("currentMediaUri")
 
