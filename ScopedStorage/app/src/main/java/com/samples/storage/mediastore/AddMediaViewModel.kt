@@ -23,6 +23,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -83,9 +84,9 @@ class AddMediaViewModel(
         get() = checkMediaStorePermission(context)
 
     /**
-     * The [OkHttpClient] that our [saveRandomImageFromInternet] uses to download a random image
-     * from the Internet. We use lazy to instantiate the [OkHttpClient] only when accessing it, not
-     * when the viewmodel is created.
+     * The [OkHttpClient] that our [saveRandomImageFromInternet] method uses to download a random
+     * image from the Internet. We use lazy to instantiate the [OkHttpClient] only when accessing
+     * it, not when the viewmodel is created.
      */
     private val httpClient by lazy { OkHttpClient() }
 
@@ -98,20 +99,36 @@ class AddMediaViewModel(
     val currentMediaUri: LiveData<Uri?> = savedStateHandle.getLiveData<Uri?>("currentMediaUri")
 
     /**
-     * TakePicture activityResult action isn't returning the [Uri] once the image has been taken, so
-     * we need to save the temporarily created URI in [savedStateHandle] until we handle its result
+     * TakePicture activityResult action doesn't return the [Uri] once the image has been taken, so
+     * we need to save the temporarily created URI in [savedStateHandle] until we handle its result.
+     * The `OnClickListener` added to the "Take Picture" button of the UI calls this with the [Uri]
+     * that the camera activity will store the Image to, and the lambda of the [ActivityResultLauncher]
+     * that is executed on return from the camera activity calls this with `null` to clear it again.
+     * Our [temporaryPhotoUri] method is used to retrieve the value from [savedStateHandle] by the
+     * [ActivityResultLauncher] lambda in order to call our [loadCameraMedia] method with it to set
+     * the "currentMediaUri" entry to it on return from the camera activity.
      */
     fun saveTemporarilyPhotoUri(uri: Uri?) {
         savedStateHandle["temporaryPhotoUri"] = uri
     }
 
+    /**
+     * Getter for the "temporaryPhotoUri" entry in our [SavedStateHandle] field [savedStateHandle].
+     * Read by the lambda of the "Take Picture" [ActivityResultLauncher] on return from the camera
+     * activity in order to order to call our [loadCameraMedia] method with it to set the
+     * "currentMediaUri" entry in [savedStateHandle] to it.
+     */
     val temporaryPhotoUri: Uri?
         get() = savedStateHandle.get<Uri?>("temporaryPhotoUri")
 
     /**
-     * [loadCameraMedia] is called when TakePicture or TakeVideo intent is returning a
-     * successful result, that we set to the currentMediaUri property, which will
-     * trigger to load the thumbnail in the UI
+     * [loadCameraMedia] is called when the TakePicture or TakeVideo intent returns a successful
+     * result with the content [Uri] for the shared storage file that was written to. We store that
+     * [Uri] in our [SavedStateHandle] field [savedStateHandle] under the key "currentMediaUri" and
+     * an observer of our [currentMediaUri] property will use [Glide] to load the `ImageView`
+     * section of its UI with the image whenever that entry changes value.
+     *
+     * @param uri the content [Uri] pointing to the image file in shared storage.
      */
     fun loadCameraMedia(uri: Uri) {
         savedStateHandle["currentMediaUri"] = uri
@@ -121,7 +138,7 @@ class AddMediaViewModel(
      * We create a [Uri] where the image will be stored
      */
     suspend fun createPhotoUri(source: Source): Uri? {
-        val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val imageCollection: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         } else {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
