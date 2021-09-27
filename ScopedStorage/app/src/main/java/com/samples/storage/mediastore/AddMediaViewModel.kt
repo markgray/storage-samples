@@ -23,6 +23,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
@@ -138,11 +139,16 @@ class AddMediaViewModel(
      * We create a [Uri] where the image will be stored
      */
     suspend fun createPhotoUri(source: Source): Uri? {
+        /**
+         * For build versions Q and newer this is content://media/external_primary/images/media,
+         * for old versions this is content://media/external/images/media
+         */
         val imageCollection: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         } else {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         }
+        Log.d(TAG, "$imageCollection")
 
         return withContext(Dispatchers.IO) {
             val newImage = ContentValues().apply {
@@ -159,11 +165,16 @@ class AddMediaViewModel(
      * We create a [Uri] where the camera will store the video
      */
     suspend fun createVideoUri(source: Source): Uri? {
+        /**
+         * For build versions Q and newer this is content://media/external_primary/video/media,
+         * for old versions this is
+         */
         val videoCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         } else {
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         }
+        Log.d(TAG, "$videoCollection")
 
         return withContext(Dispatchers.IO) {
             val newVideo = ContentValues().apply {
@@ -212,6 +223,10 @@ class AddMediaViewModel(
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "AddMediaViewModel"
     }
 }
 
