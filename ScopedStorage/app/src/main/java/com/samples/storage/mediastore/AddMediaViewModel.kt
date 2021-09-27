@@ -132,11 +132,13 @@ class AddMediaViewModel(
      * @param uri the content [Uri] pointing to the image file in shared storage.
      */
     fun loadCameraMedia(uri: Uri) {
+        Log.d(TAG, "currentMediaUri is set to $uri")
         savedStateHandle["currentMediaUri"] = uri
     }
 
     /**
-     * We create a [Uri] where the image will be stored
+     * We create a [Uri] where the image will be stored. For Android Q and above this will be
+     * something like "content://media/external_primary/images/media/609"
      */
     suspend fun createPhotoUri(source: Source): Uri? {
         /**
@@ -162,12 +164,13 @@ class AddMediaViewModel(
     }
 
     /**
-     * We create a [Uri] where the camera will store the video
+     * We create a [Uri] where the camera will store the video. For Android Q and above this will be
+     * something like "content://media/external_primary/video/media/610"
      */
     suspend fun createVideoUri(source: Source): Uri? {
         /**
          * For build versions Q and newer this is content://media/external_primary/video/media,
-         * for old versions this is
+         * for old versions this is content://media/external/video/media
          */
         val videoCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
