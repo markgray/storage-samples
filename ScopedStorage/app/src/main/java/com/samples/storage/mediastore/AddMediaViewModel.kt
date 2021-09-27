@@ -138,7 +138,8 @@ class AddMediaViewModel(
 
     /**
      * We create a [Uri] where the image will be stored. For Android Q and above this will be
-     * something like "content://media/external_primary/images/media/609"
+     * something like "content://media/external_primary/images/media/609", on older versions
+     * "content://media/external/images/media/609"
      */
     suspend fun createPhotoUri(source: Source): Uri? {
         /**
@@ -165,7 +166,8 @@ class AddMediaViewModel(
 
     /**
      * We create a [Uri] where the camera will store the video. For Android Q and above this will be
-     * something like "content://media/external_primary/video/media/610"
+     * something like "content://media/external_primary/video/media/610", on older versions
+     * "content://media/external/video/media/610"
      */
     suspend fun createVideoUri(source: Source): Uri? {
         /**
