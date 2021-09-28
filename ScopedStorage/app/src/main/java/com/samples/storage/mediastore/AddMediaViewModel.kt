@@ -32,6 +32,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,6 +40,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody
+import java.io.InputStream
+import java.io.OutputStream
 
 /**
  * URL returning random picture provided by Unsplash. Read more here: https://source.unsplash.com
@@ -249,7 +252,29 @@ class AddMediaViewModel(
 
     /**
      * [saveRandomImageFromInternet] downloads a random image from unsplash.com and saves its
-     * content in shared storage.
+     * content in shared storage. We launch a new coroutine in the [CoroutineScope] tied to this
+     * `ViewModel`. In the coroutine block we initialize our [Uri] variable `val imageUri` to the
+     * content [Uri] returned by our [createPhotoUri] for the prefix [Source.INTERNET] ("internet-")
+     * and initialize our [Request] variable `val request` to a [Request] whose URL target is
+     * [RANDOM_IMAGE_URL] ("https://source.unsplash.com/random/500x500"). Then we use the [withContext]
+     * method to call a suspending block with the coroutine context of [Dispatchers.IO], and in the
+     * block iff the `imageUri` [Uri] is not `null` we use the [let] extension on that `destinationUri`
+     * to execute a block where:
+     *  - we initialize our [Response] variable `val response` to the [Response] returned when we use
+     *  our [OkHttpClient] field [httpClient] to execute the [Request] it "prepares" from `request`.
+     *  - iff the [ResponseBody] of the [Response] variable `response` is not `null` we use the [use]
+     *  extension function on this `responseBody` to execute a block on it where we use the method
+     *  [ContentResolver.openOutputStream] of a [ContentResolver] instance for our application's
+     *  package to open an [OutputStream] to write to the content [Uri] `destinationUri`, and if that
+     *  is not `null` we copy the [InputStream] returned by the [ResponseBody.byteStream] method of
+     *  `responseBody` to that [OutputStream]. Then since we can't write to [savedStateHandle] within
+     *  a background thread we use the [withContext] method to call a suspending block with
+     *  the coroutine context of [Dispatchers.Main] and in that block store `destinationUri` under
+     *  the key "currentMediaUri" in [savedStateHandle] and call our parameter [callback].
+     *
+     * @param callback a lambda which will be executed after we finish downloading the random image
+     * and copying it to shared storage. The `OnClickListener` of the "Download Picture" button in
+     * the UI of [AddMediaFragment] re-enables the button in the lambda it calls us with.
      */
     @Suppress("BlockingMethodInNonBlockingContext")
     fun saveRandomImageFromInternet(callback: () -> Unit) {
