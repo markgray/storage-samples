@@ -23,6 +23,9 @@ import androidx.fragment.app.Fragment
 import com.samples.storage.databinding.FragmentDemoBinding
 
 // TODO(yrezgui): Finish this demo
+/**
+ * Just a skeleton of an unimplemented demo.
+ */
 class EditMediaFragment : Fragment() {
     private var _binding: FragmentDemoBinding? = null
     private val binding get() = _binding!!
@@ -33,6 +36,7 @@ class EditMediaFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDemoBinding.inflate(inflater, container, false)
+        @Suppress("UnnecessaryVariable")
         val view = binding.root
         return view
     }
