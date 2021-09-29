@@ -53,10 +53,38 @@ class CustomTakeVideo : ActivityResultContract<Uri, Uri?>() {
             .putExtra(MediaStore.EXTRA_OUTPUT, input)
     }
 
+    /**
+     * An optional method you can implement that can be used to potentially provide a result in
+     * lieu of starting an activity. We return `null` so that the call will proceed to start an
+     * activity.
+     *
+     * @param context the application [Context]
+     * @param input the same content [Uri] pointing to the file in shared storage that is passed to
+     * our [createIntent] method
+     * @return the result wrapped in a [ActivityResultContract.SynchronousResult] or `null` if the
+     * call should proceed to start an activity. Our super's implementation also returns `null` so
+     * I don't know why we bother to override it.
+     */
     override fun getSynchronousResult(context: Context, input: Uri): SynchronousResult<Uri?>? {
         return null
     }
 
+    /**
+     * Converts the [Intent] result obtained from [Activity.onActivityResult] to a [Uri]. We return
+     * `null` if our [Intent] parameter [intent] is `null` or our [Int] parameter [resultCode] is
+     * not equal to [Activity.RESULT_OK], otherwise we return the [Uri] stored in [intent] in its
+     * [Intent.getData] (kotlin `data` property) which is the content [Uri] pointing to the file
+     * in the shared storage which the camera application captured its video to. Note: if this is
+     * not `null` this is the same [Uri] that was passed to our [createIntent] override which is the
+     * same [Uri] passed to the [ActivityResultLauncher.launch] method of the [ActivityResultLauncher]
+     * used to launch us.
+     *
+     * @param resultCode The integer result code returned by the child activity through `setResult`
+     * either [Activity.RESULT_OK] if the operation succeeded or [Activity.RESULT_CANCELED] if the
+     * operation was canceled.
+     * @param intent An [Intent], which can return result data to the caller (various data can be
+     * attached to [Intent] as "extras").
+     */
     override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
         return if (intent == null || resultCode != Activity.RESULT_OK) {
             null
