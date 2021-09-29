@@ -15,17 +15,25 @@
  */
 package com.samples.storage.saf
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.DocumentsProvider
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.lifecycleScope
 import com.samples.storage.R
 import com.samples.storage.databinding.FragmentSafBinding
@@ -38,39 +46,67 @@ private const val DEFAULT_FILE_NAME = "SAF Demo File.txt"
 /**
  * Fragment that demonstrates the most common ways to work with documents via the
  * Storage Access Framework (SAF).
+ *
+ * See: https://developer.android.com/guide/topics/providers/document-provider
  */
 class SafFragment : Fragment() {
+    /**
+     * The view binding generated from our layout file layout/fragment_saf.xml (resource ID
+     * [R.layout.fragment_saf]. It consists of a `ConstraintLayout` root view holding three
+     * [Button] widgets labeled "Create Document" (resource ID [R.id.create_file] aka
+     * [FragmentSafBinding.createFile]), "Open Document" (resource ID [R.id.open_file] aka
+     * [FragmentSafBinding.openFile]) and "Open Folder" (resource ID [R.id.open_folder] aka
+     * [FragmentSafBinding.openFolder]) above a [TextView] (resource ID [R.id.output] aka
+     * [FragmentSafBinding.output]). This is private to prevent other classes from modifying it,
+     * read-only access is provided by our [binding] field.
+     */
     private var _binding: FragmentSafBinding? = null
+
+    /**
+     * Read-only access to our [FragmentSafBinding] field [_binding].
+     */
     private val binding get() = _binding!!
 
+    /**
+     * The custom [AndroidViewModel] we use.
+     */
     private val viewModel: SafFragmentViewModel by viewModels()
 
-    private val actionCreateDocument = registerForActivityResult(CreateDocument()) { uri ->
-        // If the user returns to this fragment without creating a file, uri will be null
-        // In this case, we return void
-        val documentUri = uri ?: return@registerForActivityResult
+    /**
+     * The [ActivityResultLauncher] that the user launches when they click the "Create Document"
+     * [Button]. The [ActivityResultContract] argument [CreateDocument] to [registerForActivityResult]
+     * is an [ActivityResultContract] whose [ActivityResultLauncher.launch] method takes a [String]
+     * which is used as the initial default file name (which can be changed by the user), and returns
+     * the [Uri] that the [DocumentsProvider] returns in the [Intent] via its [Intent.getData] (aka
+     * kotlin `data` property) to the lambda argument of [registerForActivityResult].
+     */
+    private val actionCreateDocument: ActivityResultLauncher<String> =
+        registerForActivityResult(CreateDocument()) { uri: Uri? ->
+            // If the user returns to this fragment without creating a file, uri will be null
+            // In this case, we return void
+            val documentUri = uri ?: return@registerForActivityResult
 
-        // If we can't instantiate a `DocumentFile`, it probably means the file has been removed
-        // or became unavailable (if the SD card has been removed).
-        // In this case, we return void
-        val documentFile = DocumentFile.fromSingleUri(requireContext(), documentUri)
-            ?: return@registerForActivityResult
+            // If we can't instantiate a `DocumentFile`, it probably means the file has been removed
+            // or became unavailable (if the SD card has been removed).
+            // In this case, we return void
+            val documentFile = DocumentFile.fromSingleUri(requireContext(), documentUri)
+                ?: return@registerForActivityResult
 
-        // We launch a coroutine within the lifecycle of the viewmodel. The coroutine will be
-        // automatically cancelled if the viewmodel is cleared
-        viewLifecycleOwner.lifecycleScope.launch {
-            @Suppress("BlockingMethodInNonBlockingContext")
-            val documentStream = withContext(Dispatchers.IO) {
-                requireContext().contentResolver.openOutputStream(documentUri)
-            } ?: return@launch
+            // We launch a coroutine within the lifecycle of the viewmodel. The coroutine will be
+            // automatically cancelled if the viewmodel is cleared
+            viewLifecycleOwner.lifecycleScope.launch {
+                @Suppress("BlockingMethodInNonBlockingContext")
+                val documentStream = withContext(Dispatchers.IO) {
+                    requireContext().contentResolver.openOutputStream(documentUri)
+                } ?: return@launch
 
-            val text = viewModel.createDocumentExample(documentStream)
-            binding.output.text =
-                getString(R.string.saf_create_file_output, documentFile.name, text)
+                val text = viewModel.createDocumentExample(documentStream)
+                binding.output.text =
+                    getString(R.string.saf_create_file_output, documentFile.name, text)
+            }
+
+            Log.d("SafFragment", "Created: ${documentFile.name}, type ${documentFile.type}")
         }
-
-        Log.d("SafFragment", "Created: ${documentFile.name}, type ${documentFile.type}")
-    }
 
     private val actionOpenDocument = registerForActivityResult(OpenDocument()) { uri ->
         // If the user returns to this fragment without selecting a file, uri will be null
