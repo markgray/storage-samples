@@ -31,19 +31,26 @@ import java.security.MessageDigest
 import java.util.Locale
 import kotlin.random.Random
 
-/** Number of bytes to read at a time from an open stream */
+/**
+ * Number of bytes to read at a time from an open stream
+ */
 private const val FILE_BUFFER_SIZE_BYTES = 1024
 
 /**
- * ViewModel contains various examples for how to work with the contents of documents
+ * [ViewModel] contains various examples for how to work with the contents of documents
  * opened with the Storage Access Framework.
  */
 class SafFragmentViewModel : ViewModel() {
 
     /**
+     * Writes some random text to its [OutputStream] parameter [outputStream].
+     *
      * It's easiest to work with documents selected with the [Intent.ACTION_CREATE_DOCUMENT] action
      * by simply opening an [OutputStream]. In this example we're generating some random text
      * based on the words found in "Lorem Ipsum".
+     *
+     * @param outputStream the [OutputStream] we are supposed to write to.
+     * @return the [String] that we wrote to our [OutputStream] parameter [outputStream].
      */
     suspend fun createDocumentExample(outputStream: OutputStream): String {
 
@@ -53,7 +60,9 @@ class SafFragmentViewModel : ViewModel() {
 
             for (lineNumber in 1..Random.nextInt(1, 5)) {
                 val line = "hello world ".repeat(Random.nextInt(1, 5))
-                lines += line.capitalize(Locale.US)
+                lines += line.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
+                }
             }
 
             val contents = lines.joinToString(separator = System.lineSeparator())
@@ -74,6 +83,10 @@ class SafFragmentViewModel : ViewModel() {
      *
      * Since hashing the contents of a large file may take some time, this is done in a
      * suspend function with the [Dispatchers.IO] coroutine context.
+     *
+     * @param inputStream the [InputStream] that we are supposed to read from.
+     * @return a "SHA-256" message digest hash of the contents of our [InputStream] parameter
+     * [inputStream].
      */
     suspend fun openDocumentExample(inputStream: InputStream): String {
         @Suppress("BlockingMethodInNonBlockingContext")
@@ -87,7 +100,7 @@ class SafFragmentViewModel : ViewModel() {
                     messageDigest.update(buffer, 0, bytesRead)
                     bytesRead = stream.read(buffer)
                 }
-                val hashResult = messageDigest.digest()
+                val hashResult: ByteArray = messageDigest.digest()
                 hashResult.joinToString(separator = ":") { "%02x".format(it) }
             }
         }
@@ -107,6 +120,14 @@ class SafFragmentViewModel : ViewModel() {
      * ultimately performs a lookup with the system's [ContentResolver], and should thus be
      * performed off the main thread, which is why we're doing this transformation from
      * [DocumentFile] to file name and [Uri] in a coroutine.
+     *
+     * @param folder the [DocumentFile] representation of the folder whose contents we are to read
+     * and use to create a [List] of [Pair] where the [Pair.first] entry is taken from the `name`
+     * of each [DocumentFile] and whose [Pair.second] is a [Uri] for the underlying document
+     * represented by that [DocumentFile] entry in [folder].
+     * @return a [List] of [Pair] where the [Pair.first] entry is taken from the `name` of each
+     * [DocumentFile] contained in the [DocumentFile] parameter [folder] folder and whose [Pair.second]
+     * is a [Uri] for the underlying document represented by that [DocumentFile] entry in [folder].
      */
     suspend fun listFiles(folder: DocumentFile): List<Pair<String, Uri>> {
         return withContext(Dispatchers.IO) {
