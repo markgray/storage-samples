@@ -229,6 +229,42 @@ class SafFragment : Fragment() {
         }
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view. This will be called between
+     * [onCreate] and [onViewCreated]. It is recommended to only inflate the layout in this method
+     * and move logic that operates on the returned View to [onViewCreated]. If you return a [View]
+     * from here, you will later be called in [onDestroyView] when the view is being released.
+     *
+     * We initialize our [FragmentSafBinding] field [_binding] by having the [FragmentSafBinding.inflate]
+     * method use our [LayoutInflater] parameter [inflater] to inflate and bind to its associated
+     * layout file layout/fragment_saf.xml with our [ViewGroup] parameter [container] supplying the
+     * `LayoutParams`.
+     *
+     * Next we add a [View.OnClickListener] to the [FragmentSafBinding.createFile] button of [binding]
+     * whose lambda launches our [ActivityResultLauncher] field [actionCreateDocument] with
+     * [DEFAULT_FILE_NAME] as the preferred default filename (which can be overwritten by the
+     * user).
+     *
+     * Then we add a [View.OnClickListener] to the [FragmentSafBinding.openFile] button of [binding]
+     * whose lambda launches our [ActivityResultLauncher] field [actionOpenDocument] with an array
+     * of [String] holding a single MIME type [String] specifying any type of file.
+     *
+     * Then we add a [View.OnClickListener] to the [FragmentSafBinding.openFolder] button of [binding]
+     * whose lambda launches our [ActivityResultLauncher] field [actionOpenDocumentTree] with `null`
+     * as the optional initial starting location.
+     *
+     * Finally we return the outermost [View] in the associated layout file of [binding] to serve as
+     * our UI.
+     *
+     * @param inflater The [LayoutInflater] object that can be used to inflate
+     * any views in the fragment.
+     * @param container If non-`null`, this is the parent view that the fragment's
+     * UI will be attached to. The fragment should not add the view itself, but this
+     * can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     * @return Return the [View] for the fragment's UI.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -257,6 +293,13 @@ class SafFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Called when the view previously created by [onCreateView] has been detached from the fragment.
+     * The next time the fragment needs to be displayed, a new view will be created. This is called
+     * after [onStop] and before [onDestroy]. Internally it is called after the view's state has been
+     * saved but before it has been removed from its parent. First we call our super's implementation
+     * of `onDestroy`, then we set our [FragmentSafBinding] field [_binding] to `null`.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
