@@ -20,15 +20,18 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
+import androidx.activity.result.ActivityResultLauncher
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.BufferedWriter
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.Locale
+import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 
 /**
@@ -46,8 +49,27 @@ class SafFragmentViewModel : ViewModel() {
      * Writes some random text to its [OutputStream] parameter [outputStream].
      *
      * It's easiest to work with documents selected with the [Intent.ACTION_CREATE_DOCUMENT] action
-     * by simply opening an [OutputStream]. In this example we're generating some random text
-     * based on the words found in "Lorem Ipsum".
+     * by simply opening an [OutputStream], which is what the [ActivityResultLauncher] field
+     * [SafFragment.actionCreateDocument] does with the [Uri] that is returned from the activity it
+     * launches and that [OutputStream] is then used as the argument to this method.
+     *
+     * We return the result of the execution of a suspending block created using the [withContext]
+     * method for the [CoroutineContext] of [Dispatchers.IO]. The code in that suspending block:
+     *  - initializes its [MutableList] of [String] variable `val lines` to a new instance
+     *  - loops over `lineNumber` from 1 to a random [Int] between 1 (inclusive) and 5 (exclusive).
+     *  - in that loop it initializes its [String] variable `val line` to the [String] "hello world "
+     *  repeated from 1 (inclusive) until 5 (exclusive).
+     *  - replaces the first character of `line` with its `titlecase` character and adds `line` to
+     *  the `lines` [MutableList].
+     *
+     * When done with the loop we initialize our [String] variable `val contents` to a [String] with
+     * all of the elements in `lines` joined together using the [System.lineSeparator] character as
+     * the separator. We then create a [BufferedWriter] on the [OutputStream] parameter [outputStream]
+     * using the charset [StandardCharsets.UTF_8] and use the [use] extension function on that
+     * [BufferedWriter] to call its [BufferedWriter.write] method to write `contents` to it and
+     * close it down correctly whether an exception is thrown or not. The final line of the suspend
+     * block is just `contents` which is returned as the result of the block and the
+     * [createDocumentExample] method returns this to its caller.
      *
      * @param outputStream the [OutputStream] we are supposed to write to.
      * @return the [String] that we wrote to our [OutputStream] parameter [outputStream].
@@ -65,9 +87,9 @@ class SafFragmentViewModel : ViewModel() {
                 }
             }
 
-            val contents = lines.joinToString(separator = System.lineSeparator())
+            val contents: String = lines.joinToString(separator = System.lineSeparator())
 
-            outputStream.bufferedWriter(StandardCharsets.UTF_8).use { writer ->
+            outputStream.bufferedWriter(StandardCharsets.UTF_8).use { writer: BufferedWriter ->
                 writer.write(contents)
             }
             contents
@@ -75,27 +97,59 @@ class SafFragmentViewModel : ViewModel() {
     }
 
     /**
+     * Reads the contents of its [InputStream] parameter [inputStream] and generates "SHA-256"
+     * message digest hash from it. It then creates a string from the hex value of all the bytes
+     * of the digest separated using the separator ":" and returns it to the caller.
+     *
      * Similar to [Intent.ACTION_CREATE_DOCUMENT], it's easiest to work with documents selected
      * with the [Intent.ACTION_OPEN_DOCUMENT] action by simply opening an [InputStream] or
      * [OutputStream], depending on the need. In this example, since we don't want to disturb the
      * contents of the file, we're just going to use an [InputStream] to generate a hash of
-     * the file's contents.
+     * the file's contents. Which is what the [ActivityResultLauncher] field
+     * [SafFragment.actionOpenDocument] does with the [Uri] that is returned from the activity it
+     * launches and that [InputStream] is then used as the argument to this method.
      *
      * Since hashing the contents of a large file may take some time, this is done in a
      * suspend function with the [Dispatchers.IO] coroutine context.
      *
+     * We return the result of the execution of a suspending block created using the [withContext]
+     * method for the [CoroutineContext] of [Dispatchers.IO]. The code in that suspending block uses
+     * the [use] extension function on our [InputStream] parameter [inputStream] to execute a
+     * lambda using `stream` as the explicit argument name for the [InputStream] (the [InputStream]
+     * will be closed down correctly whether an exception is thrown or not when the lambda finishes).
+     * In the lambda of the [use] extension function we:
+     *  - initialize our [MessageDigest] variable `val messageDigest` to a new instance that
+     *  implements the "SHA-256" digest algorithm.
+     *  - initialize our [ByteArray] variable `val buffer` to a new instance whose size is
+     *  [FILE_BUFFER_SIZE_BYTES].
+     *  - initialize our [Int] variable `var bytesRead` to the number of bytes read from `stream`
+     *  using its [InputStream.read] method into `buffer`.
+     *  - we then loop while `bytesRead` is greater than 0, calling the [MessageDigest.update]
+     *  method of `messageDigest` to update it to include the `bytesRead` bytes in `buffer` starting
+     *  from index 0, and then we again set `bytesRead` to the number of bytes read from `stream`
+     *  using its [InputStream.read] method into `buffer`.
+     *
+     * When done with the loop we initialize our [ByteArray] variable `val hashResult` to the
+     * [ByteArray] returned from the [MessageDigest.digest] method of `messageDigest` when it
+     * completes the hash computation by performing final operations such as padding and returns
+     * the resulting hash value. The last line of the suspending block (which is returned as the
+     * value of the call to [withContext] and thus the call to [openDocumentExample]) is a call
+     * to the [ByteArray.joinToString] method of `hashResult` which returns the result of
+     * formatting each byte as a two character hex string, and joining them together into a [String]
+     * using the character ":" as the separator.
+     *
      * @param inputStream the [InputStream] that we are supposed to read from.
      * @return a "SHA-256" message digest hash of the contents of our [InputStream] parameter
-     * [inputStream].
+     * [inputStream] formatted as two character hex strings separated by the ":" character.
      */
     suspend fun openDocumentExample(inputStream: InputStream): String {
         @Suppress("BlockingMethodInNonBlockingContext")
         return withContext(Dispatchers.IO) {
-            inputStream.use { stream ->
-                val messageDigest = MessageDigest.getInstance("SHA-256")
+            inputStream.use { stream: InputStream ->
+                val messageDigest: MessageDigest = MessageDigest.getInstance("SHA-256")
 
                 val buffer = ByteArray(FILE_BUFFER_SIZE_BYTES)
-                var bytesRead = stream.read(buffer)
+                var bytesRead: Int = stream.read(buffer)
                 while (bytesRead > 0) {
                     messageDigest.update(buffer, 0, bytesRead)
                     bytesRead = stream.read(buffer)
