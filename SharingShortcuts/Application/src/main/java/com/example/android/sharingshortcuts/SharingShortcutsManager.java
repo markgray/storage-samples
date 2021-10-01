@@ -89,7 +89,7 @@ public class SharingShortcutsManager {
                     .setIntent(staticLauncherShortcutIntent)
                     // Make this sharing shortcut cached by the system
                     // Even if it is unpublished, it can still appear on the sharesheet
-                    .setLongLived()
+                    .setLongLived(true)
                     .setCategories(contactCategories)
                     // Person objects are used to give better suggestions
                     .setPerson(new Person.Builder()
@@ -104,6 +104,7 @@ public class SharingShortcutsManager {
     /**
      * Remove all dynamic shortcuts
      */
+    @SuppressWarnings("unused")
     public void removeAllDirectShareTargets(@NonNull Context context) {
         ShortcutManagerCompat.removeAllDynamicShortcuts(context);
     }
