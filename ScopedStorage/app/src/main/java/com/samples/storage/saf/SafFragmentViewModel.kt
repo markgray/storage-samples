@@ -175,18 +175,33 @@ class SafFragmentViewModel : ViewModel() {
      * performed off the main thread, which is why we're doing this transformation from
      * [DocumentFile] to file name and [Uri] in a coroutine.
      *
+     * We return the value returned by the suspending lambda block of a call to the method [withContext]
+     * which calls the block using the [CoroutineContext] of [Dispatchers.IO]. In that block we branch
+     * on whether our [DocumentFile] parameter [folder] is a directory:
+     *  - [folder] is a directory: we call the [DocumentFile.listFiles] of [folder] to retrieve an
+     *  array of [DocumentFile] of the files contained in the directory represented by [folder] or
+     *  `null` if there are none, and apply the [mapNotNull] extension function to that array to
+     *  convert it to a list containing only the non-`null` results of constructing a [Pair] with
+     *  the [Pair.first] field the `name` property of the [DocumentFile] file and the [Pair.second]
+     *  field the `uri` property of the [DocumentFile] file for each element with a non-`null` `name`
+     *  field in the original array. This is the list that will be returned by [withContext] and by
+     *  the [listFiles] method when [folder] is a directory.
+     *  - [folder] is NOT a directory we return an empty list to [withContext] which [listFiles] then
+     *  returns to its caller.
+     *
      * @param folder the [DocumentFile] representation of the folder whose contents we are to read
      * and use to create a [List] of [Pair] where the [Pair.first] entry is taken from the `name`
      * of each [DocumentFile] and whose [Pair.second] is a [Uri] for the underlying document
      * represented by that [DocumentFile] entry in [folder].
      * @return a [List] of [Pair] where the [Pair.first] entry is taken from the `name` of each
      * [DocumentFile] contained in the [DocumentFile] parameter [folder] folder and whose [Pair.second]
-     * is a [Uri] for the underlying document represented by that [DocumentFile] entry in [folder].
+     * is a [Uri] for the underlying document represented by that [DocumentFile] entry in [folder] or
+     * we return an empty list if [folder] is not a directory.
      */
     suspend fun listFiles(folder: DocumentFile): List<Pair<String, Uri>> {
         return withContext(Dispatchers.IO) {
             if (folder.isDirectory) {
-                folder.listFiles().mapNotNull { file ->
+                folder.listFiles().mapNotNull { file: DocumentFile ->
                     if (file.name != null) Pair(file.name!!, file.uri) else null
                 }
             } else {
