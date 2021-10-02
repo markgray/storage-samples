@@ -36,11 +36,36 @@ class SendMessageActivity : Activity() {
     /**
      * The ID of the contact to share the text with.
      */
-    private var mContactId = 0
+    private var mContactId: Int = 0
 
-    // View references.
+    /**
+     * The [TextView] in our UI with the ID [R.id.contact_name]. It holds the name of the contact
+     * that the message is being sent to.
+     */
     private lateinit var mTextContactName: TextView
+
+    /**
+     * The [TextView] in our UI with the ID [R.id.message_body]. It holds the message that is being
+     * sent to the contact.
+     */
     private lateinit var mTextMessageBody: TextView
+
+    /**
+     * Called when the activity is starting. First we call our super's implementation of `onCreate`,
+     * then we set our content view to our layout file [R.layout.activity_send_message] and call the
+     * [setTitle] method to change the title of this activity to "Sending a message". We initialize
+     * our [TextView] field [mTextContactName] by finding the view with the ID [R.id.contact_name]
+     * and our [TextView] field [mTextMessageBody] by finding the view with the ID [R.id.message_body].
+     * We initialize our [Boolean] variable `val handled` to the value returned by our [handleIntent]
+     * method when passed the [Intent] that started this activity (it returns `true` if it was able
+     * to use the [Intent] to set the text of our [mBody] field and the value of our contact ID field
+     * [mContactId], and `false` if it was not able to). If `handled` is `false` we just call the
+     * [finish] method to close our activity and return from [onCreate. Otherwise we set the
+     * [View.OnClickListener] for the view with ID [R.id.send] to our field [mOnClickListener] and
+     * call our [prepareUi] method to set up our UI.
+     *
+     * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_send_message)
@@ -49,7 +74,7 @@ class SendMessageActivity : Activity() {
         mTextContactName = findViewById(R.id.contact_name)
         mTextMessageBody = findViewById(R.id.message_body)
         // Handle the share Intent.
-        val handled = handleIntent(intent)
+        val handled: Boolean = handleIntent(intent)
         if (!handled) {
             finish()
             return
