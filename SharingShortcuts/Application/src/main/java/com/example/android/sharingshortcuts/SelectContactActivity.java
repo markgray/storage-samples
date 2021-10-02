@@ -55,7 +55,7 @@ public class SelectContactActivity extends Activity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private final RecyclerView.Adapter mContactAdapter =
+    private final RecyclerView.Adapter<ContactViewHolder> mContactAdapter =
             new RecyclerView.Adapter<ContactViewHolder>() {
 
                 @NonNull
@@ -72,14 +72,11 @@ public class SelectContactActivity extends Activity {
                                              final int position) {
                     Contact contact = Contact.CONTACTS[position];
                     ContactViewBinder.bind(contact, (TextView) holder.itemView);
-                    holder.itemView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent data = new Intent();
-                            data.putExtra(Contact.ID, position);
-                            setResult(RESULT_OK, data);
-                            finish();
-                        }
+                    holder.itemView.setOnClickListener((View view) -> {
+                        Intent data = new Intent();
+                        data.putExtra(Contact.ID, holder.getBindingAdapterPosition());
+                        setResult(RESULT_OK, data);
+                        finish();
                     });
                 }
 

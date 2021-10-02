@@ -84,7 +84,7 @@ class SendMessageActivity : Activity() {
 
     /**
      * Handles the passed [Intent]. This method can only handle intents for sharing a plain
-     * text. [.mBody] and [.mContactId] are modified accordingly.
+     * text. [mBody] and [mContactId] are modified accordingly.
      *
      * @param intent The [Intent].
      * @return true if the `intent` is handled properly.
@@ -118,7 +118,7 @@ class SendMessageActivity : Activity() {
     }
 
     /**
-     * Delegates selection of a {@Contact} to [SelectContactActivity].
+     * Delegates selection of a [Contact] to [SelectContactActivity].
      */
     private fun selectContact() {
         val intent = Intent(this, SelectContactActivity::class.java)
