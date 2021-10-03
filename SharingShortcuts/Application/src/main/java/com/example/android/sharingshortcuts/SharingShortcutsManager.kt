@@ -26,7 +26,7 @@ import com.example.android.sharingshortcuts.Contact.Companion.byId
 /**
  * Provides the Sharing Shortcuts items to the system.
  *
- * Use the ShortcutManagerCompat to make it work on older Android versions
+ * Use the [ShortcutManagerCompat] to make it work on older Android versions
  * without any extra work needed.
  *
  * Interactions with the ShortcutManager API can happen on any thread.
@@ -45,6 +45,9 @@ class SharingShortcutsManager {
      * In this code sample, this method is completely static. We are always setting the same sharing
      * shortcuts. In a real-world example, we would replace existing shortcuts depending on
      * how the user interacts with the app as often as we want to.
+     *
+     * @param context the [Context] of [MainActivity], used to retrieve resources and access system
+     * services.
      */
     fun pushDirectShareTargets(context: Context) {
         val shortcuts = ArrayList<ShortcutInfoCompat>()
