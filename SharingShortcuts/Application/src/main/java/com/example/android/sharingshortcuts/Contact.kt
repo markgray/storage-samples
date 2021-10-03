@@ -13,83 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.example.android.sharingshortcuts;
-
-import androidx.annotation.NonNull;
+package com.example.android.sharingshortcuts
 
 /**
  * Provides the list of dummy contacts. This sample implements this as constants, but real-life apps
  * should use a database and such.
+ *
+ * @param name The name of the [Contact].
  */
-public class Contact {
-
+class Contact(
+    val name: String
+) {
     /**
-     * The list of dummy contacts.
-     */
-    public static final Contact[] CONTACTS = {
-            new Contact("Tereasa"),
-            new Contact("Chang"),
-            new Contact("Kory"),
-            new Contact("Clare"),
-            new Contact("Landon"),
-            new Contact("Kyle"),
-            new Contact("Deana"),
-            new Contact("Daria"),
-            new Contact("Melisa"),
-            new Contact("Sammie"),
-    };
-
-    /**
-     * The contact ID.
-     */
-    public static final String ID = "contact_id";
-
-    /**
-     * Representative invalid contact ID.
-     */
-    public static final int INVALID_ID = -1;
-
-    /**
-     * The name of this contact.
-     */
-    private final String mName;
-
-    /**
-     * Instantiates a new {@link Contact}.
+     * The resource ID of the icon used by all [Contact]s.
      *
-     * @param name The name of the contact.
+     * @return The resource ID for the icon.
      */
-    public Contact(@NonNull String name) {
-        mName = name;
-    }
+    val icon: Int
+        get() = R.mipmap.logo_avatar
 
-    /**
-     * Finds a {@link Contact} specified by a contact ID.
-     *
-     * @param id The contact ID. This needs to be a valid ID.
-     * @return A {@link Contact}
-     */
-    public static Contact byId(int id) {
-        return CONTACTS[id];
-    }
+    companion object {
+        /**
+         * The list of dummy contacts.
+         */
+        val CONTACTS = arrayOf(
+            Contact("Tereasa"),
+            Contact("Chang"),
+            Contact("Kory"),
+            Contact("Clare"),
+            Contact("Landon"),
+            Contact("Kyle"),
+            Contact("Deana"),
+            Contact("Daria"),
+            Contact("Melisa"),
+            Contact("Sammie"))
 
-    /**
-     * Gets the name of this contact.
-     *
-     * @return The name of this contact.
-     */
-    public String getName() {
-        return mName;
-    }
+        /**
+         * The contact ID.
+         */
+        const val ID = "contact_id"
 
-    /**
-     * Gets the icon of this contact.
-     *
-     * @return The icon.
-     */
-    public int getIcon() {
-        return R.mipmap.logo_avatar;
-    }
+        /**
+         * Representative invalid contact ID.
+         */
+        const val INVALID_ID = -1
 
+        /**
+         * Finds a [Contact] specified by a contact ID.
+         *
+         * @param id The contact ID. This needs to be a valid ID.
+         * @return A [Contact]
+         */
+        @JvmStatic
+        fun byId(id: Int): Contact {
+            return CONTACTS[id]
+        }
+    }
 }
