@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.android.sharingshortcuts
 
-package com.example.android.sharingshortcuts;
-
-import android.widget.TextView;
+import android.widget.TextView
 
 /**
- * A simple utility to bind a {@link TextView} with a {@link Contact}.
+ * A simple utility to bind a [TextView] with a [Contact].
  */
-public class ContactViewBinder {
-
+object ContactViewBinder {
     /**
-     * Binds the {@code textView} with the specified {@code contact}.
+     * Binds the [TextView] parameter [textView] with the specified [Contact] parameter [contact].
+     * We set the `text of [textView] to the `name` property of [contact], then set the start Drawable
+     * of [textView] to the Drawable whose resource ID is given by the `icon` property of [contact].
      *
-     * @param contact  The contact.
-     * @param textView The TextView.
+     * @param contact  The [Contact].
+     * @param textView The [TextView].
      */
-    public static void bind(Contact contact, TextView textView) {
-        textView.setText(contact.getName());
-        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(contact.getIcon(), 0, 0, 0);
+    fun bind(contact: Contact, textView: TextView) {
+        textView.text = contact.name
+        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(contact.icon, 0, 0, 0)
     }
-
 }
