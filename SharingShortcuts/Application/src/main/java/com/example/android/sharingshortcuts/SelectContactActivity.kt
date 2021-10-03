@@ -26,10 +26,18 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 /**
- * The dialog for selecting a contact to share the text with. This dialog is shown when the user
- * taps on this sample's icon rather than any of the Direct Share contacts.
+ * The dialog for selecting a contact to share the text with. This dialog is launched by
+ * [SendMessageActivity] when the user taps on this sample's icon in the chooser instead
+ * of one of the Direct Share contacts.
  */
 class SelectContactActivity : Activity() {
+    /**
+     * Called when the activity is starting. First we call our super's implementation of `onCreate`,
+     * then we set our content view to our layout file [R.layout.activity_select_contact]. This
+     * layout holds only a single [RecyclerView] as its root view.
+     *
+     * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_select_contact)
@@ -44,34 +52,35 @@ class SelectContactActivity : Activity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
-    private val mContactAdapter: RecyclerView.Adapter<ContactViewHolder> = object : RecyclerView.Adapter<ContactViewHolder>() {
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): ContactViewHolder {
-            val textView = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_contact, parent, false) as TextView
-            return ContactViewHolder(textView)
-        }
+    private val mContactAdapter: RecyclerView.Adapter<ContactViewHolder> =
+        object : RecyclerView.Adapter<ContactViewHolder>() {
+            override fun onCreateViewHolder(
+                parent: ViewGroup,
+                viewType: Int
+            ): ContactViewHolder {
+                val textView = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_contact, parent, false) as TextView
+                return ContactViewHolder(textView)
+            }
 
-        override fun onBindViewHolder(
-            holder: ContactViewHolder,
-            position: Int
-        ) {
-            val contact = Contact.CONTACTS[position]
-            ContactViewBinder.bind(contact, holder.itemView as TextView)
-            holder.itemView.setOnClickListener {
-                val data = Intent()
-                data.putExtra(Contact.ID, holder.bindingAdapterPosition)
-                setResult(RESULT_OK, data)
-                finish()
+            override fun onBindViewHolder(
+                holder: ContactViewHolder,
+                position: Int
+            ) {
+                val contact = Contact.CONTACTS[position]
+                ContactViewBinder.bind(contact, holder.itemView as TextView)
+                holder.itemView.setOnClickListener {
+                    val data = Intent()
+                    data.putExtra(Contact.ID, holder.bindingAdapterPosition)
+                    setResult(RESULT_OK, data)
+                    finish()
+                }
+            }
+
+            override fun getItemCount(): Int {
+                return Contact.CONTACTS.size
             }
         }
-
-        override fun getItemCount(): Int {
-            return Contact.CONTACTS.size
-        }
-    }
 
     private class ContactViewHolder(textView: TextView) : ViewHolder(textView)
     companion object {
