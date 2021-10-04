@@ -15,8 +15,14 @@
 */
 package com.example.android.storageclient
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import com.example.android.common.activities.SampleActivityBase
 import com.example.android.common.logger.Log
 import com.example.android.common.logger.LogFragment
@@ -30,7 +36,19 @@ import com.example.android.common.logger.MessageOnlyLogFilter
  */
 class MainActivity : SampleActivityBase() {
     /**
-     * Called when the activity is starting.
+     * Called when the activity is starting. First we call our super's implementation of `onCreate`,
+     * then we set our content view to our layout file [R.layout.activity_main], which consists of
+     * a vertical `LinearLayout` root view that holds a `ScrollView` holding a `TextView` displaying
+     * our into message, with a 1dp "darker_gray" `View` seperating it from a `FragmentContainerView`
+     * that holds a `LogFragment` that displays any messages our app logs.
+     *
+     * If the [FragmentManager] for interacting with fragments associated with this activity cannot
+     * find a [Fragment] whose tag is [FRAGTAG] (the [String] "StorageClientFragment") we initialize
+     * our [FragmentTransaction] variable `val transaction` to the instance that the
+     * [FragmentManager.beginTransaction] method of the [FragmentManager] for interacting with
+     * fragments associated with this activity returns, initialize our [StorageClientFragment]
+     * variable `val fragment` to a new instance, use `transaction` to add `fragment` with the tag
+     * [FRAGTAG] and then commit `transaction`.
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
@@ -38,19 +56,33 @@ class MainActivity : SampleActivityBase() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         if (supportFragmentManager.findFragmentByTag(FRAGTAG) == null) {
-            val transaction = supportFragmentManager.beginTransaction()
+            val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
             val fragment = StorageClientFragment()
             transaction.add(fragment, FRAGTAG)
             transaction.commit()
         }
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu. We use a [MenuInflater] for
+     * this [Context] to inflate our options menu file [R.menu.main] into our [Menu] parameter [menu]
+     * (it consists of a single [MenuItem] with the ID [R.id.sample_action] and the android:title
+     * "Show Me The Image"). Then we return `true` so that the menu will be displayed. Note that
+     * [StorageClientFragment] overrides [onOptionsItemSelected] and will handle any clicks on the
+     * [MenuItem] in our options [Menu].
+     *
+     * @param menu The options [Menu] in which you place your items.
+     * @return You must return `true` for the menu to be displayed;
+     * if you return `false` it will not be shown.
+     */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
 
-    /** Create a chain of targets that will receive log data  */
+    /**
+     * Creates a chain of targets that will receive log data
+     */
     override fun initializeLogging() {
         // Wraps Android's native log framework.
         val logWrapper = LogWrapper()
@@ -71,7 +103,14 @@ class MainActivity : SampleActivityBase() {
     }
 
     companion object {
+        /**
+         * TAG used for logging.
+         */
         const val TAG = "MainActivity"
+
+        /**
+         * The fragment tag we use when adding the [StorageClientFragment] to the activity state.
+         */
         const val FRAGTAG = "StorageClientFragment"
     }
 }
