@@ -25,9 +25,15 @@ import com.example.android.common.logger.MessageOnlyLogFilter
 
 /**
  * A simple launcher activity containing a summary sample description
- * and a few action bar buttons.
+ * and an options menu with one menu item. All of the actual sample code
+ * is in [StorageClientFragment].
  */
 class MainActivity : SampleActivityBase() {
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
