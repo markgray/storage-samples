@@ -38,7 +38,7 @@
         android:layout_height="1dp"
         android:background="@android:color/darker_gray" />
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/log_fragment"
         android:name="com.example.android.common.logger.LogFragment"
         android:layout_width="match_parent"

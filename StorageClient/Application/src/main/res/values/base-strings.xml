@@ -20,7 +20,9 @@
     <string name="intro_message">
         Using the OPEN_DOCUMENT intent, a client app can access a list of Document Providers
         on the device, and choose a file from any of them.
-        \n\nTo demonstrate this, click the button below to open up the Storage Access Framework
-        interface, and choose an image on your device.  It will be displayed in this app.
+        \n\nTo demonstrate this, click options menu item labeled
+        \"Show Me The Image\" to open up the Storage Access Framework
+        interface, and choose an image on your device.
+        It will be displayed in this app.
     </string>
 </resources>
