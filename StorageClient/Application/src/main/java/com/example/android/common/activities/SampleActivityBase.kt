@@ -50,7 +50,7 @@ open class SampleActivityBase : AppCompatActivity() {
         // Using Log, front-end to the logging chain, emulates android.util.log method signatures.
         // Wraps Android's native log framework
         val logWrapper = LogWrapper()
-        Log.setLogNode(logWrapper)
+        Log.logNode = logWrapper
         Log.i(TAG, "Ready")
     }
 

@@ -16,6 +16,7 @@
 package com.example.android.storageclient
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -87,7 +88,7 @@ class MainActivity : SampleActivityBase() {
         // Wraps Android's native log framework.
         val logWrapper = LogWrapper()
         // Using Log, front-end to the logging chain, emulates android.util.log method signatures.
-        Log.setLogNode(logWrapper)
+        Log.logNode = logWrapper
 
         // Filter strips out everything except the message text.
         val msgFilter = MessageOnlyLogFilter()
@@ -97,8 +98,12 @@ class MainActivity : SampleActivityBase() {
         val logFragment = supportFragmentManager
             .findFragmentById(R.id.log_fragment) as LogFragment?
         msgFilter.next = logFragment!!.logView
-        @Suppress("DEPRECATION") // the "new" version requires API 23
-        logFragment.logView.setTextAppearance(this, R.style.Log)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            logFragment.logView.setTextAppearance(R.style.Log)
+        } else {
+            @Suppress("DEPRECATION") // The one argument version requires SDK 23
+            logFragment.logView.setTextAppearance(this, R.style.Log)
+        }
         Log.i(TAG, "Ready")
     }
 
