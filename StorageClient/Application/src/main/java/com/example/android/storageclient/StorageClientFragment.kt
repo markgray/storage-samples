@@ -151,7 +151,7 @@ class StorageClientFragment : Fragment() {
             // The easiest way to divide up this labor is with an AsyncTask.  The doInBackground
             // method will run in a separate thread, but onPostExecute will run in the main
             // UI thread.
-            lifecycleScope.GetBitmapAndDisplay(
+            lifecycleScope.getBitmapAndDisplay(
                 doInBackground = { uri: Uri ->
                     dumpImageMetaData(uri)
                     getBitmapFromUri(uri)!!

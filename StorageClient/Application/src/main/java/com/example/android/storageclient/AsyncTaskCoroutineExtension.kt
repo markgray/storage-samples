@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-fun CoroutineScope.GetBitmapAndDisplay(
+fun CoroutineScope.getBitmapAndDisplay(
     doInBackground: (uri: Uri) -> Bitmap,
     onPostExecute: (Bitmap) -> Unit,
     uri: Uri
