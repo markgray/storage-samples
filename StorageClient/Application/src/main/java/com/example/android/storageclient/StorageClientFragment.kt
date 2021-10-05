@@ -28,6 +28,9 @@ import android.provider.OpenableColumns
 import android.view.MenuItem
 import android.view.Window
 import android.widget.ImageView
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.example.android.common.logger.Log.e
@@ -47,12 +50,20 @@ class StorageClientFragment : Fragment() {
         return true
     }
 
+    private val resultLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                data?.data.also { uri: Uri? ->
+                    i(TAG, "Uri: " + uri.toString())
+                    showImage(uri)
+                }
+            }
+        }
     /**
      * Fires an intent to spin up the "file chooser" UI and select an image.
      */
     fun performFileSearch() {
-
-        // BEGIN_INCLUDE (use_open_document_intent)
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
 
@@ -65,28 +76,7 @@ class StorageClientFragment : Fragment() {
         // To search for all documents available via installed storage providers, it would be
         // "*/*".
         intent.type = "image/*"
-        startActivityForResult(intent, READ_REQUEST_CODE)
-        // END_INCLUDE (use_open_document_intent)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        i(TAG, "Received an \"Activity Result\"")
-        // BEGIN_INCLUDE (parse_open_document_response)
-        // The ACTION_OPEN_DOCUMENT intent was sent with the request code READ_REQUEST_CODE.
-        // If the request code seen here doesn't match, it's the response to some other intent,
-        // and the below code shouldn't run at all.
-        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            // The document selected by the user won't be returned in the intent.
-            // Instead, a URI to that document will be contained in the return intent
-            // provided to this method as a parameter.  Pull that uri using "resultData.getData()"
-            val uri: Uri?
-            if (resultData != null) {
-                uri = resultData.data
-                i(TAG, "Uri: " + uri.toString())
-                showImage(uri)
-            }
-            // END_INCLUDE (parse_open_document_response)
-        }
+        resultLauncher.launch(intent)
     }
 
     /**
