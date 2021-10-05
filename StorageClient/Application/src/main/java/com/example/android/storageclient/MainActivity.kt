@@ -99,10 +99,10 @@ class MainActivity : SampleActivityBase() {
             .findFragmentById(R.id.log_fragment) as LogFragment?
         msgFilter.next = logFragment!!.logView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            logFragment.logView.setTextAppearance(R.style.Log)
+            logFragment.logView!!.setTextAppearance(R.style.Log)
         } else {
             @Suppress("DEPRECATION") // The one argument version requires SDK 23
-            logFragment.logView.setTextAppearance(this, R.style.Log)
+            logFragment.logView!!.setTextAppearance(this, R.style.Log)
         }
         Log.i(TAG, "Ready")
     }

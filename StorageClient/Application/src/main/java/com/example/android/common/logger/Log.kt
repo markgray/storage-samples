@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("unused")
+@file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
 package com.example.android.common.logger
 
@@ -27,7 +27,6 @@ import kotlin.jvm.JvmOverloads
  * for [android.util.Log]. Most of the methods in this class server only to map a method call in Log
  * to its equivalent in LogNode.
  */
-@Suppress("MemberVisibilityCanBePrivate")
 object Log {
     // Grabbing the native values from Android's native logging facilities,
     // to make for easy migration and interop.
@@ -51,6 +50,8 @@ object Log {
      * @param priority Log level of the data being logged. Verbose, Error, etc.
      * @param tag Tag for for the log data. Can be used to organize log statements.
      * @param msg The actual message to be logged. The actual message to be logged.
+     * @param tr If an exception was thrown, this can be sent along for the logging facilities
+     * to extract and print useful information.
      */
     @JvmOverloads
     fun println(priority: Int, tag: String?, msg: String?, tr: Throwable? = null) {
@@ -64,6 +65,8 @@ object Log {
      *
      * @param tag Tag for for the log data. Can be used to organize log statements.
      * @param msg The actual message to be logged.
+     * @param tr If an exception was thrown, this can be sent along for the logging facilities
+     * to extract and print useful information.
      */
     @JvmOverloads
     fun v(tag: String?, msg: String?, tr: Throwable? = null) {
@@ -75,6 +78,8 @@ object Log {
      *
      * @param tag Tag for for the log data. Can be used to organize log statements.
      * @param msg The actual message to be logged.
+     * @param tr If an exception was thrown, this can be sent along for the logging facilities
+     * to extract and print useful information.
      */
     @JvmOverloads
     fun d(tag: String?, msg: String?, tr: Throwable? = null) {
@@ -86,6 +91,8 @@ object Log {
      *
      * @param tag Tag for for the log data. Can be used to organize log statements.
      * @param msg The actual message to be logged.
+     * @param tr If an exception was thrown, this can be sent along for the logging facilities
+     * to extract and print useful information.
      */
     @JvmOverloads
     fun i(tag: String?, msg: String?, tr: Throwable? = null) {
@@ -97,6 +104,8 @@ object Log {
      *
      * @param tag Tag for for the log data. Can be used to organize log statements.
      * @param msg The actual message to be logged.
+     * @param tr If an exception was thrown, this can be sent along for the logging facilities
+     * to extract and print useful information.
      */
     @JvmOverloads
     fun w(tag: String?, msg: String?, tr: Throwable? = null) {
@@ -119,8 +128,9 @@ object Log {
      *
      * @param tag Tag for for the log data. Can be used to organize log statements.
      * @param msg The actual message to be logged.
+     * @param tr If an exception was thrown, this can be sent along for the logging facilities
+     * to extract and print useful information.
      */
-    @JvmStatic
     @JvmOverloads
     fun e(tag: String?, msg: String?, tr: Throwable? = null) {
         println(ERROR, tag, msg, tr)
@@ -131,6 +141,8 @@ object Log {
      *
      * @param tag Tag for for the log data. Can be used to organize log statements.
      * @param msg The actual message to be logged.
+     * @param tr If an exception was thrown, this can be sent along for the logging facilities
+     * to extract and print useful information.
      */
     @JvmOverloads
     fun wtf(tag: String?, msg: String?, tr: Throwable? = null) {
