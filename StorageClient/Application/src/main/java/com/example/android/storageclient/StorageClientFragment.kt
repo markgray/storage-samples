@@ -36,8 +36,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
-import com.example.android.common.logger.Log.e
-import com.example.android.common.logger.Log.i
+import com.example.android.common.logger.Log
 import java.io.IOException
 
 /**
@@ -94,7 +93,7 @@ class StorageClientFragment : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
                 data?.data.also { uri: Uri? ->
-                    i(TAG, "Uri: " + uri.toString())
+                    Log.i(TAG, "Uri: " + uri.toString())
                     showImage(uri)
                 }
             }
@@ -178,14 +177,14 @@ class StorageClientFragment : Fragment() {
                 parcelFileDescriptor.close()
                 image
             } catch (e: Exception) {
-                e(TAG, "Failed to load image.", e)
+                Log.e(TAG, "Failed to load image.", e)
                 null
             } finally {
                 try {
                     parcelFileDescriptor?.close()
                 } catch (e: IOException) {
                     e.printStackTrace()
-                    e(TAG, "Error closing ParcelFile Descriptor")
+                    Log.e(TAG, "Error closing ParcelFile Descriptor")
                 }
             }
         }
@@ -243,7 +242,7 @@ class StorageClientFragment : Fragment() {
                     // might not necessarily be the file name.
                     val displayName = cursorIt.getString(
                         cursorIt.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                    i(TAG, "Display Name: $displayName")
+                    Log.i(TAG, "Display Name: $displayName")
                     val sizeIndex = cursorIt.getColumnIndex(OpenableColumns.SIZE)
                     // If the size is unknown, the value stored is null.  But since an int can't be
                     // null in java, the behavior is implementation-specific, which is just a fancy
@@ -257,7 +256,7 @@ class StorageClientFragment : Fragment() {
                     } else {
                         "Unknown"
                     }
-                    i(TAG, "Size: $size")
+                    Log.i(TAG, "Size: $size")
                 }
             }
         }
