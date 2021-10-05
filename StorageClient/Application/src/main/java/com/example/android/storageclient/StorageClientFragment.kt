@@ -17,6 +17,7 @@ package com.example.android.storageclient
 
 import android.app.Activity
 import android.app.Dialog
+import android.content.ContentResolver
 import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
@@ -33,17 +34,43 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.example.android.common.logger.Log.e
 import com.example.android.common.logger.Log.i
 import java.io.IOException
 
+/**
+ * [Fragment] which has the user choose an image file using the system's file browser and displays
+ * that image in a [Dialog]. This action is triggered when the user clicks the options menu [MenuItem]
+ * in the UI of [MainActivity] by our [onOptionsItemSelected] override, and this [Fragment] has no
+ * layout file of its own (unless you count the layout file of the [Dialog]).
+ */
 class StorageClientFragment : Fragment() {
+    /**
+     * Called to do initial creation of a fragment. This is called after [onAttach] and before
+     * [onCreateView]. We call our super's implementation of `onCreate` then call the method
+     * [setHasOptionsMenu] with `true` to report that this fragment would like to participate in
+     * populating the options menu by receiving a call to [onCreateOptionsMenu] and related methods.
+     *
+     * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected. If the `itemId` property
+     * (aka [MenuItem.getItemId] return value) of [item] is [R.id.sample_action] (the item with the
+     * title "Show Me The Image") then we call our [performFileSearch] method to have it fire an
+     * intent to spin up the "file chooser" activity and have the user select an image. In any case
+     * we return `true` to the caller to consume the event here.
+     *
+     * @param item The [MenuItem] that was selected.
+     * @return boolean Return `false` to allow normal menu processing to proceed, `true` to consume
+     * it here.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.sample_action) {
             performFileSearch()
@@ -51,6 +78,17 @@ class StorageClientFragment : Fragment() {
         return true
     }
 
+    /**
+     * The [ActivityResultLauncher] launcher used to start the activity specified by the [Intent]
+     * passed to its [ActivityResultLauncher.launch] method for the result returned by that activity,
+     * with the [ActivityResult] result returned by that activity handed to the lambda argument of
+     * [registerForActivityResult] for use by our activity. Our lamda callback argument checks to
+     * make sure that the `resultCode` of the [ActivityResult] `result` is [Activity.RESULT_OK] and
+     * if so initializes its [Intent] variable `val data` to the [Intent] in the the `data` property
+     * of `result`. It then accesses the [Uri] stored in the `data` property of that `data` [Intent]
+     * and uses the [also] extension function of that [Uri] to log the [String] value of the [Uri]
+     * and call our [showImage] method
+     */
     private val resultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -63,7 +101,15 @@ class StorageClientFragment : Fragment() {
         }
 
     /**
-     * Fires an intent to spin up the "file chooser" UI and select an image.
+     * Creates an [Intent] to spin up the "file chooser" activity to have the user select an image
+     * for us to display and launches our [ActivityResultLauncher] field [resultLauncher] with it.
+     * We initialize our [Intent] to a new instance whose action is [Intent.ACTION_OPEN_DOCUMENT]
+     * (allows the user to select and return one or more existing documents), add the category
+     * [Intent.CATEGORY_OPENABLE] (used to indicate that an intent only wants URIs that can be opened
+     * with [ContentResolver.openFileDescriptor]), and set the MIME type of `intent` to any type of
+     * "image". Then we call the [ActivityResultLauncher.launch] method of [resultLauncher] with
+     * `intent` as its [Intent] argument to have it fire the [Intent] and deal with the [ActivityResult]
+     * that the file chooser activity returns.
      */
     private fun performFileSearch() {
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
@@ -82,27 +128,33 @@ class StorageClientFragment : Fragment() {
     }
 
     /**
-     * Given the URI of an image, shows it on the screen using a DialogFragment.
+     * Given the URI of an image, shows it on the screen using an [ImageDialogFragment]. If our [Uri]
+     * parameter [uri] is not `null` we initialize our [FragmentManager] variable `val fm` to the
+     * [FragmentManager] for interacting with fragments associated with this activity, initialize
+     * our [ImageDialogFragment] variable `val imageDialog` to a new instance, and initialize our
+     * [Bundle] variable `val fragmentArguments` to a new instance. We insert [uri] in the
+     * `fragmentArguments` [Bundle] under the key "URI", set the `arguments` property of `imageDialog`
+     * to `fragmentArguments` then call the [ImageDialogFragment.show] method to display the dialog
+     * using `fm` as the [FragmentManager] this fragment will be added to and the [String] "image_dialog"
+     * as the tag for this fragment.
      *
-     * @param uri the Uri of the image to display.
+     * @param uri the [Uri] of the image to display.
      */
     private fun showImage(uri: Uri?) {
-        // BEGIN_INCLUDE (create_show_image_dialog)
         if (uri != null) {
-            // Since the URI is to an image, create and show a DialogFragment to display the
+            // Since the URI is to an image, create and show a ImageDialogFragment to display the
             // image to the user.
-            val fm = requireActivity().supportFragmentManager
+            val fm: FragmentManager = requireActivity().supportFragmentManager
             val imageDialog = ImageDialogFragment()
             val fragmentArguments = Bundle()
             fragmentArguments.putParcelable("URI", uri)
             imageDialog.arguments = fragmentArguments
             imageDialog.show(fm, "image_dialog")
         }
-        // END_INCLUDE (create_show_image_dialog)
     }
 
     /**
-     * DialogFragment which displays an image, given a URI.
+     * [DialogFragment] which displays an image, given a content URI.
      */
     class ImageDialogFragment : DialogFragment() {
         private var mDialog: Dialog? = null
@@ -112,7 +164,8 @@ class StorageClientFragment : Fragment() {
             mUri = requireArguments().getParcelable("URI")
         }
 
-        /** Create a Bitmap from the URI for that image and return it.
+        /**
+         * Create a Bitmap from the URI for that image and return it.
          *
          * @param uri the Uri for the image to return.
          */
@@ -176,8 +229,6 @@ class StorageClientFragment : Fragment() {
          * @param uri The uri for the document whose metadata should be printed.
          */
         fun dumpImageMetaData(uri: Uri?) {
-            // BEGIN_INCLUDE (dump_metadata)
-
             // The query, since it only applies to a single document, will only return one row.
             // no need to filter, sort, or select fields, since we want all fields for one
             // document.
@@ -209,11 +260,13 @@ class StorageClientFragment : Fragment() {
                     i(TAG, "Size: $size")
                 }
             }
-            // END_INCLUDE (dump_metadata)
         }
     }
 
     companion object {
+        /**
+         * TAG used for logging.
+         */
         const val TAG = "StorageClientFragment"
     }
 }
