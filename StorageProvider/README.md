@@ -20,8 +20,8 @@ See [Writing A Custom Document Provider guide][3] for all the details on how to 
 Pre-requisites
 --------------
 
-- Android SDK 28
-- Android Build Tools v28.0.3
+- Android SDK 31
+- Android Build Tools v31.0.0
 - Android Support Repository
 
 Screenshots
