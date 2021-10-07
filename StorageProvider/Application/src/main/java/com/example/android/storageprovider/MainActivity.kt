@@ -13,71 +13,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.android.storageprovider
 
-package com.example.android.storageprovider;
-
-import android.graphics.Color;
-import android.os.Bundle;
-
-import androidx.fragment.app.FragmentTransaction;
-
-import android.view.Menu;
-
-import com.example.android.common.activities.SampleActivityBase;
-import com.example.android.common.logger.Log;
-import com.example.android.common.logger.LogFragment;
-import com.example.android.common.logger.LogWrapper;
-import com.example.android.common.logger.MessageOnlyLogFilter;
+import android.graphics.Color
+import android.os.Build
+import android.os.Bundle
+import android.view.Menu
+import com.example.android.common.activities.SampleActivityBase
+import com.example.android.common.logger.Log
+import com.example.android.common.logger.LogFragment
+import com.example.android.common.logger.LogWrapper
+import com.example.android.common.logger.MessageOnlyLogFilter
 
 /**
  * A simple launcher activity containing a summary sample description
  * and a few action bar buttons.
  */
-public class MainActivity extends SampleActivityBase {
-
-    public static final String TAG = "MainActivity";
-
-    public static final String FRAGTAG = "StorageProviderFragment";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        if (getSupportFragmentManager().findFragmentByTag(FRAGTAG) == null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            StorageProviderFragment fragment = new StorageProviderFragment();
-            transaction.add(fragment, FRAGTAG);
-            transaction.commit();
+class MainActivity : SampleActivityBase() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        if (supportFragmentManager.findFragmentByTag(FRAGTAG) == null) {
+            val transaction = supportFragmentManager.beginTransaction()
+            val fragment = StorageProviderFragment()
+            transaction.add(fragment, FRAGTAG)
+            transaction.commit()
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
     }
 
-    /** Create a chain of targets that will receive log data */
-    @Override
-    public void initializeLogging() {
+    /** Create a chain of targets that will receive log data  */
+    override fun initializeLogging() {
         // Wraps Android's native log framework.
-        LogWrapper logWrapper = new LogWrapper();
+        val logWrapper = LogWrapper()
         // Using Log, front-end to the logging chain, emulates android.util.log method signatures.
-        Log.setLogNode(logWrapper);
+        Log.setLogNode(logWrapper)
 
         // Filter strips out everything except the message text.
-        MessageOnlyLogFilter msgFilter = new MessageOnlyLogFilter();
-        logWrapper.setNext(msgFilter);
+        val msgFilter = MessageOnlyLogFilter()
+        logWrapper.next = msgFilter
 
         // On screen logging via a fragment with a TextView.
-        LogFragment logFragment = (LogFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.log_fragment);
-        msgFilter.setNext(logFragment.getLogView());
-        logFragment.getLogView().setTextAppearance(this, R.style.Log);
-        logFragment.getLogView().setBackgroundColor(Color.WHITE);
+        val logFragment = supportFragmentManager
+            .findFragmentById(R.id.log_fragment) as LogFragment?
+        msgFilter.next = logFragment!!.logView
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            logFragment.logView.setTextAppearance(R.style.Log)
+        } else {
+            @Suppress("DEPRECATION")
+            logFragment.logView.setTextAppearance(this, R.style.Log)
+        }
+        logFragment.logView.setBackgroundColor(Color.WHITE)
+        Log.i(TAG, "Ready")
+    }
 
-
-        Log.i(TAG, "Ready");
+    companion object {
+        const val TAG = "MainActivity"
+        const val FRAGTAG = "StorageProviderFragment"
     }
 }
