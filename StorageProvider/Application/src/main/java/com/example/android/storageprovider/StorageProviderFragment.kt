@@ -29,16 +29,41 @@ import com.example.android.common.logger.Log
  * content provider.
  */
 class StorageProviderFragment : Fragment() {
-    private var mLoggedIn = false
+    /**
+     * Flag we use to determine if we are "Logged in" or not.
+     */
+    private var mLoggedIn: Boolean = false
+
+    /**
+     * Called to do initial creation of a fragment. This is called after [onAttach] and before
+     * [onCreateView]. First we call our super's implementation of `onCreate`, then we set our
+     * [Boolean] field [mLoggedIn] to the value read from our shared preferences file by our
+     * [readLoginValue] method. Finally we call the [setHasOptionsMenu] method with `true` to
+     * report that this fragment would like to participate in populating the options menu by
+     * receiving a call to [onCreateOptionsMenu] and related methods. Note that [MainActivity]
+     * overrides [onCreateOptionsMenu] to create the options menu, but we override the method
+     * [onPrepareOptionsMenu] (to change the title of the [MenuItem] in the options menu from
+     * "Log in" to "Log out" and vice versa depending on the value of our [mLoggedIn] field) and
+     * [onOptionsItemSelected] to do what needs doing when the [MenuItem] with ID [R.id.sample_action]
+     * is clicked.
+     *
+     * @param savedInstanceState We do not override [onSaveInstanceState] so do not use.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mLoggedIn = readLoginValue()
         setHasOptionsMenu(true)
     }
 
+    /**
+     * Prepare the Fragment host's standard options menu to be displayed. This is called right
+     * before the menu is shown, every time it is shown.
+     *
+     * @param menu The options [Menu] as last shown or first initialized by [onCreateOptionsMenu].
+     */
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        val item = menu.findItem(R.id.sample_action)
+        val item: MenuItem = menu.findItem(R.id.sample_action)
         item.setTitle(if (mLoggedIn) R.string.log_out else R.string.log_in)
     }
 
@@ -85,8 +110,10 @@ class StorageProviderFragment : Fragment() {
      * Dummy function to save whether the user is logged in.
      */
     private fun writeLoginValue(loggedIn: Boolean) {
-        val sharedPreferences = requireActivity().getSharedPreferences(getString(R.string.app_name),
-            Context.MODE_PRIVATE)
+        val sharedPreferences = requireActivity().getSharedPreferences(
+            getString(R.string.app_name),
+            Context.MODE_PRIVATE
+        )
         sharedPreferences.edit().putBoolean(getString(R.string.key_logged_in), loggedIn).apply()
     }
 
@@ -94,13 +121,24 @@ class StorageProviderFragment : Fragment() {
      * Dummy function to determine whether the user is logged in.
      */
     private fun readLoginValue(): Boolean {
-        val sharedPreferences = requireActivity().getSharedPreferences(getString(R.string.app_name),
-            Context.MODE_PRIVATE)
+        val sharedPreferences = requireActivity().getSharedPreferences(
+            getString(R.string.app_name),
+            Context.MODE_PRIVATE
+        )
         return sharedPreferences.getBoolean(getString(R.string.key_logged_in), false)
     }
 
     companion object {
+        /**
+         * TAG we use for logging.
+         */
         private const val TAG = "StorageProviderFragment"
+
+        /**
+         * The authority used for our [MyCloudProvider], it is the value of the "android:authorities"
+         * attribute of the `<provider>` element in our AndroidManifest.xml file whose "android:name"
+         * attribute specifies [MyCloudProvider] as our provider.
+         */
         private const val AUTHORITY = "com.example.android.storageprovider.documents"
     }
 }
