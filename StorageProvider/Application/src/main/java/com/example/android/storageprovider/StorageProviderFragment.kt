@@ -13,93 +13,94 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.example.android.storageprovider
 
-package com.example.android.storageprovider;
-
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.provider.DocumentsContract;
-
-import androidx.fragment.app.Fragment;
-
-import android.view.Menu;
-import android.view.MenuItem;
-
-import com.example.android.common.logger.Log;
+import android.content.Context
+import android.os.Build
+import android.os.Bundle
+import android.provider.DocumentsContract
+import android.view.Menu
+import android.view.MenuItem
+import androidx.fragment.app.Fragment
+import com.example.android.common.logger.Log
 
 /**
  * Toggles the user's login status via a login menu option, and enables/disables the cloud storage
  * content provider.
  */
-public class StorageProviderFragment extends Fragment {
-
-    private static final String TAG = "StorageProviderFragment";
-    private static final String AUTHORITY = "com.example.android.storageprovider.documents";
-    private boolean mLoggedIn = false;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mLoggedIn = readLoginValue();
-
-        setHasOptionsMenu(true);
+class StorageProviderFragment : Fragment() {
+    private var mLoggedIn = false
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mLoggedIn = readLoginValue()
+        setHasOptionsMenu(true)
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        MenuItem item = menu.findItem(R.id.sample_action);
-        item.setTitle(mLoggedIn ? R.string.log_out : R.string.log_in);
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        val item = menu.findItem(R.id.sample_action)
+        item.setTitle(if (mLoggedIn) R.string.log_out else R.string.log_in)
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.sample_action) {
-            toggleLogin();
-            item.setTitle(mLoggedIn ? R.string.log_out : R.string.log_in);
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.sample_action) {
+            toggleLogin()
+            item.setTitle(if (mLoggedIn) R.string.log_out else R.string.log_in)
 
             // BEGIN_INCLUDE(notify_change)
             // Notify the system that the status of our roots has changed.  This will trigger
             // a call to MyCloudProvider.queryRoots() and force a refresh of the system
             // picker UI.  It's important to call this or stale results may persist.
-            getActivity().getContentResolver().notifyChange(DocumentsContract.buildRootsUri
-                    (AUTHORITY), null, false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                requireActivity().contentResolver.notifyChange(
+                    DocumentsContract.buildRootsUri(AUTHORITY),
+                    null,
+                    0
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                requireActivity().contentResolver.notifyChange(
+                    DocumentsContract.buildRootsUri(AUTHORITY),
+                    null,
+                    false
+                )
+            }
             // END_INCLUDE(notify_change)
         }
-        return true;
+        return true
     }
 
     /**
      * Dummy function to change the user's authorization status.
      */
-    private void toggleLogin() {
+    private fun toggleLogin() {
         // Replace this with your standard method of authentication to determine if your app
         // should make the user's documents available.
-        mLoggedIn = !mLoggedIn;
-        writeLoginValue(mLoggedIn);
-        Log.i(TAG, getString(mLoggedIn ? R.string.logged_in_info : R.string.logged_out_info));
+        mLoggedIn = !mLoggedIn
+        writeLoginValue(mLoggedIn)
+        Log.i(TAG, getString(if (mLoggedIn) R.string.logged_in_info else R.string.logged_out_info))
     }
 
     /**
      * Dummy function to save whether the user is logged in.
      */
-    private void writeLoginValue(boolean loggedIn) {
-        final SharedPreferences sharedPreferences =
-                getActivity().getSharedPreferences(getString(R.string.app_name),
-                        getActivity().MODE_PRIVATE);
-        sharedPreferences.edit().putBoolean(getString(R.string.key_logged_in), loggedIn).commit();
+    private fun writeLoginValue(loggedIn: Boolean) {
+        val sharedPreferences = requireActivity().getSharedPreferences(getString(R.string.app_name),
+            Context.MODE_PRIVATE)
+        sharedPreferences.edit().putBoolean(getString(R.string.key_logged_in), loggedIn).apply()
     }
 
     /**
      * Dummy function to determine whether the user is logged in.
      */
-    private boolean readLoginValue() {
-        final SharedPreferences sharedPreferences =
-                getActivity().getSharedPreferences(getString(R.string.app_name),
-                        getActivity().MODE_PRIVATE);
-        return sharedPreferences.getBoolean(getString(R.string.key_logged_in), false);
+    private fun readLoginValue(): Boolean {
+        val sharedPreferences = requireActivity().getSharedPreferences(getString(R.string.app_name),
+            Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean(getString(R.string.key_logged_in), false)
     }
 
+    companion object {
+        private const val TAG = "StorageProviderFragment"
+        private const val AUTHORITY = "com.example.android.storageprovider.documents"
+    }
 }
-
-
