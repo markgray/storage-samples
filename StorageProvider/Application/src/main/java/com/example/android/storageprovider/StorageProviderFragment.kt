@@ -57,7 +57,10 @@ class StorageProviderFragment : Fragment() {
 
     /**
      * Prepare the Fragment host's standard options menu to be displayed. This is called right
-     * before the menu is shown, every time it is shown.
+     * before the menu is shown, every time it is shown. First we call our super's implementation
+     * of `onPrepareOptionsMenu`, then we initialize our [MenuItem] variable `val item` to the
+     * item in our [Menu] parameter [menu] with the ID [R.id.sample_action]. If our [mLoggedIn]
+     * field is `true` we set the title of `item` to "Log out", otherwise we set it to "Log in".
      *
      * @param menu The options [Menu] as last shown or first initialized by [onCreateOptionsMenu].
      */
@@ -67,6 +70,12 @@ class StorageProviderFragment : Fragment() {
         item.setTitle(if (mLoggedIn) R.string.log_out else R.string.log_in)
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     *
+     * @param item The [MenuItem] that was selected.
+     * @return Return `false` to allow normal menu processing to proceed, `true` to consume it here.
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.sample_action) {
             toggleLogin()
