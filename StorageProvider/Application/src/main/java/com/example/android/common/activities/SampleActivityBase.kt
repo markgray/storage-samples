@@ -24,11 +24,22 @@ import com.example.android.common.logger.LogWrapper
  * Base launcher activity, to handle most of the common plumbing for samples.
  */
 open class SampleActivityBase : FragmentActivity() {
+    /**
+     * Called when the activity is starting, we just call our super's implementation of `onCreate`.
+     *
+     * @param savedInstanceState we do not override [onSaveInstanceState] so do not use
+     */
     @Suppress("RedundantOverride")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
+    /**
+     * Called after [onCreate] or after [onRestart] when the activity had been stopped, but is now
+     * again being displayed to the user. It will usually be followed by [onResume]. This is a good
+     * place to begin drawing visual elements, running animations, etc. We call our super's `onStart`,
+     * then call our method [initializeLogging] to up targets to receive log data.
+     */
     override fun onStart() {
         super.onStart()
         initializeLogging()
@@ -44,6 +55,9 @@ open class SampleActivityBase : FragmentActivity() {
     }
 
     companion object {
+        /**
+         * TAG used for logging
+         */
         const val TAG = "SampleActivityBase"
     }
 }
