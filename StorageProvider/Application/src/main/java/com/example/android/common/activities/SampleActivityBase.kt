@@ -50,7 +50,7 @@ open class SampleActivityBase : FragmentActivity() {
         // Using Log, front-end to the logging chain, emulates android.util.log method signatures.
         // Wraps Android's native log framework
         val logWrapper = LogWrapper()
-        Log.logNode = logWrapper
+        Log.setLogNode(logWrapper)
         Log.i(TAG, "Ready")
     }
 
