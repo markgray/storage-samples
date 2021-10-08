@@ -89,7 +89,7 @@ class MainActivity : SampleActivityBase() {
         // Wraps Android's native log framework.
         val logWrapper = LogWrapper()
         // Using Log, front-end to the logging chain, emulates android.util.log method signatures.
-        Log.setLogNode(logWrapper)
+        Log.logNode = logWrapper
 
         // Filter strips out everything except the message text.
         val msgFilter = MessageOnlyLogFilter()
