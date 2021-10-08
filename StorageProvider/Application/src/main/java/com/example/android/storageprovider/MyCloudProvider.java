@@ -41,7 +41,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -102,7 +101,7 @@ public class MyCloudProvider extends DocumentsProvider {
 
     // BEGIN_INCLUDE(query_roots)
     @Override
-    public Cursor queryRoots(String[] projection) throws FileNotFoundException {
+    public Cursor queryRoots(String[] projection) {
         Log.v(TAG, "queryRoots");
 
         // Create a cursor with either the requested fields, or the default projection.  This
@@ -165,16 +164,16 @@ public class MyCloudProvider extends DocumentsProvider {
         final File parent = getFileForDocId(rootId);
 
         // Create a queue to store the most recent documents, which orders by last modified.
-        PriorityQueue<File> lastModifiedFiles = new PriorityQueue<File>(5, new Comparator<File>() {
-            public int compare(File i, File j) {
-                return Long.compare(i.lastModified(), j.lastModified());
-            }
-        });
+        //noinspection ComparatorCombinators
+        PriorityQueue<File> lastModifiedFiles = new PriorityQueue<>(
+                5,
+                (i, j) -> Long.compare(i.lastModified(), j.lastModified())
+        );
 
         // Iterate through all files and directories in the file structure under the root.  If
         // the file is more recent than the least recently modified, add it to the queue,
         // limiting the number of results.
-        final LinkedList<File> pending = new LinkedList<File>();
+        final LinkedList<File> pending = new LinkedList<>();
 
         // Start by adding the parent to the list of files to be processed
         pending.add(parent);
@@ -185,6 +184,7 @@ public class MyCloudProvider extends DocumentsProvider {
             final File file = pending.removeFirst();
             if (file.isDirectory()) {
                 // If it's a directory, add all its children to the unprocessed list
+                //noinspection ConstantConditions
                 Collections.addAll(pending, file.listFiles());
             } else {
                 // If it's a file, add it to the ordered queue.
@@ -220,7 +220,7 @@ public class MyCloudProvider extends DocumentsProvider {
 
         // Iterate through all files in the file structure under the root until we reach the
         // desired number of matches.
-        final LinkedList<File> pending = new LinkedList<File>();
+        final LinkedList<File> pending = new LinkedList<>();
 
         // Start by adding the parent to the list of files to be processed
         pending.add(parent);
@@ -231,6 +231,7 @@ public class MyCloudProvider extends DocumentsProvider {
             final File file = pending.removeFirst();
             if (file.isDirectory()) {
                 // If it's a directory, add all its children to the unprocessed list
+                //noinspection ConstantConditions
                 Collections.addAll(pending, file.listFiles());
             } else {
                 // If it's a file and it matches, add it to the result cursor.
@@ -281,6 +282,7 @@ public class MyCloudProvider extends DocumentsProvider {
 
         final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
         final File parent = getFileForDocId(parentDocumentId);
+        //noinspection ConstantConditions
         for (File file : parent.listFiles()) {
             includeFile(result, null, file);
         }
@@ -309,16 +311,12 @@ public class MyCloudProvider extends DocumentsProvider {
             try {
                 Handler handler = new Handler(getContext().getMainLooper());
                 return ParcelFileDescriptor.open(file, accessMode, handler,
-                        new ParcelFileDescriptor.OnCloseListener() {
-                    @Override
-                    public void onClose(IOException e) {
+                        e -> {
 
-                        // Update the file with the cloud server.  The client is done writing.
-                        Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
-                                "update the server.");
-                    }
-
-                });
+                            // Update the file with the cloud server.  The client is done writing.
+                            Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
+                                    "update the server.");
+                        });
             } catch (IOException e) {
                 throw new FileNotFoundException("Failed to open document with id " + documentId +
                         " and mode " + mode);
@@ -331,6 +329,7 @@ public class MyCloudProvider extends DocumentsProvider {
 
 
     // BEGIN_INCLUDE(create_document)
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public String createDocument(String documentId, String mimeType, String displayName)
             throws FileNotFoundException {
@@ -422,8 +421,9 @@ public class MyCloudProvider extends DocumentsProvider {
      * @param parent the File for the parent directory
      * @return a string of the unique MIME data types the parent directory supports
      */
+    @SuppressWarnings("unused")
     private String getChildMimeTypes(File parent) {
-        Set<String> mimeTypes = new HashSet<String>();
+        Set<String> mimeTypes = new HashSet<>();
         mimeTypes.add("image/*");
         mimeTypes.add("text/*");
         mimeTypes.add("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
@@ -471,7 +471,6 @@ public class MyCloudProvider extends DocumentsProvider {
      * @param result the cursor to modify
      * @param docId  the document ID representing the desired file (may be null if given file)
      * @param file   the File object representing the desired file (may be null if given docID)
-     * @throws java.io.FileNotFoundException
      */
     private void includeFile(MatrixCursor result, String docId, File file)
             throws FileNotFoundException {
@@ -524,7 +523,6 @@ public class MyCloudProvider extends DocumentsProvider {
      *
      * @param docId the document ID representing the desired file
      * @return a File represented by the given document ID
-     * @throws java.io.FileNotFoundException
      */
     private File getFileForDocId(String docId) throws FileNotFoundException {
         File target = mBaseDir;
@@ -551,6 +549,7 @@ public class MyCloudProvider extends DocumentsProvider {
      * have a backend, so it simulates by reading content from the device's internal storage.
      */
     private void writeDummyFilesToStorage() {
+        //noinspection ConstantConditions
         if (mBaseDir.list().length > 0) {
             return;
         }
