@@ -646,9 +646,15 @@ public class MyCloudProvider extends DocumentsProvider {
                 getContext().getString(R.string.app_name),
                 Context.MODE_PRIVATE
             );
-        return sharedPreferences.getBoolean(
+        final boolean isTheUserLoggedIn = sharedPreferences.getBoolean(
             getContext().getString(R.string.key_logged_in),
             false
         );
+        if (!isTheUserLoggedIn) {
+            Log.i(TAG,  "The user is NOT logged in");
+        } else {
+            Log.i(TAG, "The user IS logged in");
+        }
+        return isTheUserLoggedIn;
     }
 }
