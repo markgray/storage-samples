@@ -52,40 +52,48 @@ import java.util.Set;
 public class MyCloudProvider extends DocumentsProvider {
     private static final String TAG = "MyCloudProvider";
 
-    // Use these as the default columns to return information about a root if no specific
-    // columns are requested in a query.
+    /**
+     * Use these as the default columns to return information about a root if no specific
+     * columns are requested in a query.
+     */
     private static final String[] DEFAULT_ROOT_PROJECTION = new String[]{
-            Root.COLUMN_ROOT_ID,
-            Root.COLUMN_MIME_TYPES,
-            Root.COLUMN_FLAGS,
-            Root.COLUMN_ICON,
-            Root.COLUMN_TITLE,
-            Root.COLUMN_SUMMARY,
-            Root.COLUMN_DOCUMENT_ID,
-            Root.COLUMN_AVAILABLE_BYTES
+        Root.COLUMN_ROOT_ID,
+        Root.COLUMN_MIME_TYPES,
+        Root.COLUMN_FLAGS,
+        Root.COLUMN_ICON,
+        Root.COLUMN_TITLE,
+        Root.COLUMN_SUMMARY,
+        Root.COLUMN_DOCUMENT_ID,
+        Root.COLUMN_AVAILABLE_BYTES
     };
 
-    // Use these as the default columns to return information about a document if no specific
-    // columns are requested in a query.
+    /**
+     * Use these as the default columns to return information about a document if no specific
+     * columns are requested in a query.
+     */
     private static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[]{
-            Document.COLUMN_DOCUMENT_ID,
-            Document.COLUMN_MIME_TYPE,
-            Document.COLUMN_DISPLAY_NAME,
-            Document.COLUMN_LAST_MODIFIED,
-            Document.COLUMN_FLAGS,
-            Document.COLUMN_SIZE
+        Document.COLUMN_DOCUMENT_ID,
+        Document.COLUMN_MIME_TYPE,
+        Document.COLUMN_DISPLAY_NAME,
+        Document.COLUMN_LAST_MODIFIED,
+        Document.COLUMN_FLAGS,
+        Document.COLUMN_SIZE
     };
 
-    // No official policy on how many to return, but make sure you do limit the number of recent
-    // and search results.
+    /**
+     * No official policy on how many to return, but make sure you do limit the number of recent
+     * and search results.
+     */
     private static final int MAX_SEARCH_RESULTS = 20;
     private static final int MAX_LAST_MODIFIED = 5;
 
     private static final String ROOT = "root";
 
-    // A file object at the root of the file hierarchy.  Depending on your implementation, the root
-    // does not need to be an existing file system directory.  For example, a tag-based document
-    // provider might return a directory containing all tags, represented as child directories.
+    /**
+     * A file object at the root of the file hierarchy.  Depending on your implementation, the root
+     * does not need to be an existing file system directory.  For example, a tag-based document
+     * provider might return a directory containing all tags, represented as child directories.
+     */
     private File mBaseDir;
 
     @Override
@@ -99,7 +107,6 @@ public class MyCloudProvider extends DocumentsProvider {
         return true;
     }
 
-    // BEGIN_INCLUDE(query_roots)
     @Override
     public Cursor queryRoots(String[] projection) {
         Log.v(TAG, "queryRoots");
@@ -127,16 +134,23 @@ public class MyCloudProvider extends DocumentsProvider {
         // documents.  FLAG_SUPPORTS_RECENTS means your application's most recently used
         // documents will show up in the "Recents" category.  FLAG_SUPPORTS_SEARCH allows users
         // to search all documents the application shares.
-        row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE |
-                Root.FLAG_SUPPORTS_RECENTS |
-                Root.FLAG_SUPPORTS_SEARCH);
+        row.add(
+            Root.COLUMN_FLAGS,
+            Root.FLAG_SUPPORTS_CREATE | Root.FLAG_SUPPORTS_RECENTS | Root.FLAG_SUPPORTS_SEARCH
+        );
 
         // COLUMN_TITLE is the root title (e.g. what will be displayed to identify your provider).
-        row.add(Root.COLUMN_TITLE, getContext().getString(R.string.app_name));
+        row.add(
+            Root.COLUMN_TITLE,
+            getContext().getString(R.string.app_name)
+        );
 
         // This document id must be unique within this provider and consistent across time.  The
         // system picker UI may save it and refer to it later.
-        row.add(Root.COLUMN_DOCUMENT_ID, getDocIdForFile(mBaseDir));
+        row.add(
+            Root.COLUMN_DOCUMENT_ID,
+            getDocIdForFile(mBaseDir)
+        );
 
         // The child MIME types are used to filter the roots and only present to the user roots
         // that contain the desired type somewhere in their file hierarchy.
@@ -146,12 +160,12 @@ public class MyCloudProvider extends DocumentsProvider {
 
         return result;
     }
-    // END_INCLUDE(query_roots)
 
-    // BEGIN_INCLUDE(query_recent_documents)
     @Override
-    public Cursor queryRecentDocuments(String rootId, String[] projection)
-            throws FileNotFoundException {
+    public Cursor queryRecentDocuments(
+        String rootId,
+        String[] projection
+    ) throws FileNotFoundException {
         Log.v(TAG, "queryRecentDocuments");
 
         // This example implementation walks a local file structure to find the most recently
@@ -165,10 +179,11 @@ public class MyCloudProvider extends DocumentsProvider {
 
         // Create a queue to store the most recent documents, which orders by last modified.
         //noinspection ComparatorCombinators
-        PriorityQueue<File> lastModifiedFiles = new PriorityQueue<>(
+        PriorityQueue<File> lastModifiedFiles =
+            new PriorityQueue<>(
                 5,
                 (i, j) -> Long.compare(i.lastModified(), j.lastModified())
-        );
+            );
 
         // Iterate through all files and directories in the file structure under the root.  If
         // the file is more recent than the least recently modified, add it to the queue,
@@ -184,8 +199,12 @@ public class MyCloudProvider extends DocumentsProvider {
             final File file = pending.removeFirst();
             if (file.isDirectory()) {
                 // If it's a directory, add all its children to the unprocessed list
-                //noinspection ConstantConditions
-                Collections.addAll(pending, file.listFiles());
+                final File[] listOfFiles = file.listFiles();
+                if (listOfFiles != null) {
+                    Collections.addAll(pending, listOfFiles);
+                } else {
+                    throw new RuntimeException("file.listFiles() is null");
+                }
             } else {
                 // If it's a file, add it to the ordered queue.
                 lastModifiedFiles.add(file);
@@ -201,12 +220,13 @@ public class MyCloudProvider extends DocumentsProvider {
         }
         return result;
     }
-    // END_INCLUDE(query_recent_documents)
 
-    // BEGIN_INCLUDE(query_search_documents)
     @Override
-    public Cursor querySearchDocuments(String rootId, String query, String[] projection)
-            throws FileNotFoundException {
+    public Cursor querySearchDocuments(
+        String rootId,
+        String query,
+        String[] projection
+    ) throws FileNotFoundException {
         Log.v(TAG, "querySearchDocuments");
 
         // Create a cursor with the requested projection, or the default projection.
@@ -231,8 +251,12 @@ public class MyCloudProvider extends DocumentsProvider {
             final File file = pending.removeFirst();
             if (file.isDirectory()) {
                 // If it's a directory, add all its children to the unprocessed list
-                //noinspection ConstantConditions
-                Collections.addAll(pending, file.listFiles());
+                final File[] listOfFiles = file.listFiles();
+                if (listOfFiles != null) {
+                    Collections.addAll(pending, listOfFiles);
+                } else {
+                    throw new RuntimeException("file.listFiles() is null");
+                }
             } else {
                 // If it's a file and it matches, add it to the result cursor.
                 if (file.getName().toLowerCase().contains(query)) {
@@ -242,26 +266,26 @@ public class MyCloudProvider extends DocumentsProvider {
         }
         return result;
     }
-    // END_INCLUDE(query_search_documents)
 
-    // BEGIN_INCLUDE(open_document_thumbnail)
     @Override
-    public AssetFileDescriptor openDocumentThumbnail(String documentId, Point sizeHint,
-                                                     CancellationSignal signal)
-            throws FileNotFoundException {
+    public AssetFileDescriptor openDocumentThumbnail(
+        String documentId,
+        Point sizeHint,
+        CancellationSignal signal
+    ) throws FileNotFoundException {
         Log.v(TAG, "openDocumentThumbnail");
 
         final File file = getFileForDocId(documentId);
         final ParcelFileDescriptor pfd =
-                ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
+            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
         return new AssetFileDescriptor(pfd, 0, AssetFileDescriptor.UNKNOWN_LENGTH);
     }
-    // END_INCLUDE(open_document_thumbnail)
 
-    // BEGIN_INCLUDE(query_document)
     @Override
-    public Cursor queryDocument(String documentId, String[] projection)
-            throws FileNotFoundException {
+    public Cursor queryDocument(
+        String documentId,
+        String[] projection
+    ) throws FileNotFoundException {
         Log.v(TAG, "queryDocument");
 
         // Create a cursor with the requested projection, or the default projection.
@@ -269,33 +293,37 @@ public class MyCloudProvider extends DocumentsProvider {
         includeFile(result, documentId, null);
         return result;
     }
-    // END_INCLUDE(query_document)
 
-    // BEGIN_INCLUDE(query_child_documents)
     @Override
-    public Cursor queryChildDocuments(String parentDocumentId, String[] projection,
-                                      String sortOrder) throws FileNotFoundException {
+    public Cursor queryChildDocuments(
+        String parentDocumentId,
+        String[] projection,
+        String sortOrder
+    ) throws FileNotFoundException {
         Log.v(TAG, "queryChildDocuments, parentDocumentId: " +
-                parentDocumentId +
-                " sortOrder: " +
-                sortOrder);
+            parentDocumentId +
+            " sortOrder: " +
+            sortOrder);
 
         final MatrixCursor result = new MatrixCursor(resolveDocumentProjection(projection));
         final File parent = getFileForDocId(parentDocumentId);
-        //noinspection ConstantConditions
-        for (File file : parent.listFiles()) {
-            includeFile(result, null, file);
+        final File[] parentListOfFiles = parent.listFiles();
+        if (parentListOfFiles != null) {
+            for (File file : parentListOfFiles) {
+                includeFile(result, null, file);
+            }
+        } else {
+            throw new RuntimeException("parent.listFiles() is null");
         }
         return result;
     }
-    // END_INCLUDE(query_child_documents)
 
-
-    // BEGIN_INCLUDE(open_document)
     @Override
-    public ParcelFileDescriptor openDocument(final String documentId, final String mode,
-                                             CancellationSignal signal)
-            throws FileNotFoundException {
+    public ParcelFileDescriptor openDocument(
+        final String documentId,
+        final String mode,
+        CancellationSignal signal
+    ) throws FileNotFoundException {
         Log.v(TAG, "openDocument, mode: " + mode);
         // It's OK to do network operations in this method to download the document, as long as you
         // periodically check the CancellationSignal.  If you have an extremely large file to
@@ -311,28 +339,27 @@ public class MyCloudProvider extends DocumentsProvider {
             try {
                 Handler handler = new Handler(getContext().getMainLooper());
                 return ParcelFileDescriptor.open(file, accessMode, handler,
-                        e -> {
-
-                            // Update the file with the cloud server.  The client is done writing.
-                            Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
-                                    "update the server.");
-                        });
+                    e -> {
+                        // Update the file with the cloud server.  The client is done writing.
+                        Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
+                            "update the server.");
+                    });
             } catch (IOException e) {
                 throw new FileNotFoundException("Failed to open document with id " + documentId +
-                        " and mode " + mode);
+                    " and mode " + mode);
             }
         } else {
             return ParcelFileDescriptor.open(file, accessMode);
         }
     }
-    // END_INCLUDE(open_document)
 
-
-    // BEGIN_INCLUDE(create_document)
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    public String createDocument(String documentId, String mimeType, String displayName)
-            throws FileNotFoundException {
+    public String createDocument(
+        String documentId,
+        String mimeType,
+        String displayName
+    ) throws FileNotFoundException {
         Log.v(TAG, "createDocument");
 
         File parent = getFileForDocId(documentId);
@@ -343,13 +370,11 @@ public class MyCloudProvider extends DocumentsProvider {
             file.setReadable(true);
         } catch (IOException e) {
             throw new FileNotFoundException("Failed to create document with name " +
-                    displayName +" and documentId " + documentId);
+                displayName + " and documentId " + documentId);
         }
         return getDocIdForFile(file);
     }
-    // END_INCLUDE(create_document)
 
-    // BEGIN_INCLUDE(delete_document)
     @Override
     public void deleteDocument(String documentId) throws FileNotFoundException {
         Log.v(TAG, "deleteDocument");
@@ -360,8 +385,6 @@ public class MyCloudProvider extends DocumentsProvider {
             throw new FileNotFoundException("Failed to delete document with id " + documentId);
         }
     }
-    // END_INCLUDE(delete_document)
-
 
     @Override
     public String getDocumentType(String documentId) throws FileNotFoundException {
@@ -471,9 +494,10 @@ public class MyCloudProvider extends DocumentsProvider {
      * @param result the cursor to modify
      * @param docId  the document ID representing the desired file (may be null if given file)
      * @param file   the File object representing the desired file (may be null if given docID)
+     * @throws java.io.FileNotFoundException if the file is not found
      */
     private void includeFile(MatrixCursor result, String docId, File file)
-            throws FileNotFoundException {
+        throws FileNotFoundException {
         if (docId == null) {
             docId = getDocIdForFile(file);
         } else {
@@ -523,6 +547,7 @@ public class MyCloudProvider extends DocumentsProvider {
      *
      * @param docId the document ID representing the desired file
      * @return a File represented by the given document ID
+     * @throws java.io.FileNotFoundException if the file is not found
      */
     private File getFileForDocId(String docId) throws FileNotFoundException {
         File target = mBaseDir;
@@ -549,9 +574,13 @@ public class MyCloudProvider extends DocumentsProvider {
      * have a backend, so it simulates by reading content from the device's internal storage.
      */
     private void writeDummyFilesToStorage() {
-        //noinspection ConstantConditions
-        if (mBaseDir.list().length > 0) {
-            return;
+        final String[] listOfmBaseDir = mBaseDir.list();
+        if (listOfmBaseDir != null) {
+            if (listOfmBaseDir.length > 0) {
+                return;
+            }
+        } else {
+            throw new RuntimeException("mBaseDir.list() is null");
         }
 
         int[] imageResIds = getResourceIdArray(R.array.image_res_ids);
@@ -613,10 +642,13 @@ public class MyCloudProvider extends DocumentsProvider {
      */
     private boolean isUserLoggedIn() {
         final SharedPreferences sharedPreferences =
-                getContext().getSharedPreferences(getContext().getString(R.string.app_name),
-                        Context.MODE_PRIVATE);
-        return sharedPreferences.getBoolean(getContext().getString(R.string.key_logged_in), false);
+            getContext().getSharedPreferences(
+                getContext().getString(R.string.app_name),
+                Context.MODE_PRIVATE
+            );
+        return sharedPreferences.getBoolean(
+            getContext().getString(R.string.key_logged_in),
+            false
+        );
     }
-
-
 }
