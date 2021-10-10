@@ -35,15 +35,75 @@ import java.io.IOException
 import java.util.*
 
 /**
- * Manages documents and exposes them to the Android system for sharing.
+ * Manages documents and exposes them to the Android system for sharing. It extends [DocumentsProvider]
+ * which is the base class for a document provider. A document provider offers read and write access
+ * to durable files, such as files stored on a local disk, or files in a cloud storage service. To
+ * create a document provider, extend [DocumentsProvider], implement the abstract methods, and add
+ * it to your manifest like this:
+ *
+ *      <manifest>
+ *       ...
+ *         <application>
+ *       ...
+ *            <provider
+ *                  android:name="com.example.android.storageprovider.MyCloudProvider"
+ *                  android:authorities="com.example.android.storageprovider.documents"
+ *                  android:exported="true"
+ *                  android:grantUriPermissions="true"
+ *                  android:permission="android.permission.MANAGE_DOCUMENTS"
+ *                 <intent-filter>
+ *                      <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+ *                 </intent-filter>
+ *              </provider>
+ *                 ...
+ *         </application>
+ *     </manifest>
+ *
+ * When defining your provider, you must protect it with `Manifest.permission.MANAGE_DOCUMENTS`, which
+ * is a permission only the system can obtain. Applications cannot use a documents provider directly;
+ * they must go through `Intent.ACTION_OPEN_DOCUMENT` or `Intent.ACTION_CREATE_DOCUMENT` which requires
+ * a user to actively navigate and select documents. When a user selects documents through that UI,
+ * the system issues narrow URI permission grants to the requesting application.
+ *
+ * # Documents
+ *
+ * A document can be either an openable stream (with a specific MIME type), or a directory containing
+ * additional documents (with the `DocumentsContract.Document.MIME_TYPE_DIR MIME` type). Each directory
+ * represents the top of a subtree containing zero or more documents, which can recursively contain
+ * even more documents and directories.
+ *
+ * Each document can have different capabilities, as described by `DocumentsContract.Document.COLUMN_FLAGS`.
+ * For example, if a document can be represented as a thumbnail, your provider can set
+ * `DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL` and implement [openDocumentThumbnail] to
+ * return that thumbnail.
+ *
+ * Each document under a provider is uniquely referenced by its `DocumentsContract.Document.COLUMN_DOCUMENT_ID`,
+ * which must not change once returned. A single document can be included in multiple directories
+ * when responding to [queryChildDocuments]. For example, a provider might surface a single photo in
+ * multiple locations: once in a directory of geographic locations, and again in a directory of dates.
+ *
+ * # Roots
+ *
+ * All documents are surfaced through one or more "roots." Each root represents the top of a document
+ * tree that a user can navigate. For example, a root could represent an account or a physical storage
+ * device. Similar to documents, each root can have capabilities expressed through
+ * DocumentsContract.Root.COLUMN_FLAGS.
  */
 class MyCloudProvider : DocumentsProvider() {
     /**
-     * A file object at the root of the file hierarchy.  Depending on your implementation, the root
-     * does not need to be an existing file system directory.  For example, a tag-based document
+     * A file object at the root of the file hierarchy. Depending on your implementation, the root
+     * does not need to be an existing file system directory. For example, a tag-based document
      * provider might return a directory containing all tags, represented as child directories.
      */
     private var mBaseDir: File? = null
+
+    /**
+     * We implement this to initialize our content provider on startup. This method is called for
+     * all registered content providers on the application main thread at application launch time.
+     * It must not perform lengthy operations, or application startup will be delayed.
+     *
+     * @return `true` if the provider was successfully loaded, `false` otherwise
+     */
     override fun onCreate(): Boolean {
         Log.v(TAG, "onCreate")
         mBaseDir = context!!.filesDir
