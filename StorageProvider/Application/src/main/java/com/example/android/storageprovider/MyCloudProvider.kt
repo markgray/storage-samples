@@ -15,6 +15,7 @@
  */
 package com.example.android.storageprovider
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.res.AssetFileDescriptor
 import android.database.Cursor
@@ -94,13 +95,21 @@ class MyCloudProvider : DocumentsProvider() {
      * A file object at the root of the file hierarchy. Depending on your implementation, the root
      * does not need to be an existing file system directory. For example, a tag-based document
      * provider might return a directory containing all tags, represented as child directories.
+     * In our case this is the path of the directory holding application files.
      */
-    private var mBaseDir: File? = null
+    private lateinit var mBaseDir: File
 
     /**
      * We implement this to initialize our content provider on startup. This method is called for
      * all registered content providers on the application main thread at application launch time.
      * It must not perform lengthy operations, or application startup will be delayed.
+     *
+     * First we log the fact that we were called, then we initialize our [File] field [mBaseDir] to
+     * the absolute path to the directory on the filesystem where private files associated with this
+     * [Context]'s application package and opened with [Context.openFileOutput] are stored. Then we
+     * call our [writeDummyFilesToStorage] method to have it copy the dummy sample jpg's from our
+     * raw resources to the [mBaseDir] directory. Finally we return `true` to indicate that this
+     * provider was successfully loaded.
      *
      * @return `true` if the provider was successfully loaded, `false` otherwise
      */
@@ -111,6 +120,20 @@ class MyCloudProvider : DocumentsProvider() {
         return true
     }
 
+    /**
+     * Return all roots currently provided. To display to users, you must define at least one root.
+     * You should avoid making network requests to keep this request fast.
+     *
+     * Each root is defined by the metadata columns described in [Root], including
+     * [Root.COLUMN_DOCUMENT_ID]} which points to a directory representing a tree of
+     * documents to display under that root.
+     *
+     * If this set of roots changes, you must call [ContentResolver.notifyChange] with
+     * [DocumentsContract.buildRootsUri] to notify the system.
+     *
+     * @param projection list of [Root] columns to put into the cursor. If `null` all supported
+     * columns should be included.
+     */
     override fun queryRoots(projection: Array<String>?): Cursor {
         Log.v(TAG, "queryRoots")
 
@@ -128,7 +151,7 @@ class MyCloudProvider : DocumentsProvider() {
         // It's possible to have multiple roots (e.g. for multiple accounts in the same app) -
         // just add multiple cursor rows.
         // Construct one row for a root called "MyCloud".
-        val row = result.newRow()
+        val row: MatrixCursor.RowBuilder = result.newRow()
         row.add(Root.COLUMN_ROOT_ID, ROOT)
         row.add(Root.COLUMN_SUMMARY, context!!.getString(R.string.root_summary))
 
@@ -138,7 +161,9 @@ class MyCloudProvider : DocumentsProvider() {
         // to search all documents the application shares.
         row.add(
             Root.COLUMN_FLAGS,
-            Root.FLAG_SUPPORTS_CREATE or Root.FLAG_SUPPORTS_RECENTS or Root.FLAG_SUPPORTS_SEARCH
+            Root.FLAG_SUPPORTS_CREATE
+                or Root.FLAG_SUPPORTS_RECENTS
+                or Root.FLAG_SUPPORTS_SEARCH
         )
 
         // COLUMN_TITLE is the root title (e.g. what will be displayed to identify your provider).
@@ -157,7 +182,7 @@ class MyCloudProvider : DocumentsProvider() {
         // The child MIME types are used to filter the roots and only present to the user roots
         // that contain the desired type somewhere in their file hierarchy.
         row.add(Root.COLUMN_MIME_TYPES, getChildMimeTypes(mBaseDir))
-        row.add(Root.COLUMN_AVAILABLE_BYTES, mBaseDir!!.freeSpace)
+        row.add(Root.COLUMN_AVAILABLE_BYTES, mBaseDir.freeSpace)
         row.add(Root.COLUMN_ICON, R.drawable.ic_launcher)
         return result
     }
@@ -301,7 +326,7 @@ class MyCloudProvider : DocumentsProvider() {
             sortOrder)
         val result = MatrixCursor(resolveDocumentProjection(projection))
         val parent = getFileForDocId(parentDocumentId)
-        val parentListOfFiles = parent!!.listFiles()
+        val parentListOfFiles = parent.listFiles()
         if (parentListOfFiles != null) {
             for (file in parentListOfFiles) {
                 includeFile(result, null, file)
@@ -353,7 +378,7 @@ class MyCloudProvider : DocumentsProvider() {
     ): String {
         Log.v(TAG, "createDocument")
         val parent = getFileForDocId(documentId)
-        val file = File(parent!!.path, displayName)
+        val file = File(parent.path, displayName)
         try {
             file.createNewFile()
             file.setWritable(true)
@@ -369,7 +394,7 @@ class MyCloudProvider : DocumentsProvider() {
     override fun deleteDocument(documentId: String) {
         Log.v(TAG, "deleteDocument")
         val file = getFileForDocId(documentId)
-        if (file!!.delete()) {
+        if (file.delete()) {
             Log.i(TAG, "Deleted file with id $documentId")
         } else {
             throw FileNotFoundException("Failed to delete document with id $documentId")
@@ -421,7 +446,7 @@ class MyCloudProvider : DocumentsProvider() {
         var path = file!!.absolutePath
 
         // Start at first char of path under root
-        val rootPath = mBaseDir!!.path
+        val rootPath = mBaseDir.path
         path = when {
             rootPath == path -> {
                 ""
@@ -495,7 +520,7 @@ class MyCloudProvider : DocumentsProvider() {
      * @throws java.io.FileNotFoundException if the file is not found
      */
     @Throws(FileNotFoundException::class)
-    private fun getFileForDocId(docId: String): File? {
+    private fun getFileForDocId(docId: String): File {
         var target = mBaseDir
         if (docId == ROOT) {
             return target
@@ -519,7 +544,7 @@ class MyCloudProvider : DocumentsProvider() {
      * have a backend, so it simulates by reading content from the device's internal storage.
      */
     private fun writeDummyFilesToStorage() {
-        val listOfmBaseDir = mBaseDir!!.list()
+        val listOfmBaseDir = mBaseDir.list()
         if (listOfmBaseDir != null) {
             if (listOfmBaseDir.isNotEmpty()) {
                 return
