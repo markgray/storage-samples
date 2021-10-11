@@ -107,9 +107,9 @@ class MyCloudProvider : DocumentsProvider() {
      * First we log the fact that we were called, then we initialize our [File] field [mBaseDir] to
      * the absolute path to the directory on the filesystem where private files associated with this
      * [Context]'s application package and opened with [Context.openFileOutput] are stored. Then we
-     * call our [writeDummyFilesToStorage] method to have it copy the dummy sample jpg's from our
-     * raw resources to the [mBaseDir] directory. Finally we return `true` to indicate that this
-     * provider was successfully loaded.
+     * call our [writeDummyFilesToStorage] method to have it copy the dummy sample jpg's, text files
+     * and `.docx` file from our raw resources to the [mBaseDir] directory. Finally we return `true`
+     * to indicate that this provider was successfully loaded.
      *
      * @return `true` if the provider was successfully loaded, `false` otherwise
      */
