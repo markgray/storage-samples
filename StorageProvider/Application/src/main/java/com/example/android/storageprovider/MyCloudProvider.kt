@@ -131,6 +131,31 @@ class MyCloudProvider : DocumentsProvider() {
      * If this set of roots changes, you must call [ContentResolver.notifyChange] with
      * [DocumentsContract.buildRootsUri] to notify the system.
      *
+     * First we log the fact that [queryRoots] has been called, then we initialize our [MatrixCursor]
+     * variable `val result` to a new instance using as its root column projection the [Array] of
+     * [String] that our [resolveRootProjection] method returns when passed our [Array] of [String]
+     * parameter [projection] (this will either be [projection] if it is not `null` or our default
+     * projection [DEFAULT_ROOT_PROJECTION]) if it is `null`). If our [isUserLoggedIn] property is
+     * `false` (the user is NOT logged in) we just return the empty root cursor `result`. This
+     * removes our provider from the list entirely.
+     *
+     * If the user IS logged in we initialize our [MatrixCursor.RowBuilder] variable `val row` to the
+     * instance that the [MatrixCursor.newRow] method of `result` returns which can be used to set
+     * the column values for the new row. We add a new column to `row` whose name is
+     * [Root.COLUMN_ROOT_ID] ("root_id") and whose value is [ROOT] ("root"), and we add another new
+     * column to `row` whose name is [Root.COLUMN_SUMMARY] ("summary") and whose value is the resource
+     * [String] with ID [R.string.root_summary] ("cloudy with a chance of &#8230;").
+     *
+     * Next we add a column to `row` with the column name [Root.COLUMN_FLAGS] ("flags") and whose is
+     * value is formed by the bitwise or of the flags [Root.FLAG_SUPPORTS_CREATE] (means at least
+     * one directory under the root supports creating documents), [Root.FLAG_SUPPORTS_RECENTS] (means
+     * your application's most recently used documents will show up in the "Recents" category), and
+     * [Root.FLAG_SUPPORTS_SEARCH] (allows users to search all documents the application shares).
+     *
+     * Next we add a column whose name is [Root.COLUMN_TITLE] ("title") and whose value is the
+     * [String] with resource ID [R.string.app_name] (this is the root title e.g. what will be
+     * displayed to identify your provider).
+     *
      * @param projection list of [Root] columns to put into the cursor. If `null` all supported
      * columns should be included.
      */
