@@ -156,6 +156,25 @@ class MyCloudProvider : DocumentsProvider() {
      * [String] with resource ID [R.string.app_name] (this is the root title e.g. what will be
      * displayed to identify your provider).
      *
+     * We then add a column whose name is [Root.COLUMN_DOCUMENT_ID] ("document_id") and whose
+     * value is the [String] that our [getDocIdForFile] method creates when passed our [File] field
+     * [mBaseDir] (on my pixel 3 this is "root:")
+     *
+     * We add a column whose name is [Root.COLUMN_MIME_TYPES] ("mime_types") and whose value is the
+     * [String] that our [getChildMimeTypes] returns which contains all the unique MIME data types a
+     * directory supports, separated by newlines:
+     * text/&#8903;\\n image/&#8903;\\napplication/vnd.openxmlformats-officedocument.wordprocessingml.document
+     *
+     * We add a column whose name is [Root.COLUMN_AVAILABLE_BYTES] ("available_bytes") and whose value
+     * the [Long] returned by the [File.getFreeSpace] method of [mBaseDir] (aka kotlin `freeSpace`
+     * property). This is the number of unallocated bytes on the partition that [mBaseDir] is on.
+     * (110,123,040,768 on my pixel 3).
+     *
+     * We add a column whose name is [Root.COLUMN_ICON] ("icon") and whose value is the resource ID
+     * [R.drawable.ic_launcher] which is also used as our launcher ICON.
+     *
+     * Finally we return our [MatrixCursor] variable `result` to the caller.
+     *
      * @param projection list of [Root] columns to put into the cursor. If `null` all supported
      * columns should be included.
      */
@@ -212,6 +231,18 @@ class MyCloudProvider : DocumentsProvider() {
         return result
     }
 
+    /**
+     * Return recently modified documents under the requested root. This will only be called for
+     * roots that advertise [Root.FLAG_SUPPORTS_RECENTS]. The returned documents should be sorted
+     * by [DocumentsContract.Document.COLUMN_LAST_MODIFIED] in descending order, and limited to
+     * only return the 64 most recently modified documents. Recent documents do not support change
+     * notifications.
+     *
+     * First we log the fact that we were called,
+     *
+     * @param projection list of [DocumentsContract.Document] columns to put into the cursor. If
+     * `null` all supported columns should be included.
+     */
     @Throws(FileNotFoundException::class)
     override fun queryRecentDocuments(
         rootId: String,
