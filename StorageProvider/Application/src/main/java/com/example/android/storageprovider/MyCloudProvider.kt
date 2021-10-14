@@ -238,10 +238,48 @@ class MyCloudProvider : DocumentsProvider() {
      * only return the 64 most recently modified documents. Recent documents do not support change
      * notifications.
      *
-     * First we log the fact that we were called,
+     * First we log the fact that we were called, then we initialize our [MatrixCursor] variable
+     * `val result` to a new instance using as its root column projection the [Array] of [String]
+     * that our [resolveRootProjection] method returns when passed our [Array] of [String]
+     * parameter [projection] (this will either be [projection] if it is not `null` or our default
+     * projection [DEFAULT_ROOT_PROJECTION]) if it is `null`). Next we initialize our [File] variable
+     * `val parent` to the [File] that our [getFileForDocId] generates for the document ID in our
+     * [String] parameter [rootId] (in our case this will be a [File] for our single root directory
+     * [mBaseDir]).
      *
+     * Next we initialize our [PriorityQueue] variable `val lastModifiedFiles` to an instance whose
+     * initial capacity is 5, and whose comparator that will be used to order the priority queue is
+     * a lambda which orders it by the [File.lastModified] value of the [File]s it holds. Then we
+     * initialize our [LinkedList] of [File] variable `val pending` to a new instance, and add our
+     * [File] variable `parent` to the `pending` list of files to be processed.
+     *
+     * Now we loop `while` our `pending` list is not empty:
+     *  - We initialize our [File] variable `val file` by using the [LinkedList.removeFirst] method
+     *  of `pending` to fetch the first element from the list.
+     *  - If `file` is a directory, we initialize our [Array] of [File] variable `val listOfFiles`
+     *  to the value returned by the [File.listFiles] method of `file` and if `listOfFiles` is not
+     *  `null` we add the entire list to our [LinkedList] variable `pending` (if `listOfFiles` is
+     *  `null` we throw a [RuntimeException].
+     *  - if `file is not a directory we add it to our [PriorityQueue] variable `lastModifiedFiles`.
+     *
+     * Next we initialize our [Int] variable `var includedCount` to 0, then loop while `includedCount`
+     * is less than [MAX_LAST_MODIFIED] and `lastModifiedFiles` is not empty:
+     *  - We initialize our [File] variable `val file` by using the [PriorityQueue.remove] method of
+     *  `lastModifiedFiles` to fetch the first element from the [PriorityQueue].
+     *  - We call our `includeFile` method with `result` as the [MatrixCursor] argument, `null` as
+     *  the document ID, and `file` as the [File] whose "representation" we want to add to our
+     *  [MatrixCursor] `result`
+     *  - We then increment `includedCount` and loop back to process the next file in our
+     *  `lastModifiedFiles` [PriorityQueue].
+     *
+     * When done filling our [MatrixCursor] variable `result` with up to [MAX_LAST_MODIFIED] file
+     * "representations" we return `result` to the caller.
+     *
+     * @param rootId the Unique ID of a "root", i.e. the document id for our [mBaseDir] directory.
      * @param projection list of [DocumentsContract.Document] columns to put into the cursor. If
      * `null` all supported columns should be included.
+     * @return a [Cursor] which contains a "representation" of all of the most recently modified
+     * files, each of which can be used to retrieve the file it represents.
      */
     @Throws(FileNotFoundException::class)
     override fun queryRecentDocuments(
@@ -256,12 +294,14 @@ class MyCloudProvider : DocumentsProvider() {
 
         // Create a cursor with the requested projection, or the default projection.
         val result = MatrixCursor(resolveDocumentProjection(projection))
-        val parent = getFileForDocId(rootId)
+        val parent: File = getFileForDocId(rootId)
 
         // Create a queue to store the most recent documents, which orders by last modified.
         val lastModifiedFiles = PriorityQueue(
             5
-        ) { i: File?, j: File? -> i!!.lastModified().compareTo(j!!.lastModified()) }
+        ) {
+            i: File?, j: File? -> i!!.lastModified().compareTo(j!!.lastModified())
+        }
 
         // Iterate through all files and directories in the file structure under the root.  If
         // the file is more recent than the least recently modified, add it to the queue,
@@ -274,10 +314,10 @@ class MyCloudProvider : DocumentsProvider() {
         // Do while we still have unexamined files
         while (!pending.isEmpty()) {
             // Take a file from the list of unprocessed files
-            val file = pending.removeFirst()
+            val file: File? = pending.removeFirst()
             if (file!!.isDirectory) {
                 // If it's a directory, add all its children to the unprocessed list
-                val listOfFiles = file.listFiles()
+                val listOfFiles: Array<File>? = file.listFiles()
                 if (listOfFiles != null) {
                     Collections.addAll(pending, *listOfFiles)
                 } else {
@@ -292,7 +332,7 @@ class MyCloudProvider : DocumentsProvider() {
         // Add the most recent files to the cursor, not exceeding the max number of results.
         var includedCount = 0
         while (includedCount < MAX_LAST_MODIFIED + 1 && !lastModifiedFiles.isEmpty()) {
-            val file = lastModifiedFiles.remove()
+            val file: File? = lastModifiedFiles.remove()
             includeFile(result, null, file)
             includedCount++
         }
