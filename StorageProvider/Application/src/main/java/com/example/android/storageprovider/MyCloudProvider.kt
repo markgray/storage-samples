@@ -18,9 +18,11 @@ package com.example.android.storageprovider
 import android.content.ContentResolver
 import android.content.Context
 import android.content.res.AssetFileDescriptor
+import android.content.res.AssetManager
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.graphics.Point
+import android.net.Uri
 import android.os.CancellationSignal
 import android.os.Handler
 import android.os.ParcelFileDescriptor
@@ -163,7 +165,8 @@ class MyCloudProvider : DocumentsProvider() {
      * We add a column whose name is [Root.COLUMN_MIME_TYPES] ("mime_types") and whose value is the
      * [String] that our [getChildMimeTypes] returns which contains all the unique MIME data types a
      * directory supports, separated by newlines:
-     * text/&#8903;\\n image/&#8903;\\napplication/vnd.openxmlformats-officedocument.wordprocessingml.document
+     *
+     * text/&lowast;\n image/&lowast;\n application/vnd.openxmlformats-officedocument.wordprocessingml.document
      *
      * We add a column whose name is [Root.COLUMN_AVAILABLE_BYTES] ("available_bytes") and whose value
      * the [Long] returned by the [File.getFreeSpace] method of [mBaseDir] (aka kotlin `freeSpace`
@@ -339,6 +342,57 @@ class MyCloudProvider : DocumentsProvider() {
         return result
     }
 
+    /**
+     * Return documents that match the given query under the requested root. The returned documents
+     * should be sorted by relevance in descending order. How documents are matched against the
+     * query string is an implementation detail left to each provider, but it's suggested that at
+     * least [DocumentsContract.Document.COLUMN_DISPLAY_NAME] (display name of a document, used as
+     * the primary title displayed to a user) be matched in a case-insensitive fashion.
+     *
+     * If your provider is cloud-based, and you have some data cached or pinned locally, you may
+     * return the local data immediately, setting [DocumentsContract.EXTRA_LOADING] on the [Cursor]
+     * to indicate that you are still fetching additional data. Then, when the network data is
+     * available, you can send a change notification to trigger a requery and return the complete
+     * contents.
+     *
+     * To support change notifications, you must call the method [Cursor.setNotificationUri] (registers
+     * to watch a content URI for changes) with a relevant [Uri], such as the one that the method
+     * [DocumentsContract.buildSearchDocumentsUri] returns (builds URI representing a search for
+     * matching documents under a specific root in a document provider). Then you can call the
+     * method [ContentResolver.notifyChange] with that [Uri] to send change notifications.
+     *
+     * First we log the fact that [querySearchDocuments] was called, then we initialize our
+     * [MatrixCursor] variable `val result` to a new instance using as its root column projection
+     * the [Array] of [String] that our [resolveRootProjection] method returns when passed our
+     * [Array] of [String] parameter [projection] (this will either be [projection] if it is not
+     * `null` or our default projection [DEFAULT_ROOT_PROJECTION]) if it is `null`). Next we
+     * initialize our [File] variable `val parent` to the [File] that our [getFileForDocId] generates
+     * for the document ID in our [String] parameter [rootId] (in our case this will be a [File] for
+     * our single root directory [mBaseDir]).
+     *
+     * Then we initialize our [LinkedList] of [File] variable `val pending` to a new instance, and
+     * add our [File] variable `parent` to the `pending` list of files to be processed.
+     *
+     * Now we loop `while` our `pending` list is not empty, and the number of rows in `result` is
+     * less than [MAX_SEARCH_RESULTS]:
+     *  - We initialize our [File] variable `val file` by using the [LinkedList.removeFirst] method
+     *  of `pending` to fetch the first element from the list.
+     *  - If `file` is a directory, we initialize our [Array] of [File] variable `val listOfFiles`
+     *  to the value returned by the [File.listFiles] method of `file` and if `listOfFiles` is not
+     *  `null` we add the entire list to our [LinkedList] variable `pending` (if `listOfFiles` is
+     *  `null` we throw a [RuntimeException].
+     *  - if `file is not a directory we check to see if the `name` property of `file` after conversion
+     *  to lowercase contains our [String] parameter [query] and if so we call our [includeFile] method
+     *  with `result` as the [MatrixCursor] argument, `null` as  the document ID, and `file` as the
+     *  [File] whose "representation" we want it to add to our [MatrixCursor] `result`.
+     *
+     * Finally we return `result` to the caller.
+     *
+     * @param rootId the root to search under.
+     * @param query string to match documents against.
+     * @param projection list of [DocumentsContract.Document] columns to put into the cursor. If
+     * `null` all supported columns should be included.
+     */
     @Throws(FileNotFoundException::class)
     override fun querySearchDocuments(
         rootId: String,
@@ -385,6 +439,30 @@ class MyCloudProvider : DocumentsProvider() {
         return result
     }
 
+    /**
+     * Open and return a thumbnail of the requested document. A provider should return a thumbnail
+     * closely matching the hinted size, attempting to serve from a local cache if possible. A
+     * provider should never return images more than double the hinted size.
+     *
+     * If you perform expensive operations to download or generate a thumbnail, you should periodically
+     * check [CancellationSignal.isCanceled] to abort abandoned thumbnail requests.
+     *
+     * First we log the fact that [openDocumentThumbnail] was called, then we initialize our [File]
+     * variable `val file` to the [File] that our [getFileForDocId] generates for the document ID
+     * in our [String] parameter [documentId]. Then we initialize our [ParcelFileDescriptor] variable
+     * `val pfd` to the instance that the [ParcelFileDescriptor.open] method creates to access the
+     * [File] `file` using the [ParcelFileDescriptor.MODE_READ_ONLY] mode (opens the file with read
+     * only access). Finally we return an [AssetFileDescriptor] constructed to use `pfd` as the
+     * underlying file descriptor, 0 as the start of the asset, and [AssetFileDescriptor.UNKNOWN_LENGTH]
+     * as the number of bytes of the asset (means the data extends to the end of the file). An
+     * [AssetFileDescriptor] is a File descriptor of an entry in the [AssetManager] that allows the
+     * reading of data from a section of the [ParcelFileDescriptor] that it is constructed from.
+     *
+     * @param documentId the document to return.
+     * @param sizeHint hint of the optimal thumbnail dimensions.
+     * @param signal used by the caller to signal if the request should be cancelled. May be `null`.
+     * @return an [AssetFileDescriptor]
+     */
     @Throws(FileNotFoundException::class)
     override fun openDocumentThumbnail(
         documentId: String,
@@ -392,11 +470,14 @@ class MyCloudProvider : DocumentsProvider() {
         signal: CancellationSignal
     ): AssetFileDescriptor {
         Log.v(TAG, "openDocumentThumbnail")
-        val file = getFileForDocId(documentId)
+        val file: File = getFileForDocId(documentId)
         val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
         return AssetFileDescriptor(pfd, 0, AssetFileDescriptor.UNKNOWN_LENGTH)
     }
 
+    /**
+     *
+     */
     @Throws(FileNotFoundException::class)
     override fun queryDocument(
         documentId: String,
