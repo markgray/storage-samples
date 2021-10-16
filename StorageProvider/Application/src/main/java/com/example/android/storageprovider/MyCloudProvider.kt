@@ -476,7 +476,24 @@ class MyCloudProvider : DocumentsProvider() {
     }
 
     /**
+     * Return metadata for the single requested document. You should avoid making network requests
+     * to keep this request fast. We log the fact that [queryDocument] was called, then initialize
+     * our [MatrixCursor] variable `val result` to a new instance using as its root column projection
+     * the [Array] of [String] that our [resolveRootProjection] method returns when passed our
+     * [Array] of [String] parameter [projection] (this will either be [projection] if it is not
+     * `null` or our default projection [DEFAULT_ROOT_PROJECTION]) if it is `null`). We call our
+     * [includeFile] method with `result` as the [MatrixCursor] argument, our [String] parameter
+     * [documentId] as the document ID, and `null` as the [File] whose "representation" we want to
+     * add to our [MatrixCursor] `result` (when its `file` argument is `null` it uses the [File]
+     * that our [getFileForDocId] method returns for its document ID argument). [includeFile] adds
+     * a row to the [MatrixCursor] `result` that is the representation of the [File] whose document
+     * ID is our [documentId] parameter.
      *
+     * Finally we return `result` to the caller.
+     *
+     * @param documentId the document to return.
+     * @param projection list of [DocumentsContract.Document] columns to put into the cursor. If
+     * `null` all supported columns should be included.
      */
     @Throws(FileNotFoundException::class)
     override fun queryDocument(
@@ -491,6 +508,53 @@ class MyCloudProvider : DocumentsProvider() {
         return result
     }
 
+    /**
+     * Return the children documents contained in the requested directory. This must only return
+     * immediate descendants, as additional queries will be issued to recursively explore the tree.
+     *
+     * Apps targeting [android.os.Build.VERSION_CODES.O] or higher should override
+     * [queryChildDocuments] (String, String[], Bundle).
+     *
+     * If your provider is cloud-based, and you have some data cached or pinned locally, you may
+     * return the local data immediately, setting [DocumentsContract.EXTRA_LOADING] on the [Cursor]
+     * to indicate that you are still fetching additional data. Then, when the network data is
+     * available, you can send a change notification to trigger a requery and return the complete
+     * contents. To return a [Cursor] with extras, you need to
+     * extend and override [Cursor.getExtras].
+     *
+     * To support change notifications, you must call the method [Cursor.setNotificationUri] (registers
+     * to watch a content URI for changes) with a relevant [Uri], such as the one that the method
+     * [DocumentsContract.buildSearchDocumentsUri] returns (builds URI representing a search for
+     * matching documents under a specific root in a document provider). Then you can call the
+     * method [ContentResolver.notifyChange] with that [Uri] to send change notifications.
+     *
+     * First we log the fact that [queryChildDocuments] has been called for the parent directory
+     * whose document ID is our [String] parameter [parentDocumentId], and with the requested sort
+     * order given in our [String] parameter [sortOrder]. Next we initialize our [MatrixCursor]
+     * variable `val result` to a new instance using as its root column projection the [Array] of
+     * [String] that our [resolveRootProjection] method returns when passed our [Array] of [String]
+     * parameter [projection] (this will either be [projection] if it is not `null` or our default
+     * projection [DEFAULT_ROOT_PROJECTION]) if it is `null`). We initialize our [File] variable
+     * `val parent` to the [File] that our [getFileForDocId] generates for the document ID in our
+     * [String] parameter [parentDocumentId], and then initialize our [Array] of [File] variable
+     * `val parentListOfFiles` to the value returned by the [File.listFiles] method of `parent`
+     * (it returns an array of abstract pathnames denoting the files in the directory denoted by
+     * the abstract pathname `parent`).
+     *
+     * If `parentListOfFiles` is `null` we throw a [RuntimeException] "parent.listFiles() is null".
+     * Otherwise we loop over [File] `file` in `parentListOfFiles` calling our [includeFile] method
+     * with `file` as the [File] whose representation it should add the the [MatrixCursor] `result`.
+     *
+     * Finally we return `result` to the caller.
+     *
+     * @param parentDocumentId the directory to return children for.
+     * @param projection list of [DocumentsContract.Document] columns to put into the cursor. If
+     * `null` all supported columns should be included.
+     * @param sortOrder how to order the rows, formatted as an SQL `ORDER BY` clause (excluding the
+     * `ORDER BY` itself). Passing `null` will use the default sort order, which may be unordered.
+     * This ordering is a hint that can be used to prioritize how data is fetched from the network,
+     * but UI may always enforce a specific ordering.
+     */
     @Throws(FileNotFoundException::class)
     override fun queryChildDocuments(
         parentDocumentId: String,
@@ -502,10 +566,10 @@ class MyCloudProvider : DocumentsProvider() {
             " sortOrder: " +
             sortOrder)
         val result = MatrixCursor(resolveDocumentProjection(projection))
-        val parent = getFileForDocId(parentDocumentId)
-        val parentListOfFiles = parent.listFiles()
+        val parent: File = getFileForDocId(parentDocumentId)
+        val parentListOfFiles: Array<File>? = parent.listFiles()
         if (parentListOfFiles != null) {
-            for (file in parentListOfFiles) {
+            for (file: File in parentListOfFiles) {
                 includeFile(result, null, file)
             }
         } else {
@@ -514,6 +578,9 @@ class MyCloudProvider : DocumentsProvider() {
         return result
     }
 
+    /**
+     *
+     */
     @Throws(FileNotFoundException::class)
     override fun openDocument(
         documentId: String,
@@ -525,8 +592,8 @@ class MyCloudProvider : DocumentsProvider() {
         // periodically check the CancellationSignal.  If you have an extremely large file to
         // transfer from the network, a better solution may be pipes or sockets
         // (see ParcelFileDescriptor for helper methods).
-        val file = getFileForDocId(documentId)
-        val accessMode = ParcelFileDescriptor.parseMode(mode)
+        val file: File = getFileForDocId(documentId)
+        val accessMode: Int = ParcelFileDescriptor.parseMode(mode)
         val isWrite = mode.indexOf('w') != -1
         return if (isWrite) {
             // Attach a close listener if the document is opened in write mode.
