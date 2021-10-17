@@ -15,6 +15,7 @@
  */
 package com.example.android.storageprovider
 
+import android.content.ContentProvider
 import android.content.ContentResolver
 import android.content.Context
 import android.content.res.AssetFileDescriptor
@@ -579,7 +580,39 @@ class MyCloudProvider : DocumentsProvider() {
     }
 
     /**
+     * Open and return the requested document. Your provider should return a reliable
+     * [ParcelFileDescriptor] to detect when the remote caller has finished reading or
+     * writing the document. Mode "r" should always be supported. Provider should throw
+     * [UnsupportedOperationException] if the passing mode is not supported. You may return
+     * a pipe or socket pair if the mode is exclusively "r" or "w", but complex modes like
+     * "rw" imply a normal file on disk that supports seeking. If you block while downloading
+     * content, you should periodically check [CancellationSignal.isCanceled] to abort abandoned
+     * open requests.
      *
+     * First we log the fact that [openDocument] has been called and the [mode] we were called with.
+     * We initialize our [File] variable `val file` to the [File] that our [getFileForDocId] returns
+     * for the document ID asked for in our [documentId] parameter, initialize our [Int] variable
+     * `val accessMode` to the value returned by the [ParcelFileDescriptor.parseMode] method when
+     * it parses our [String] parameter [mode] into a bitmask suitable for use with `open`, and
+     * initialize our [Boolean] variable `val isWrite` to `true` if [mode] contains a "w" character.
+     * We return the result of an `if` branch on the value of `isWrite`:
+     *  - `true`: wrapped in a `try` block intended to catch [IOException] and re-throw it as an
+     *  [FileNotFoundException] we initialize our [Handler] variable `val handler` constructed to
+     *  use the [Context.getMainLooper] looper (aka `mainLooper` kotlin property) of the [Context]
+     *  of this [ContentProvider] as its looper.
+     *  - We use the [ParcelFileDescriptor.open] method to construct the [ParcelFileDescriptor] that
+     *  we return from the `if` expression using `file` as the [File] to be opened, `accessMode` as
+     *  the desired access mode, `handler` as the [Handler] to be used to call our lambda listener
+     *  when the returned descriptor has closed, with the lambda to be called just logging the fact
+     *  that the "A file with id " `documentId` " has been closed! Time to update the server."
+     *
+     *  - if `isWrite` is `false` the `if` expression returns the [ParcelFileDescriptor] that the
+     *  [ParcelFileDescriptor.open] method constructs for accessing the [File] `file` using the mode
+     *  in `accessMode` (no onClose listener is needed).
+     *
+     * @param documentId the document to return.
+     * @param mode the mode to open with, such as 'r', 'w', or 'rw'.
+     * @param signal used by the caller to signal if the request should be cancelled. May be `null`.
      */
     @Throws(FileNotFoundException::class)
     override fun openDocument(
@@ -594,7 +627,7 @@ class MyCloudProvider : DocumentsProvider() {
         // (see ParcelFileDescriptor for helper methods).
         val file: File = getFileForDocId(documentId)
         val accessMode: Int = ParcelFileDescriptor.parseMode(mode)
-        val isWrite = mode.indexOf('w') != -1
+        val isWrite: Boolean = mode.indexOf('w') != -1
         return if (isWrite) {
             // Attach a close listener if the document is opened in write mode.
             try {
@@ -614,6 +647,18 @@ class MyCloudProvider : DocumentsProvider() {
         }
     }
 
+    /**
+     * Create a new document and return its newly generated [DocumentsContract.Document.COLUMN_DOCUMENT_ID].
+     * You must allocate a new [DocumentsContract.Document.COLUMN_DOCUMENT_ID] to represent the document,
+     * which must not change once returned.
+     *
+     * @param documentId the parent directory to create the new document under.
+     * @param mimeType the concrete MIME type associated with the new document. If the MIME type is
+     * not supported, the provider must throw.
+     * @param displayName the display name of the new document. The provider may alter this name to
+     * meet any internal constraints, such as avoiding conflicting names.
+     * @return the document ID [String] of the created document.
+     */
     @Throws(FileNotFoundException::class)
     override fun createDocument(
         documentId: String,
@@ -634,10 +679,26 @@ class MyCloudProvider : DocumentsProvider() {
         return getDocIdForFile(file)
     }
 
+    /**
+     * Delete the requested document. Upon returning, any URI permission grants for the given
+     * document will be revoked. If additional documents were deleted as a side effect of this
+     * call (such as documents inside a directory) the implementor is responsible for revoking
+     * those permissions using [revokeDocumentPermission].
+     *
+     * First we log the fact that [deleteDocument] had been called. We initialize our [File] variable
+     * `val file` to the [File] that the [getFileForDocId] method returns for accessing the file with
+     * the document ID given in our [String] parameter [documentId]. If the [File.delete] method of
+     * `file` returns `true` (it returns `true` if and only if the file or directory is successfully
+     * deleted) we log the fact that we "Deleted file with id `documentId`". If the [File.delete]
+     * method of `file` returns `false` we throw a [FileNotFoundException]: "Failed to delete document
+     * with id `documentId`".
+     *
+     * @param documentId the document ID of the document to be deleted.
+     */
     @Throws(FileNotFoundException::class)
     override fun deleteDocument(documentId: String) {
         Log.v(TAG, "deleteDocument")
-        val file = getFileForDocId(documentId)
+        val file: File = getFileForDocId(documentId)
         if (file.delete()) {
             Log.i(TAG, "Deleted file with id $documentId")
         } else {
@@ -645,6 +706,17 @@ class MyCloudProvider : DocumentsProvider() {
         }
     }
 
+    /**
+     * Return concrete MIME type of the requested document. Must match the value of
+     * [DocumentsContract.Document.COLUMN_MIME_TYPE] for this document. The default
+     * implementation queries [queryDocument], so providers may choose to override
+     * this as an optimization. We initialize our [File] variable `val file` to the
+     * [File] that the [getFileForDocId] method returns for accessing the file with
+     * the document ID given in our [String] parameter [documentId].
+     *
+     * @param documentId the document ID of the document whose MIME type we are to determine.
+     * @return a [String] representing the MIME type of the [File] with document ID [documentId].
+     */
     @Throws(FileNotFoundException::class)
     override fun getDocumentType(documentId: String): String {
         val file = getFileForDocId(documentId)
