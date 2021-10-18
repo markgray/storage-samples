@@ -725,7 +725,13 @@ class MyCloudProvider : DocumentsProvider() {
 
     /**
      * Gets a string of unique MIME data types a directory supports, separated by newlines.  This
-     * should not change.
+     * should not change. We initialize our [MutableSet] of [String] variable to a new instance of
+     * [HashSet], then add to it the [String] "image/&lowast;", the [String] "text/&lowast;", and
+     * the [String] "application/vnd.openxmlformats-officedocument.wordprocessingml.document". Then
+     * we initialize our [StringBuilder] variable `val mimeTypesString` to a new instance. We next
+     * loop over the [String] `mimeType` for all of the entries in `mimeTypes` appending `mimeType`
+     * followed by a new line character to `mimeTypesString`. When done looping we return the string
+     * value of `mimeTypesString` to the caller.
      *
      * @param parent the File for the parent directory
      * @return a string of the unique MIME data types the parent directory supports
@@ -739,30 +745,45 @@ class MyCloudProvider : DocumentsProvider() {
 
         // Flatten the list into a string and insert newlines between the MIME type strings.
         val mimeTypesString = StringBuilder()
-        for (mimeType in mimeTypes) {
+        for (mimeType: String in mimeTypes) {
             mimeTypesString.append(mimeType).append("\n")
         }
         return mimeTypesString.toString()
     }
 
     /**
-     * Get the document ID given a File.  The document id must be consistent across time.  Other
-     * applications may save the ID and use it to reference documents later.
+     * Get the document ID given a [File]. The document id must be consistent across time. Other
+     * applications may save the ID and use it to reference documents later. This implementation is
+     * specific to this demo. It assumes only one root and is built directly from the file structure.
+     * However, it is possible for a document to be a child of multiple directories (for example
+     * "android" and "images"), in which case the file must have the same consistent, unique document
+     * ID in both cases.
      *
+     * First we initialize our [String] variable `var path` to the absolute path of our [File]
+     * parameter `file` (an absolute path is a path that starts at a root of the file system "/"
+     * in our case for the file whose name is "android_dinner.jpeg" this will be something like:
+     * "/data/user/0/com.example.android.storageprovider/files/android_dinner.jpeg").
+     * Then we initialize our [String] variable `val rootPath` to the string form of the abstract
+     * pathname in [File] field [mBaseDir] ("/data/user/0/com.example.android.storageprovider/files").
+     * Then we set `path` using a `when` expression to:
+     *  - the empty [String] when `rootPath` is equal to `path`.
+     *  - the substring of `path` that follows the "/" character that separates `rootPath` from the
+     *  filename of the [File] (the code plays it safe in locating the separating "/" by adding 1 to
+     *  the length of `rootPath` if it does not end in a "/" when extracting the substring which
+     *  starts after the "/". Using `rootPath` in this way allows the [File] parameter [file] to
+     *  be in a deeper nested subdirectory of [mBaseDir]).
      *
-     * This implementation is specific to this demo.  It assumes only one root and is built
-     * directly from the file structure.  However, it is possible for a document to be a child of
-     * multiple directories (for example "android" and "images"), in which case the file must have
-     * the same consistent, unique document ID in both cases.
+     * Finally we return the [String] "root:" followed by the value of `path` (for the file whose
+     * name is "android_dinner.jpeg" this will be "root:android_dinner.jpeg"),
      *
-     * @param file the File whose document ID you want
+     * @param file the [File] whose document ID you want
      * @return the corresponding document ID
      */
     private fun getDocIdForFile(file: File?): String {
-        var path = file!!.absolutePath
+        var path: String = file!!.absolutePath
 
         // Start at first char of path under root
-        val rootPath = mBaseDir.path
+        val rootPath: String = mBaseDir.path
         path = when {
             rootPath == path -> {
                 ""
@@ -787,8 +808,8 @@ class MyCloudProvider : DocumentsProvider() {
      */
     @Throws(FileNotFoundException::class)
     private fun includeFile(result: MatrixCursor, docId: String?, file: File?) {
-        var docIdLocal = docId
-        var fileLocal = file
+        var docIdLocal: String? = docId
+        var fileLocal: File? = file
         if (docIdLocal == null) {
             docIdLocal = getDocIdForFile(fileLocal)
         } else {
