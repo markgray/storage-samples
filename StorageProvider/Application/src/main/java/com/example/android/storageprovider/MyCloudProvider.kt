@@ -799,11 +799,56 @@ class MyCloudProvider : DocumentsProvider() {
     }
 
     /**
-     * Add a representation of a file to a cursor.
+     * Add a representation of a file to a cursor. First we initialize our [String] variable
+     * `var docIdLocal` to our parameter [docId], and our [File] variable `var fileLocal` to our
+     * parameter [file]. If `docIdLocal` is `null` we set it the document ID returned by our
+     * [getDocIdForFile] for the [File] `fileLocal`, otherwise we set `fileLocal` to the [File]
+     * returned by our `getFileForDocId` for document ID `docIdLocal`. We initialize our [Int]
+     * variable `var flags` to 0. Then we branch on whether `fileLocal` is a directory:
+     *  - If `fileLocal` is a directory we check if the [File.canWrite] method of `fileLocal`
+     *  returns `true` (it returns `true` if and only if the file system actually contains a
+     *  file denoted by the abstract pathname and the application is allowed to write to the file,
+     *  `false` otherwise) and if so we add the [DocumentsContract.Document.FLAG_DIR_SUPPORTS_CREATE]
+     *  flag to `flags` (Flag indicating that a document is a directory that supports creation of
+     *  new files within it).
+     *  - If `fileLocal` is NOT a directory we check if the [File.canWrite] method of `fileLocal`
+     *  returns `true` and if so we add both the [DocumentsContract.Document.FLAG_SUPPORTS_WRITE]
+     *  flag (Flag indicating that a document supports writing) and the
+     *  [DocumentsContract.Document.FLAG_SUPPORTS_DELETE] flag (Flag indicating that a document is
+     *  deletable) to `flags`.
+     *
+     * Next we initialize our [String] variable `val displayName` to the name of the file or directory
+     * denoted by the abstract pathname `fileLocal` (the last name in the pathname's name sequence),
+     * and our [String] variable `val mimeType` to the MIME type returned by our [getTypeForFile]
+     * method for `fileLocal`. If `mimeType` starts with the string "image/" we add the flag
+     * [DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL] (Flag indicating that a document can be
+     * represented as a thumbnail) to `flags`.
+     *
+     * We initialize our [MatrixCursor.RowBuilder] variable `val row` to the instance that the
+     * [MatrixCursor.newRow] method returns for the row it adds to the end of our [MatrixCursor]
+     * variable `result`. We then proceed to use the [MatrixCursor.RowBuilder.add] method of
+     * `row` to add the following columns:
+     *  - the column [DocumentsContract.Document.COLUMN_DOCUMENT_ID] column with the value `docIdLocal`
+     *  (the Unique document ID of the document)
+     *  - the column [DocumentsContract.Document.COLUMN_DISPLAY_NAME] column with the value `displayName`
+     *  (display name of a document, used as the primary title displayed to a user)
+     *  - the column [DocumentsContract.Document.COLUMN_SIZE] column with its value the length of
+     *  `fileLocal` (size of a document, in bytes, or `null` if unknown)
+     *  - the column [DocumentsContract.Document.COLUMN_MIME_TYPE] column with the value `mimeType`
+     *  (concrete MIME type of a document with "vnd.android.document/directory" the MIME type of a
+     *  directory)
+     *  - the column [DocumentsContract.Document.COLUMN_LAST_MODIFIED] column with the value returned
+     *  by the [File.lastModified] method of `fileLocal` (the time that the file denoted the abstract
+     *  pathname `fileLocal` was last modified in milliseconds since January 1, 1970 00:00:00.0)
+     *  - the column [DocumentsContract.Document.COLUMN_FLAGS] column with the value `flags` (the
+     *  Flags that apply to the document)
+     *  - the column [DocumentsContract.Document.COLUMN_ICON] column with the value the drawable
+     *  resource ID [R.drawable.ic_launcher] (Specific icon resource ID for a document, in our case
+     *  the `android:icon` icon for our application.
      *
      * @param result the cursor to modify
-     * @param docId  the document ID representing the desired file (may be null if given file)
-     * @param file   the File object representing the desired file (may be null if given docID)
+     * @param docId  the document ID representing the desired file (may be `null` if given file)
+     * @param file   the [File] object representing the desired file (may be `null` if given docID)
      * @throws java.io.FileNotFoundException if the file is not found
      */
     @Throws(FileNotFoundException::class)
@@ -831,13 +876,13 @@ class MyCloudProvider : DocumentsProvider() {
             flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_WRITE
             flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_DELETE
         }
-        val displayName = fileLocal.name
-        val mimeType = getTypeForFile(fileLocal)
+        val displayName: String = fileLocal.name
+        val mimeType: String = getTypeForFile(fileLocal)
         if (mimeType.startsWith("image/")) {
             // Allow the image to be represented by a thumbnail rather than an icon
             flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_THUMBNAIL
         }
-        val row = result.newRow()
+        val row: MatrixCursor.RowBuilder = result.newRow()
         row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, docIdLocal)
         row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, displayName)
         row.add(DocumentsContract.Document.COLUMN_SIZE, fileLocal.length())
@@ -850,23 +895,35 @@ class MyCloudProvider : DocumentsProvider() {
     }
 
     /**
-     * Translate your custom URI scheme into a File object.
+     * Translate your custom URI scheme into a [File] object. First we initialize our [File] variable
+     * `var target` to our field [mBaseDir]. If our [String] parameter [docId] is equal to [ROOT]
+     * we just return `target` (the one and only `root` that we provide). Otherwise we initialize
+     * our [Int] variable `val splitIndex` to the index of the first occurrence of the character ":"
+     * in [docId] starting at index 1. If `splitIndex` is less than 0 we throw a [FileNotFoundException]
+     * "Missing root for $docId", otherwise we return the value returned by a code block in which:
+     *  - we initialize our [String] variable `val path` to the substring of `docId` which starts
+     *  at `splitIndex` plus 1.
+     *  - we set `target` to a [File] constructed to represent a file under the directory `target`
+     *  with `path` as the path to the file relative to the `target` parent directory.
+     *  - if `target` does not exist we throw a [FileNotFoundException] "Missing file for $docId at
+     *  $target"
+     *  - otherwise we return `target` to the caller.
      *
      * @param docId the document ID representing the desired file
-     * @return a File represented by the given document ID
+     * @return the [File] that is represented by the given document ID
      * @throws java.io.FileNotFoundException if the file is not found
      */
     @Throws(FileNotFoundException::class)
     private fun getFileForDocId(docId: String): File {
-        var target = mBaseDir
+        var target: File = mBaseDir
         if (docId == ROOT) {
             return target
         }
-        val splitIndex = docId.indexOf(':', 1)
+        val splitIndex: Int = docId.indexOf(':', 1)
         return if (splitIndex < 0) {
             throw FileNotFoundException("Missing root for $docId")
         } else {
-            val path = docId.substring(splitIndex + 1)
+            val path: String = docId.substring(splitIndex + 1)
             target = File(target, path)
             if (!target.exists()) {
                 throw FileNotFoundException("Missing file for $docId at $target")
@@ -876,12 +933,12 @@ class MyCloudProvider : DocumentsProvider() {
     }
 
     /**
-     * Preload sample files packaged in the apk into the internal storage directory.  This is a
-     * dummy function specific to this demo.  The MyCloud mock cloud service doesn't actually
+     * Preload sample files packaged in the apk into the internal storage directory. This is a
+     * dummy function specific to this demo. The MyCloud mock cloud service doesn't actually
      * have a backend, so it simulates by reading content from the device's internal storage.
      */
     private fun writeDummyFilesToStorage() {
-        val listOfmBaseDir = mBaseDir.list()
+        val listOfmBaseDir: Array<String>? = mBaseDir.list()
         if (listOfmBaseDir != null) {
             if (listOfmBaseDir.isNotEmpty()) {
                 return
@@ -889,22 +946,22 @@ class MyCloudProvider : DocumentsProvider() {
         } else {
             throw RuntimeException("mBaseDir.list() is null")
         }
-        val imageResIds = getResourceIdArray(R.array.image_res_ids)
+        val imageResIds: IntArray = getResourceIdArray(R.array.image_res_ids)
         for (resId in imageResIds) {
             writeFileToInternalStorage(resId, ".jpeg")
         }
-        val textResIds = getResourceIdArray(R.array.text_res_ids)
+        val textResIds: IntArray = getResourceIdArray(R.array.text_res_ids)
         for (resId in textResIds) {
             writeFileToInternalStorage(resId, ".txt")
         }
-        val docxResIds = getResourceIdArray(R.array.docx_res_ids)
+        val docxResIds: IntArray = getResourceIdArray(R.array.docx_res_ids)
         for (resId in docxResIds) {
             writeFileToInternalStorage(resId, ".docx")
         }
     }
 
     /**
-     * Write a file to internal storage.  Used to set up our dummy "cloud server".
+     * Write a file to internal storage. Used to set up our dummy "cloud server".
      *
      * @param resId     the resource ID of the file to write to internal storage
      * @param extension the file extension (ex. .png, .mp3)
