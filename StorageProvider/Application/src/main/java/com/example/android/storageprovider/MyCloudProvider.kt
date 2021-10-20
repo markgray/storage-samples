@@ -20,6 +20,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.res.AssetFileDescriptor
 import android.content.res.AssetManager
+import android.content.res.Resources
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.graphics.Point
@@ -35,7 +36,9 @@ import com.example.android.common.logger.Log
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.util.*
 
 /**
@@ -936,6 +939,30 @@ class MyCloudProvider : DocumentsProvider() {
      * Preload sample files packaged in the apk into the internal storage directory. This is a
      * dummy function specific to this demo. The MyCloud mock cloud service doesn't actually
      * have a backend, so it simulates by reading content from the device's internal storage.
+     *
+     * First we initialize our [Array] of [String] variable `val listOfmBaseDir` to the file and
+     * directory names contained in the [mBaseDir] directory that the [File.list] method of
+     * [mBaseDir] returns. If `listOfmBaseDir` is not `null` and is not empty we return (we have
+     * already copied the sample files there). If `listOfmBaseDir` is `null` we throw a
+     * [RuntimeException] "mBaseDir.list() is null".
+     *
+     * Otherwise we initialize our [IntArray] variable `val imageResIds` to the resource IDs in the
+     * resource array [R.array.image_res_ids], then loop over the [Int] variable `resId` for all of
+     * the resource IDs in `imageResIds` calling our [writeFileToInternalStorage] method to copy
+     * the raw resource whose ID is `resId` to a file in [mBaseDir] using the entry name of the
+     * resource identifier `resId` and the extension ".jpeg" as the filename.
+     *
+     * Next we initialize our [IntArray] variable `val textResIds` to the resource IDs in the
+     * resource array [R.array.text_res_ids], then loop over the [Int] variable `resId` for all of
+     * the resource IDs in `textResIds` calling our [writeFileToInternalStorage] method to copy
+     * the raw resource whose ID is `resId` to a file in [mBaseDir] using the entry name of the
+     * resource identifier `resId` and the extension ".txt" as the filename.
+     *
+     * Finally we initialize our [IntArray] variable `val docxResIds` to the resource IDs in the
+     * resource array [R.array.text_res_ids], then loop over the [Int] variable `resId` for all of
+     * the resource IDs in `docxResIds` calling our [writeFileToInternalStorage] method to copy
+     * the raw resource whose ID is `resId` to a file in [mBaseDir] using the entry name of the
+     * resource identifier `resId` and the extension ".docx" as the filename.
      */
     private fun writeDummyFilesToStorage() {
         val listOfmBaseDir: Array<String>? = mBaseDir.list()
@@ -961,13 +988,38 @@ class MyCloudProvider : DocumentsProvider() {
     }
 
     /**
-     * Write a file to internal storage. Used to set up our dummy "cloud server".
+     * Write a file to internal storage. Used to set up our dummy "cloud server". First we initialize
+     * our [InputStream] variable `val ins` to the instance that the [Resources.openRawResource]
+     * method of a [Resources] instance for the application's package returns when it opens a data
+     * stream for reading the raw resource whose ID is our [Int] parameter [resId]. Then we initialize
+     * our [ByteArrayOutputStream] variable `val outputStream` to a new instance, declare our [Int]
+     * variable `var size`, and initialize our [ByteArray] variable `var buffer` to a new instance
+     * whose size is 1024.
+     *
+     * Then wrapped in a `try` block intended to catch [IOException] in order to print its stack
+     * trace we loop using its [InputStream.read] method to read from `ins` into `buffer`, with an
+     * [also] extension function saving the number of bytes read returned by [InputStream.read] in
+     * `size` while that number of bytes read is greater than or equal to 0. In the block of the
+     * `while` statement we use the [ByteArrayOutputStream.write] method of `outputStream` to write
+     * `size` bytes from `buffer` to `outputStream`. When done looping we close `ins` and set `buffer`
+     * to the [ByteArray] returned by the [ByteArrayOutputStream.toByteArray] method of `outputStream`
+     * (this is the entire current contents of the [ByteArrayOutputStream], as a byte array).
+     *
+     * We initialize our [String] variable `val filename` to the string formed by concatenating our
+     * [String] parameter [extension] to the end of the string holding the entry name of the raw
+     * resource whose resource ID is our [Int] parameter [resId] that is returned from the
+     * [Resources.getResourceEntryName] method of a [Resources] instance for the application's
+     * package. We then initialize our [FileOutputStream] variable `val fos` to the instance that
+     * the [Context.openFileOutput] method of the [Context] this provider is running in returns
+     * when it opens `filename` as a private file associated with this [Context]'s application
+     * package for writing (creates the file if it doesn't already exist). We then use the
+     * [FileOutputStream.write] method of `fos` to write `buffer` to the file.
      *
      * @param resId     the resource ID of the file to write to internal storage
      * @param extension the file extension (ex. .png, .mp3)
      */
     private fun writeFileToInternalStorage(resId: Int, extension: String) {
-        val ins = context!!.resources.openRawResource(resId)
+        val ins: InputStream = context!!.resources.openRawResource(resId)
         val outputStream = ByteArrayOutputStream()
         var size: Int
         var buffer: ByteArray? = ByteArray(1024)
@@ -977,8 +1029,8 @@ class MyCloudProvider : DocumentsProvider() {
             }
             ins.close()
             buffer = outputStream.toByteArray()
-            val filename = context!!.resources.getResourceEntryName(resId) + extension
-            val fos = context!!.openFileOutput(filename, Context.MODE_PRIVATE)
+            val filename: String = context!!.resources.getResourceEntryName(resId) + extension
+            val fos: FileOutputStream = context!!.openFileOutput(filename, Context.MODE_PRIVATE)
             fos.write(buffer)
             fos.close()
         } catch (e: IOException) {
@@ -986,6 +1038,9 @@ class MyCloudProvider : DocumentsProvider() {
         }
     }
 
+    /**
+     *
+     */
     private fun getResourceIdArray(arrayResId: Int): IntArray {
         val ar = context!!.resources.obtainTypedArray(arrayResId)
         val len = ar.length()
