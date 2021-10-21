@@ -287,12 +287,12 @@ class ImageClientFragment : Fragment() {
             val beforeCount = mAdapter!!.fetchedItemCount
             while (cursor.moveToNext()) {
                 val displayName = cursor.getString(
-                    cursor.getColumnIndex(
+                    cursor.getColumnIndexOrThrow(
                         ImageContract.Columns.DISPLAY_NAME
                     )
                 )
                 val absolutePath = cursor.getString(
-                    cursor.getColumnIndex(
+                    cursor.getColumnIndexOrThrow(
                         ImageContract.Columns.ABSOLUTE_PATH
                     )
                 )
