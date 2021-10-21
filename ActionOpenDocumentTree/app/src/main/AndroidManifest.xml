@@ -30,7 +30,8 @@
         <activity
             android:name="com.example.android.ktfiles.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/Theme.DirSelect.NoActionBar">
+            android:theme="@style/Theme.DirSelect.NoActionBar"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
