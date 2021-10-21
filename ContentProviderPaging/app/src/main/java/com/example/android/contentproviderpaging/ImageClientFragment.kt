@@ -109,7 +109,7 @@ class ImageClientFragment : Fragment() {
      *  last visible view that the [LinearLayoutManager.findLastVisibleItemPosition] method of
      *  [mLayoutManager] returns.
      *  - If `lastVisiblePosition` is greater than or equal to the number of images already fetched
-     *  and added to the adapter [mAdapter] that its [ImageAdapter.getFetchedItemCount] returns we:
+     *  and added to the adapter [mAdapter] that its `ImageAdapter.fetchedItemCount` returns we:
      *    - Initialize our [Int] variable `val pageId` to `lastVisiblePosition` divided by [LIMIT] (10)
      *    - Use an instance of [LoaderManager] to start or restart a new [Loader] whose ID is `pageId`
      *    with `null` for its args, and [mLoaderCallback] for its [LoaderManager.LoaderCallbacks]
@@ -258,7 +258,7 @@ class ImageClientFragment : Fragment() {
          * [ImageAdapter.getItemCount] override).
          *
          * Next we initialize our [Int] variable `val beforeCount` to the number of images already
-         * fetched and added to [mAdapter] that its [ImageAdapter.getFetchedItemCount] method returns
+         * fetched and added to [mAdapter] that its `ImageAdapter.fetchedItemCount` method returns
          * (aka kotlin `fetchedItemCount` property).
          *
          * We now loop while the [Cursor.moveToNext] method of [cursor] returns `true` (it will
@@ -307,12 +307,12 @@ class ImageClientFragment : Fragment() {
             val beforeCount: Int = mAdapter!!.fetchedItemCount
             while (cursor.moveToNext()) {
                 val displayName: String = cursor.getString(
-                    cursor.getColumnIndex(
+                    cursor.getColumnIndexOrThrow(
                         ImageContract.Columns.DISPLAY_NAME
                     )
                 )
                 val absolutePath: String = cursor.getString(
-                    cursor.getColumnIndex(
+                    cursor.getColumnIndexOrThrow(
                         ImageContract.Columns.ABSOLUTE_PATH
                     )
                 )
