@@ -18,9 +18,11 @@ package com.example.android.storageprovider
 import android.content.ContentProvider
 import android.content.ContentResolver
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.AssetFileDescriptor
 import android.content.res.AssetManager
 import android.content.res.Resources
+import android.content.res.TypedArray
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.graphics.Point
@@ -1039,13 +1041,28 @@ class MyCloudProvider : DocumentsProvider() {
     }
 
     /**
+     * Reads the resource IDs that are stored in the recource `<array>` with the resource ID
+     * [arrayResId] and returns them in an [IntArray]. First we initialize our [TypedArray] variable
+     * `val ar` to the instance that the [Resources.obtainTypedArray] method of a [Resources]
+     * instance for the application's package constructs for our resource ID parameter [arrayResId].
+     * We initialize our [Int] variable `val len` to the number of values in `ar` then initialize
+     * our [IntArray] variable `val resIds` to a new instance of size `len`. We then loop over [Int]
+     * variable `i` from 0 until `len` setting the `i`'th entry in `resIds` to the resource ID that
+     * the [TypedArray.getResourceId] method of `ar` returns for the index `i` (defaulting to 0 if
+     * the attribute is not defined or not a resource). We then call the [TypedArray.recycle] method
+     * of `ar` to recycle the [TypedArray] so it can be re-used by a later caller. Finally we return
+     * `resIds` to the caller.
      *
+     * @param arrayResId the resource ID of a resource array whose contents of attribute resource
+     * identifiers are to be read and returned in an [IntArray]
+     * @return an [IntArray] holding the attribute resource identifiers found in the resource ID
+     * [arrayResId] resource array.
      */
     private fun getResourceIdArray(arrayResId: Int): IntArray {
-        val ar = context!!.resources.obtainTypedArray(arrayResId)
-        val len = ar.length()
+        val ar: TypedArray = context!!.resources.obtainTypedArray(arrayResId)
+        val len: Int = ar.length()
         val resIds = IntArray(len)
-        for (i in 0 until len) {
+        for (i: Int in 0 until len) {
             resIds[i] = ar.getResourceId(i, 0)
         }
         ar.recycle()
@@ -1053,15 +1070,27 @@ class MyCloudProvider : DocumentsProvider() {
     }
 
     /**
-     * Dummy function to determine whether the user is logged in.
+     * Dummy function to determine whether the user is logged in. We initialize our [SharedPreferences]
+     * variable `val sharedPreferences` to the instance holding the contents of the preferences file
+     * whose name is the [String] with resource ID [R.string.app_name] ("StorageProvider") that the
+     * [Context.getSharedPreferences] method returns through which we can retrieve and modify its
+     * values (only one instance of the [SharedPreferences] object is returned to any callers for
+     * the same name, meaning they will see each other's edits as soon as they are made). Then we
+     * initialize our [Boolean] variable `val isTheUserLoggedIn` to the value stored in `sharedPreferences`
+     * under the [String] whose resource ID is [R.string.key_logged_in] ("logged_in") defaulting to
+     * `false` if the preference does not exist. If `isTheUserLoggedIn` is `false` we log the message
+     * "The user is NOT logged in" and if it is `true` we log the message "The user IS logged in".
+     * Finally we return `isTheUserLoggedIn` to the caller.
+     *
+     * @return `true` if the user is "logged in", `false` otherwise.
      */
     private val isUserLoggedIn: Boolean
         get() {
-            val sharedPreferences = context!!.getSharedPreferences(
+            val sharedPreferences: SharedPreferences = context!!.getSharedPreferences(
                 context!!.getString(R.string.app_name),
                 Context.MODE_PRIVATE
             )
-            val isTheUserLoggedIn = sharedPreferences.getBoolean(
+            val isTheUserLoggedIn: Boolean = sharedPreferences.getBoolean(
                 context!!.getString(R.string.key_logged_in),
                 false
             )
@@ -1074,6 +1103,9 @@ class MyCloudProvider : DocumentsProvider() {
         }
 
     companion object {
+        /**
+         * TAG used for logging.
+         */
         private const val TAG = "MyCloudProvider"
 
         /**
@@ -1105,30 +1137,55 @@ class MyCloudProvider : DocumentsProvider() {
         )
 
         /**
-         * No official policy on how many to return, but make sure you do limit the number of recent
-         * and search results.
+         * Maximum search results. There is no official policy on how many to return, but make sure
+         * you do limit the number of recent and search results.
          */
         private const val MAX_SEARCH_RESULTS = 20
+
+        /**
+         * Maximum number of the most recent files to add to the cursor returned by our
+         * [queryRecentDocuments] method.
+         */
         private const val MAX_LAST_MODIFIED = 5
+
+        /**
+         * Document ID used for our root, which represents the top of the document tree that the
+         * user can navigate.
+         */
         private const val ROOT = "root"
 
         /**
+         * Convenience function to default to the default root projection in [DEFAULT_ROOT_PROJECTION]
+         * if its [Array] of [String] parameter [projection] is `null`.
+         *
          * @param projection the requested root column projection
          * @return either the requested root column projection, or the default projection if the
-         * requested projection is null.
+         * requested projection is `null`.
          */
         private fun resolveRootProjection(projection: Array<String>?): Array<String> {
             return projection ?: DEFAULT_ROOT_PROJECTION
         }
 
+        /**
+         * Convenience function to default to the default root projection in [DEFAULT_DOCUMENT_PROJECTION]
+         * if its [Array] of [String] parameter [projection] is `null`.
+         *
+         * @param projection the requested document column projection
+         * @return either the requested document column projection, or the default projection if the
+         * requested projection is `null`.
+         */
         private fun resolveDocumentProjection(projection: Array<String>?): Array<String> {
             return projection ?: DEFAULT_DOCUMENT_PROJECTION
         }
 
         /**
-         * Get a file's MIME type
+         * Get the [File] parameter [file]'s MIME type. If [file] is a directory we return the
+         * MIME type [DocumentsContract.Document.MIME_TYPE_DIR] (MIME type of a document which is a
+         * directory that may contain additional documents: "vnd.android.document/directory").
+         * Otherwise we return the [String] returned by our [getTypeForName] when passed the
+         * the name of the file [file].
          *
-         * @param file the File object whose type we want
+         * @param file the [File] object whose type we want
          * @return the MIME type of the file
          */
         private fun getTypeForFile(file: File?): String {
@@ -1140,16 +1197,25 @@ class MyCloudProvider : DocumentsProvider() {
         }
 
         /**
-         * Get the MIME data type of a document, given its filename.
+         * Get the MIME data type of a document, given its filename. We initialize our [Int] variable
+         * `val lastDot` to the index within our [String] parameter [name] of the last occurrence of
+         * character '.' and if `lastDot is greater than or equal to 0 we initialize our [String]
+         * variable `val extension` to the substring of [name] which follow the `lastDot` index,
+         * and initialize our [String] variable `val mime` to the MIME type for the extension
+         * `extension` that the singleton instance of [MimeTypeMap] returns from its
+         * [MimeTypeMap.getMimeTypeFromExtension] method for `extension` (returns `null` if there
+         * is none). If `mime` is not `null` we return it to the caller, but if it is `null` or
+         * there is no filename extension we return "application/octet-stream" (arbitrary binary
+         * data).
          *
          * @param name the filename of the document
          * @return the MIME data type of a document
          */
         private fun getTypeForName(name: String): String {
-            val lastDot = name.lastIndexOf('.')
+            val lastDot: Int = name.lastIndexOf('.')
             if (lastDot >= 0) {
-                val extension = name.substring(lastDot + 1)
-                val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+                val extension: String = name.substring(lastDot + 1)
+                val mime: String? = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
                 if (mime != null) {
                     return mime
                 }
