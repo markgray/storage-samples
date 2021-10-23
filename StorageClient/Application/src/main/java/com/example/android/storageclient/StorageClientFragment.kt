@@ -323,7 +323,7 @@ class StorageClientFragment : Fragment() {
                     // Note it's called "Display Name".  This is provider-specific, and
                     // might not necessarily be the file name.
                     val displayName: String = cursorIt.getString(
-                        cursorIt.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        cursorIt.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME)
                     )
                     Log.i(TAG, "Display Name: $displayName")
                     val sizeIndex: Int = cursorIt.getColumnIndex(OpenableColumns.SIZE)
