@@ -18,4 +18,8 @@
     <string name="app_name">Gray Gallery</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_gallery">Gallery</string>
+    <string name="take_picture">Take picture</string>
+    <string name="select_picture">Select picture</string>
+    <string name="add_unsplash_random_image">Add Unsplash random image</string>
+    <string name="clear_files">Clear files</string>
 </resources>

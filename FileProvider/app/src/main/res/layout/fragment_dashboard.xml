@@ -34,27 +34,27 @@
             android:id="@+id/takePicture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Take picture" />
+            android:text="@string/take_picture" />
 
         <Button
             android:id="@+id/selectPicture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select picture"
+            android:text="@string/select_picture"
             android:layout_marginTop="16dp"/>
 
         <Button
             android:id="@+id/addRandomImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Unsplash random image"
+            android:text="@string/add_unsplash_random_image"
             android:layout_marginTop="16dp"/>
 
         <Button
             android:id="@+id/clearFiles"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Clear files"
+            android:text="@string/clear_files"
             android:layout_marginTop="16dp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
