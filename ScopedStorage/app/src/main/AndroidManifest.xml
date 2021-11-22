@@ -40,6 +40,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <property
+            android:name="android.content.MEDIA_CAPABILITIES"
+            android:resource="@xml/media_capabilities" />
     </application>
 
 </manifest>

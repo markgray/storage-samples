@@ -47,5 +47,6 @@
     <string name="saf_create_file_output">File: \n%1$s\n\nContents: \n%2$s</string>
     <string name="saf_open_file_output">File: \n%1$s\n\nContents hash: \n%2$s</string>
     <string name="saf_folder_output">Folder contents: \n%1$s</string>
+    <string name="demo">Demo</string>
 
 </resources>
