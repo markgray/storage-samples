@@ -29,5 +29,5 @@
         android:layout_marginEnd="24dp"
         android:importantForAutofill="no"
         android:inputType="text"
-        tools:ignore="UnusedAttribute" />
+        tools:ignore="LabelFor,UnusedAttribute" />
 </LinearLayout>

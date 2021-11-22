@@ -128,6 +128,7 @@ class DirectoryFragment : Fragment() {
         directoryUri = arguments?.getString(ARG_DIRECTORY_URI)?.toUri()
             ?: throw IllegalArgumentException("Must pass URI of directory to open")
 
+        @Suppress("ReplaceGetOrSet")
         viewModel = ViewModelProvider(this)
             .get(DirectoryFragmentViewModel::class.java)
 
