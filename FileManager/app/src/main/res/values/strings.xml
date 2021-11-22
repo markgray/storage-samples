@@ -31,4 +31,5 @@
     <string name="permission_granted_info">Permission granted: %1$s</string>
     <string name="open_settings_button_label">Open settings</string>
     <string name="request_permission_button_label">Request permission</string>
+    <string name="settings">Settings</string>
 </resources>
