@@ -24,4 +24,7 @@
         Demo of using ACTION_GET_CONTENT to allow a user to pick an image, for example, for a
         profile picture.
     </string>
+    <string name="image">Image</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
 </resources>
