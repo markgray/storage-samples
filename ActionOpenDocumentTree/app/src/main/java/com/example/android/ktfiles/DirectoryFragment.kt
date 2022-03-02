@@ -147,21 +147,21 @@ class DirectoryFragment : Fragment() {
 
         binding.list.adapter = adapter
 
-        viewModel.documents.observe(viewLifecycleOwner, { documents ->
+        viewModel.documents.observe(viewLifecycleOwner) { documents ->
             documents?.let { adapter.setEntries(documents) }
-        })
+        }
 
-        viewModel.openDirectory.observe(viewLifecycleOwner, { event ->
+        viewModel.openDirectory.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { directory ->
                 (activity as? MainActivity)?.showDirectoryContents(directory.uri)
             }
-        })
+        }
 
-        viewModel.openDocument.observe(viewLifecycleOwner, { event ->
+        viewModel.openDocument.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { document ->
                 openDocument(document)
             }
-        })
+        }
 
         return binding.root
     }

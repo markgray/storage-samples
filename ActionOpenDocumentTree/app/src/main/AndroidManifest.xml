@@ -26,10 +26,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DirSelect"
-        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        tools:ignore="AllowBackup,DataExtractionRules,GoogleAppIndexingWarning">
         <activity
             android:name="com.example.android.ktfiles.MainActivity"
-            android:label="@string/app_name"
             android:theme="@style/Theme.DirSelect.NoActionBar"
             android:exported="true">
             <intent-filter>
