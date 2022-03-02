@@ -15,6 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.android.contentproviderpaging">
 
     <application
@@ -23,7 +24,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:resizeableActivity="true"
         android:theme="@style/AppTheme"
-        android:allowBackup= "false" >
+        android:allowBackup= "false"
+        tools:ignore="DataExtractionRules">
 
         <activity android:name=".MainActivity"
             android:exported="true">
