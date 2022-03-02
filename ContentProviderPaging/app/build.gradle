@@ -2,7 +2,6 @@ apply from: '../common.gradle'
 apply plugin: 'kotlin-android'
 dependencies {
     implementation "androidx.core:core-ktx:1.7.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 repositories {
     mavenCentral()
