@@ -18,7 +18,8 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyApp">
+        android:theme="@style/Theme.MyApp"
+        tools:ignore="DataExtractionRules">
         <activity android:name="com.android.samples.filemanager.SettingsActivity"/>
         <activity android:name="com.android.samples.filemanager.FileExplorerActivity"
             android:exported="true">
