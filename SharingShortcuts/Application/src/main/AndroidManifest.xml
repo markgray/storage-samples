@@ -25,11 +25,10 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/SharingShortcutsTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="DataExtractionRules,GoogleAppIndexingWarning">
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,7 +42,6 @@
 
         <activity
             android:name=".SendMessageActivity"
-            android:label="@string/app_name"
             android:theme="@style/SharingShortcutsDialogTheme"
             android:exported="true">
             <!-- This activity can respond to Intents of type SEND and with text/plain data -->
@@ -63,7 +61,6 @@
 
         <activity
             android:name=".SelectContactActivity"
-            android:label="@string/app_name"
             android:theme="@style/SharingShortcutsDialogTheme" />
 
         <!-- Only needed if you want to add a thumbnail to the direct share.
