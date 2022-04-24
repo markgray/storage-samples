@@ -157,11 +157,11 @@ class MainActivity : AppCompatActivity() {
             view.adapter = galleryAdapter
         }
 
-        viewModel.images.observe(this, { images: List<MediaStoreImage> ->
+        viewModel.images.observe(this) { images: List<MediaStoreImage> ->
             galleryAdapter.submitList(images)
-        })
+        }
 
-        viewModel.permissionNeededForDelete.observe(this, { intentSender: IntentSender? ->
+        viewModel.permissionNeededForDelete.observe(this) { intentSender: IntentSender? ->
             intentSender?.let {
                 // On Android 10+, if the app doesn't have permission to modify
                 // or delete an item, it returns an `IntentSender` that we can
@@ -171,7 +171,7 @@ class MainActivity : AppCompatActivity() {
                     IntentSenderRequest.Builder(intentSender).build()
                 )
             }
-        })
+        }
 
         binding.openAlbum.setOnClickListener { openMediaStore() }
         binding.grantPermissionButton.setOnClickListener { openMediaStore() }
@@ -461,6 +461,7 @@ class MainActivity : AppCompatActivity() {
             val mediaStoreImage: MediaStoreImage = getItem(position)
             holder.rootView.tag = mediaStoreImage
 
+            @Suppress("DEPRECATION")
             Glide.with(holder.imageView)
                 .load(mediaStoreImage.contentUri)
                 .thumbnail(0.33f)
