@@ -16,6 +16,7 @@
 
 package com.example.android.contentproviderpaging
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import androidx.core.content.res.ResourcesCompat
@@ -95,6 +96,7 @@ internal class ImageAdapter(private val mContext: Context) :
      * the item at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
      */
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val resources: Resources = mContext.resources
         if (mImageDocuments.size > position) {
