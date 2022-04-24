@@ -32,9 +32,9 @@
     <!--
     Specifies the instrumentation test runner used to run the tests.
     -->
-    <instrumentation
-            android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="com.example.android.storageclient"
-            android:label="Tests for com.example.android.storageclient" />
+<!--    <instrumentation-->
+<!--            android:name="android.test.InstrumentationTestRunner"-->
+<!--            android:targetPackage="com.example.android.storageclient"-->
+<!--            android:label="Tests for com.example.android.storageclient" />-->
 
 </manifest>
