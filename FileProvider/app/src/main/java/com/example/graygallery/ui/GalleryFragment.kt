@@ -119,13 +119,13 @@ class GalleryFragment : Fragment() {
             view.adapter = galleryAdapter
         }
 
-        viewModel.images.observe(viewLifecycleOwner, { images: List<File> ->
+        viewModel.images.observe(viewLifecycleOwner) { images: List<File> ->
             galleryAdapter.submitList(images)
-        })
+        }
 
-        viewModel.notification.observe(viewLifecycleOwner, {
+        viewModel.notification.observe(viewLifecycleOwner) {
             Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
-        })
+        }
 
         // TODO: Add popup menu https://material.io/develop/android/components/menu/
         //  https://www.techotopia.com/index.php/Working_with_the_Android_GridLayout_in_XML_Layout_Resources

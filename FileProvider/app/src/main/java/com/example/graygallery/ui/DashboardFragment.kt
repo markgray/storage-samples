@@ -159,9 +159,9 @@ class DashboardFragment : Fragment() {
             viewModel.clearFiles()
         }
 
-        viewModel.notification.observe(viewLifecycleOwner, {
+        viewModel.notification.observe(viewLifecycleOwner) {
             Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
-        })
+        }
 
         return binding.root
     }
