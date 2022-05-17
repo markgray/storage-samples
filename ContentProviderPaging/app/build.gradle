@@ -1,5 +1,9 @@
 apply from: '../common.gradle'
 apply plugin: 'kotlin-android'
+
+android {
+    namespace 'com.example.android.contentproviderpaging'
+}
 dependencies {
     implementation "androidx.core:core-ktx:1.7.0"
 }
