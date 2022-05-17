@@ -14,11 +14,11 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">ContentProvider Paging sample</string>
-    <string name="root_summary">The root directory of the documents</string>
+    <string name="root_summary" tools:ignore="UnusedResources">The root directory of the documents</string>
 
-    <string name="fetched_images_out_of">Fetched from %1$d to %2$d images out of %3$d in total.</string>
+    <string name="fetched_images_out_of" tools:ignore="PluralsCandidate">Fetched from %1$d to %2$d images out of %3$d in total.</string>
     <string name="image_cat_content_description">A cat image</string>
     <string name="show_images">Show images</string>
 </resources>
