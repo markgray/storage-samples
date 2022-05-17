@@ -34,6 +34,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    namespace 'com.example.android.actionopendocument'
 }
 
 dependencies {
@@ -44,7 +45,7 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.4.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
 
-    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'com.google.android.material:material:1.6.0'
 
     // Testing dependencies
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
