@@ -24,7 +24,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/SharingShortcutsTheme"
-        tools:ignore="DataExtractionRules,GoogleAppIndexingWarning">
+        android:supportsRtl="false"
+        tools:ignore="DataExtractionRules,GoogleAppIndexingWarning,RtlEnabled">
 
         <activity
             android:name=".MainActivity"
