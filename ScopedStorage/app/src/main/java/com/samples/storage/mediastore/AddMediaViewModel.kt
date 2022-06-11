@@ -290,6 +290,7 @@ class AddMediaViewModel(
 
                     // .use is an extension function that closes the output stream where we're
                     // saving the image content once its lambda is finished being executed
+                    @Suppress("UNNECESSARY_SAFE_CALL") // It looks like java code is missing nullable annotation
                     response.body?.use { responseBody: ResponseBody ->
                         context.contentResolver.openOutputStream(destinationUri, "w")?.use {
                             responseBody.byteStream().copyTo(it)

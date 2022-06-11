@@ -339,7 +339,7 @@ class AddDocumentViewModel(
      * one-shot stream from the origin server to the client application with the raw bytes of the
      * response body. Each response body is supported by an active connection to the webserver.
      */
-    @Suppress("BlockingMethodInNonBlockingContext")
+    @Suppress("BlockingMethodInNonBlockingContext", "RedundantNullableReturnType")
     private suspend fun downloadFileFromInternet(url: String): ResponseBody? {
         // We use OkHttp to create HTTP request
         val request: Request = Request.Builder().url(url).build()
