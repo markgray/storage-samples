@@ -259,6 +259,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             withContext(Dispatchers.IO) {
                 val response: Response = httpClient.newCall(request).execute()
 
+                @Suppress("UNNECESSARY_SAFE_CALL")
                 response.body?.let { responseBody ->
                     val imageFile = File(imagesFolder, generateFilename(Source.INTERNET))
                     // TODO: Apply grayscale filter before saving image
