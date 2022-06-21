@@ -67,6 +67,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.8'
     // coil 2.1.0 breaks our code -- need to migrate
+    //noinspection GradleDependency
     implementation 'io.coil-kt:coil:0.11.0'
 
     testImplementation 'junit:junit:4.13.2'
