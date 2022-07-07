@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity() {
                 data?.data.also { directoryUri ->
 
                     contentResolver.takePersistableUriPermission(
-                        directoryUri!!,
+                        directoryUri ?: return@also,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
                     showDirectoryContents(directoryUri)

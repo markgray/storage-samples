@@ -29,7 +29,7 @@ open class Event<out T>(private val content: T) {
      * Flag to prevent our [T] field [content] from being accessed more than once.
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    var hasBeenHandled = false
+    var hasBeenHandled: Boolean = false
         private set // Allow external read but not write
 
     /**

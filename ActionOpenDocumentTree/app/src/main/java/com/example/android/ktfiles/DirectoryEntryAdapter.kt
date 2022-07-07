@@ -126,7 +126,7 @@ class DirectoryEntryAdapter(
      *
      * @return The total number of items in this adapter.
      */
-    override fun getItemCount() = directoryEntries.size
+    override fun getItemCount(): Int = directoryEntries.size
 
     /**
      * Replaces our [MutableList] of [CachingDocumentFile] dataset field [directoryEntries] with the
@@ -172,17 +172,20 @@ class DirectoryEntryAdapter(
         /**
          * A reference to the [itemView] parameter `view` we were constructed to hold.
          */
-        val root = view
+        val root: View = view
+
         /**
          * The [TextView] in `view` with ID [R.id.file_name] which is used to display the display
          * name of the [DocumentFile] we are bound to.
          */
         val fileName: TextView = view.findViewById(R.id.file_name)
+
         /**
          * The [TextView] in `view` with ID [R.id.mime_type] which is used to display the display
          * MIME type of the [DocumentFile] we are bound to.
          */
         val mimeType: TextView = view.findViewById(R.id.mime_type)
+
         /**
          * The [ImageView] in `view` with ID [R.id.entry_image] which is used to display a drawable
          * icon representing a directory if the [DocumentFile] we are bound to is a directory or a
@@ -206,6 +209,7 @@ interface ClickListeners {
      * @param clickedDocument the [CachingDocumentFile] that the `ViewHolder` is bound to.
      */
     fun onDocumentClicked(clickedDocument: CachingDocumentFile)
+
     /**
      * Called from the [View.OnLongClickListener] of the `root` [View] held by every `ViewHolder`
      * with the [CachingDocumentFile] that the `ViewHolder` is bound to.

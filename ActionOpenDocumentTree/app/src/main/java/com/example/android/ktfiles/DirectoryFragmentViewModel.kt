@@ -44,13 +44,14 @@ class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(ap
      * modifying it, it is set by our [loadDirectory] method.
      */
     private val _documents = MutableLiveData<List<CachingDocumentFile>>()
+
     /**
      * Public access to our [_documents] field. An observer is added to it in the `onCreateView`
      * override of [DirectoryFragment] which calls the [DirectoryEntryAdapter.setEntries] method
      * of the adapter feeding views to its [RecyclerView] to have it replace its dataset with it
      * whenever it changes value.
      */
-    val documents = _documents
+    val documents: MutableLiveData<List<CachingDocumentFile>> = _documents
 
     /**
      * The [MutableLiveData] wrapped [Event] of [CachingDocumentFile] which is used to signal that
@@ -58,6 +59,7 @@ class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(ap
      * other classes from modifying it, public access is provided by our [openDirectory] field.
      */
     private val _openDirectory = MutableLiveData<Event<CachingDocumentFile>>()
+
     /**
      * Public access to our [_openDirectory] field. An [Event] of [CachingDocumentFile] is posted to
      * it from our [documentClicked] method if its [CachingDocumentFile] is a directory. An observer
@@ -66,7 +68,7 @@ class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(ap
      * to have it replace the current [DirectoryFragment] with one that will display the contents
      * of the directory whenever it changes value.
      */
-    val openDirectory = _openDirectory
+    val openDirectory: MutableLiveData<Event<CachingDocumentFile>> = _openDirectory
 
     /**
      * The [MutableLiveData] wrapped [Event] of [CachingDocumentFile] which is used to signal that
@@ -74,6 +76,7 @@ class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(ap
      * other classes from modifying it, public access is provided by our [openDocument] field.
      */
     private val _openDocument = MutableLiveData<Event<CachingDocumentFile>>()
+
     /**
      * Public access to our [_openDocument] field. An [Event] of [CachingDocumentFile] is posted to
      * it from our [documentClicked] method if its [CachingDocumentFile] is NOT a directory. An
@@ -82,7 +85,7 @@ class DirectoryFragmentViewModel(application: Application) : AndroidViewModel(ap
      * [Intent] with the action [Intent.ACTION_VIEW] to have some activity handle the [Uri] of our
      * [CachingDocumentFile] whenever it changes value.
      */
-    val openDocument = _openDocument
+    val openDocument: MutableLiveData<Event<CachingDocumentFile>> = _openDocument
 
     /**
      * Loads the [DocumentFile] entries of the directory whose [Uri] is our parameter [directoryUri]

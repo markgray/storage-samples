@@ -300,7 +300,7 @@ class DirectoryFragment : Fragment() {
          * @param directoryUri the [Uri] of the directory that the user has chosen to be displayed.
          */
         @JvmStatic
-        fun newInstance(directoryUri: Uri) =
+        fun newInstance(directoryUri: Uri): DirectoryFragment =
             DirectoryFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_DIRECTORY_URI, directoryUri.toString())

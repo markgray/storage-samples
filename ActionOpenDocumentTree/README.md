@@ -30,6 +30,8 @@ An app can utilize the ACTION_OPEN_DOCUMENT_TREE intent by building an Intent an
 to start the system document picker:
 
 ```kotlin
+@file:Suppress("PublicApiImplicitType")
+
 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
 startActivityForResult(intent, OPEN_DIRECTORY_REQUEST_CODE)
 ```
