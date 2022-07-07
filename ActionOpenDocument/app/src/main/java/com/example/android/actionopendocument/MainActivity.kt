@@ -42,7 +42,7 @@ import androidx.fragment.app.commitNow
 /**
  * TAG used for our fragment [ActionOpenDocumentFragment]
  */
-const val DOCUMENT_FRAGMENT_TAG = "com.example.android.actionopendocument.tags.DOCUMENT_FRAGMENT"
+const val DOCUMENT_FRAGMENT_TAG: String = "com.example.android.actionopendocument.tags.DOCUMENT_FRAGMENT"
 
 /**
  * Simple activity to host [ActionOpenDocumentFragment].
@@ -217,7 +217,7 @@ class MainActivity : AppCompatActivity() {
                 data?.data.also { documentUri ->
 
                     contentResolver.takePersistableUriPermission(
-                        documentUri!!,
+                        documentUri ?: return@also,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
                     openDocument(documentUri)

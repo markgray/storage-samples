@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package com.example.android.actionopendocument
 
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -44,7 +46,7 @@ class ActionOpenDocumentFragmentTests {
 
     @Rule
     @JvmField
-    val activityTestRule = ActivityTestRule(MainActivity::class.java)
+    val activityTestRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
 
     @Before
     fun before() {

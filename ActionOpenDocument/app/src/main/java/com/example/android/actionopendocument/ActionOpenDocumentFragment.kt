@@ -80,7 +80,7 @@ class ActionOpenDocumentFragment : Fragment() {
     /**
      * The number of pages in the document.
      */
-    val pageCount get() = pdfRenderer.pageCount
+    val pageCount: Int get() = pdfRenderer.pageCount
 
     companion object {
         /**
