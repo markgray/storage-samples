@@ -48,10 +48,12 @@ class ImageClientFragment : Fragment() {
      * views to our [RecyclerView].
      */
     private var mAdapter: ImageAdapter? = null
+
     /**
      * The [LinearLayoutManager] used by our [RecyclerView] as its [RecyclerView.LayoutManager].
      */
     private var mLayoutManager: LinearLayoutManager? = null
+
     /**
      * The [LoaderManager.LoaderCallbacks] callback interface we use to interact with the manager.
      */
@@ -127,7 +129,8 @@ class ImageClientFragment : Fragment() {
     override fun onViewCreated(rootView: View, savedInstanceState: Bundle?) {
         super.onViewCreated(rootView, savedInstanceState)
         val activity: Activity? = activity
-        val recyclerView = activity!!.findViewById<View>(R.id.recyclerview) as RecyclerView
+        val recyclerView = (activity
+            ?: return).findViewById<View>(R.id.recyclerview) as RecyclerView
         if (mLayoutManager == null) {
             mLayoutManager = LinearLayoutManager(activity)
         }
@@ -138,12 +141,12 @@ class ImageClientFragment : Fragment() {
         recyclerView.adapter = mAdapter
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                val lastVisiblePosition = mLayoutManager!!.findLastVisibleItemPosition()
-                if (lastVisiblePosition >= mAdapter!!.fetchedItemCount) {
+                val lastVisiblePosition = (mLayoutManager ?: return).findLastVisibleItemPosition()
+                if (lastVisiblePosition >= (mAdapter ?: return).fetchedItemCount) {
                     Log.d(
                         TAG,
                         "Fetch new images. LastVisiblePosition: " + lastVisiblePosition
-                            + ", NonEmptyItemCount: " + mAdapter!!.fetchedItemCount
+                            + ", NonEmptyItemCount: " + (mAdapter ?: return).fetchedItemCount
                     )
                     val pageId = lastVisiblePosition / LIMIT
                     // Fetch new images once the last fetched item becomes visible
@@ -303,8 +306,8 @@ class ImageClientFragment : Fragment() {
         override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
             val extras = cursor.extras
             val totalSize: Int = extras.getInt(ContentResolver.EXTRA_SIZE)
-            mAdapter!!.setTotalSize(totalSize)
-            val beforeCount: Int = mAdapter!!.fetchedItemCount
+            (mAdapter ?: return).setTotalSize(totalSize)
+            val beforeCount: Int = (mAdapter ?: return).fetchedItemCount
             while (cursor.moveToNext()) {
                 val displayName: String = cursor.getString(
                     cursor.getColumnIndexOrThrow(
@@ -319,16 +322,16 @@ class ImageClientFragment : Fragment() {
                 val imageDocument = ImageDocument()
                 imageDocument.mAbsolutePath = absolutePath
                 imageDocument.mDisplayName = displayName
-                mAdapter!!.add(imageDocument)
+                (mAdapter ?: return).add(imageDocument)
             }
             val cursorCount: Int = cursor.count
             if (cursorCount == 0) {
                 return
             }
             val activity: Activity? = this@ImageClientFragment.activity
-            mAdapter!!.notifyItemRangeChanged(beforeCount, cursorCount)
+            (mAdapter ?: return).notifyItemRangeChanged(beforeCount, cursorCount)
             val offsetSnapShot: Int = mOffset.get()
-            val message = activity!!.resources
+            val message = (activity ?: return).resources
                 .getString(
                     R.string.fetched_images_out_of, offsetSnapShot + 1,
                     offsetSnapShot + cursorCount, totalSize

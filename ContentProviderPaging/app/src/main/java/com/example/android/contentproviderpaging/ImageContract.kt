@@ -64,11 +64,13 @@ internal object ImageContract {
              * `name` property)
              */
             const val DISPLAY_NAME = "display_name"
+
             /**
              * The absolute path of the file or directory, comes from the [File.getAbsolutePath]
              * method (aka kotlin `absolutePath` property)
              */
             const val ABSOLUTE_PATH = "absolute_path"
+
             /**
              * The length of the file (the return value is unspecified if the pathname denotes a
              * directory), comes from the [File.length] method.
