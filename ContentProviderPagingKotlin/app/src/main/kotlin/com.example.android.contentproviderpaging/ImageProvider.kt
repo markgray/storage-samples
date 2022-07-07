@@ -147,10 +147,10 @@ class ImageProvider : ContentProvider() {
         val result = MatrixCursor(resolveDocumentProjection(projection))
 
         val files: Array<File>? = mBaseDir.listFiles()
-        val offset = queryArgs!!.getInt(ContentResolver.QUERY_ARG_OFFSET, 0)
+        val offset = (queryArgs ?: return null).getInt(ContentResolver.QUERY_ARG_OFFSET, 0)
         val limit = queryArgs.getInt(ContentResolver.QUERY_ARG_LIMIT, Integer.MAX_VALUE)
         Log.d(TAG, "queryChildDocuments with Bundle, Uri: " +
-                uri + ", offset: " + offset + ", limit: " + limit)
+            uri + ", offset: " + offset + ", limit: " + limit)
         if (offset < 0) {
             throw IllegalArgumentException("Offset must not be less than 0")
         }
@@ -158,7 +158,7 @@ class ImageProvider : ContentProvider() {
             throw IllegalArgumentException("Limit must not be less than 0")
         }
 
-        if (offset >= files!!.size) {
+        if (offset >= (files ?: return null).size) {
             return result
         }
 
@@ -356,7 +356,7 @@ class ImageProvider : ContentProvider() {
      * @param context the [Context] this provider is running in.
      */
     private fun writeDummyFilesToStorage(context: Context) {
-        if (mBaseDir.list()!!.isNotEmpty()) {
+        if ((mBaseDir.list() ?: return).isNotEmpty()) {
             return
         }
 

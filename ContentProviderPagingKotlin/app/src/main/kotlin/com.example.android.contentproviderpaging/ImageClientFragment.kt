@@ -132,7 +132,7 @@ class ImageClientFragment : Fragment() {
         super.onViewCreated(rootView, savedInstanceState)
 
         val activity: Activity? = activity
-        val recyclerView = activity!!.findViewById<RecyclerView>(R.id.recyclerview)
+        val recyclerView = (activity ?: return).findViewById<RecyclerView>(R.id.recyclerview)
         if (mLayoutManager == null) {
             mLayoutManager = LinearLayoutManager(activity)
         }
@@ -144,12 +144,12 @@ class ImageClientFragment : Fragment() {
 
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                val lastVisiblePosition = mLayoutManager!!.findLastVisibleItemPosition()
-                if (lastVisiblePosition >= mAdapter!!.fetchedItemCount) {
+                val lastVisiblePosition = (mLayoutManager ?: return).findLastVisibleItemPosition()
+                if (lastVisiblePosition >= (mAdapter ?: return).fetchedItemCount) {
                     Log.d(
                         TAG,
                         "Fetch new images. LastVisiblePosition: " + lastVisiblePosition
-                            + ", NonEmptyItemCount: " + mAdapter!!.fetchedItemCount
+                            + ", NonEmptyItemCount: " + (mAdapter ?: return).fetchedItemCount
                     )
 
                     val pageId = lastVisiblePosition / LIMIT
@@ -283,8 +283,8 @@ class ImageClientFragment : Fragment() {
         override fun onLoadFinished(loader: Loader<Cursor>, cursor: Cursor) {
             val extras: Bundle = cursor.extras
             val totalSize = extras.getInt(ContentResolver.EXTRA_TOTAL_COUNT)
-            mAdapter!!.setTotalSize(totalSize)
-            val beforeCount = mAdapter!!.fetchedItemCount
+            (mAdapter ?: return).setTotalSize(totalSize)
+            val beforeCount = (mAdapter ?: return).fetchedItemCount
             while (cursor.moveToNext()) {
                 val displayName = cursor.getString(
                     cursor.getColumnIndexOrThrow(
@@ -298,16 +298,16 @@ class ImageClientFragment : Fragment() {
                 )
 
                 val imageDocument = ImageDocument(absolutePath, displayName)
-                mAdapter!!.add(imageDocument)
+                (mAdapter ?: return).add(imageDocument)
             }
             val cursorCount = cursor.count
             if (cursorCount == 0) {
                 return
             }
             val activity = this@ImageClientFragment.activity
-            mAdapter!!.notifyItemRangeChanged(beforeCount, cursorCount)
+            (mAdapter ?: return).notifyItemRangeChanged(beforeCount, cursorCount)
             val offsetSnapShot = mOffset.get()
-            val message = activity!!.resources
+            val message = (activity ?: return).resources
                 .getString(
                     R.string.fetched_images_out_of, offsetSnapShot + 1,
                     offsetSnapShot + cursorCount, totalSize

@@ -46,8 +46,8 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .add(R.id.container, ImageClientFragment.newInstance())
-                    .commit()
+                .add(R.id.container, ImageClientFragment.newInstance())
+                .commit()
         }
     }
 }
