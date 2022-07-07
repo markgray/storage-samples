@@ -40,12 +40,13 @@ import java.io.File
  * is all that is needed since `onResume` handles the return instead of `onActivityResult`
  */
 @Suppress("unused")
-const val MANAGE_EXTERNAL_STORAGE_PERMISSION_REQUEST = 1
+const val MANAGE_EXTERNAL_STORAGE_PERMISSION_REQUEST: Int = 1
+
 /**
  * This is the request code that is used in the call to [ActivityCompat.requestPermissions] that is
  * used on devices running Android versions older than R.
  */
-const val READ_EXTERNAL_STORAGE_PERMISSION_REQUEST = 2
+const val READ_EXTERNAL_STORAGE_PERMISSION_REQUEST: Int = 2
 
 /**
  * This sample demonstrates how to create a simple File Manager application working from

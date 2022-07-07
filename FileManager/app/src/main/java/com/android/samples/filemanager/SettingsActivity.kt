@@ -45,6 +45,7 @@ class SettingsActivity : AppCompatActivity() {
      * `MaterialToolbar`, with a [ListView] and two [Button] widgets below the `MaterialToolbar`.
      */
     private lateinit var binding: ActivitySettingsBinding
+
     /**
      * The [ArrayAdapter] which feeds views holding [String]s to the [ListView] in our UI.
      */

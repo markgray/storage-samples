@@ -19,6 +19,7 @@
 package com.android.samples.filemanager
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -40,7 +41,8 @@ import androidx.core.content.ContextCompat
  * "android.settings.MANAGE_ALL_FILES_ACCESS_PERMISSION" when we want to ask for the permission and
  * the AndroidManifest permission name for Android "R" is "android.permission.MANAGE_EXTERNAL_STORAGE"
  */
-const val MANAGE_EXTERNAL_STORAGE_PERMISSION = "android:manage_external_storage"
+const val MANAGE_EXTERNAL_STORAGE_PERMISSION: String = "android:manage_external_storage"
+
 /**
  * Our [getLegacyStorageStatus] method returns this [String] when running on Android builds older
  * than "Q" since legacy view of the shared/external storage media was introduced by "Q" (stands
@@ -48,7 +50,7 @@ const val MANAGE_EXTERNAL_STORAGE_PERMISSION = "android:manage_external_storage"
  * value of the [Boolean] value returned by the [Environment.isExternalStorageLegacy] method (which
  * will be `true` if `requestLegacyExternalStorage` is requested in the app's manifest.
  */
-const val NOT_APPLICABLE = "N/A"
+const val NOT_APPLICABLE: String = "N/A"
 
 /**
  * Returns the name of the permission used to request access to external storage, which depends on the
@@ -251,6 +253,7 @@ fun requestStoragePermissionApi30(activity: AppCompatActivity) {
  * @param activity the [AppCompatActivity] we should use to access our apps resources.
  * @return `true` if we have permission to access external storage, and `false` if we do not.
  */
+@SuppressLint("ObsoleteSdkInt", "SupportAnnotationUsage")
 @RequiresApi(19)
 fun checkStoragePermissionApi19(activity: AppCompatActivity): Boolean {
     val status: Int =
@@ -273,6 +276,7 @@ fun checkStoragePermissionApi19(activity: AppCompatActivity): Boolean {
  *
  * @param activity the [AppCompatActivity] we should use to access app resources.
  */
+@SuppressLint("ObsoleteSdkInt", "SupportAnnotationUsage")
 @RequiresApi(19)
 fun requestStoragePermissionApi19(activity: AppCompatActivity) {
     val permissions: Array<String> = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
