@@ -65,7 +65,7 @@ private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500
  * field `selectPicture` of [DashboardFragment] when the [R.id.selectPicture] button (labeled
  * "Select picture") is clicked in the UI of [DashboardFragment].
  */
-val ACCEPTED_MIMETYPES = arrayOf("image/jpeg", "image/png")
+val ACCEPTED_MIMETYPES: Array<String> = arrayOf("image/jpeg", "image/png")
 
 /**
  * This [AndroidViewModel] is used by both [DashboardFragment] and [GalleryFragment].
@@ -93,6 +93,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
      * classes, `public` read only access is provided by our [notification] field.
      */
     private val _notification = MutableLiveData<String>()
+
     /**
      * Public read only access to our [_notification] field. Observers are added to it in the
      * `onCreateView` overrides of both [DashboardFragment] and [GalleryFragment] which will
@@ -113,6 +114,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
      * is provided by our [images] field.
      */
     private val _images = MutableLiveData(emptyList<File>())
+
     /**
      * Public read only access to our [images] field. An observer is added to it in the `onCreateView`
      * override of [GalleryFragment] whose lambda will submit the [List] to the adapter of the

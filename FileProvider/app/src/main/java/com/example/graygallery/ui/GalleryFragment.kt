@@ -38,7 +38,7 @@ import java.io.File
 /**
  * Number of columns in the grid of our [RecyclerView].
  */
-const val GALLERY_COLUMNS = 3
+const val GALLERY_COLUMNS: Int = 3
 
 /**
  * This [Fragment] displays all of the images we have downloaded to our "images/" folder.
@@ -48,6 +48,7 @@ class GalleryFragment : Fragment() {
      * The [AppViewModel] used by both [DashboardFragment] and [GalleryFragment].
      */
     private val viewModel by viewModels<AppViewModel>()
+
     /**
      * The [ViewBinding] which is inflated from our layout file layout/fragment_gallery.xml, it
      * consists of a `ConstraintLayout` root view holding a [RecyclerView].

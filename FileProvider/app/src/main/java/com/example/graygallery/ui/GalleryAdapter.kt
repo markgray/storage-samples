@@ -100,7 +100,7 @@ class ListItemCallback : DiffUtil.ItemCallback<File>() {
      * @param newItem The item in the new list.
      * @return `true` if the two items represent the same object or `false` if they are different.
      */
-    override fun areItemsTheSame(oldItem: File, newItem: File) =
+    override fun areItemsTheSame(oldItem: File, newItem: File): Boolean =
         oldItem.name == newItem.name
 
     /**
@@ -111,7 +111,7 @@ class ListItemCallback : DiffUtil.ItemCallback<File>() {
      * @param newItem The item in the new list.
      * @return `true` if the contents of the items are the same or `false` if they are different.
      */
-    override fun areContentsTheSame(oldItem: File, newItem: File) =
+    override fun areContentsTheSame(oldItem: File, newItem: File): Boolean =
         oldItem == newItem
 }
 
@@ -127,7 +127,8 @@ class ImageViewHolder(view: View, onClick: (File) -> Unit) : RecyclerView.ViewHo
      * A copy of the [View] parameter `view` of our constructor. It is the `ConstraintLayout` root
      * view of the layout file with resource ID [R.layout.gallery_item_layout] in our case
      */
-    val rootView = view
+    val rootView: View = view
+
     /**
      * The [ImageView] in the the [View] parameter `view` of our constructor with resource ID
      * [R.id.image]. Its [OnClickListener] is set to a lambda in our `init` block which calls the

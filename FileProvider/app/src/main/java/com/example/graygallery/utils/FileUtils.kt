@@ -31,7 +31,20 @@ import kotlin.coroutines.CoroutineContext
  * [AppViewModel.saveRandomImageFromInternet] and [FILEPICKER] by our [copyImageFromStream] method.
  */
 enum class Source {
-    CAMERA, FILEPICKER, INTERNET;
+    /**
+     * Prefix of files created by the [AppViewModel.saveImageFromCamera] method.
+     */
+    CAMERA,
+
+    /**
+     * Prefix of files created by the [copyImageFromStream] method.
+     */
+    FILEPICKER,
+
+    /**
+     * Prefix of files created by the [AppViewModel.saveRandomImageFromInternet] method.
+     */
+    INTERNET;
 
     /**
      * Returns the `name` of `this` [Source] converted to lowercase.
@@ -51,7 +64,7 @@ enum class Source {
  * @return a filename formed by concatenating the [String] value of its [Source] parameter [source]
  * followed by the string value of the current time in milliseconds, followed by the ".jpg" string.
  */
-fun generateFilename(source: Source) = "$source-${System.currentTimeMillis()}.jpg"
+fun generateFilename(source: Source): String = "$source-${System.currentTimeMillis()}.jpg"
 
 /**
  * Copies the [InputStream] parameter [input] to a file in the directory [directory] whose name is

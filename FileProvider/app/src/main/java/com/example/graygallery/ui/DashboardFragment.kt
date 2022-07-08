@@ -69,9 +69,9 @@ class DashboardFragment : Fragment() {
      * then encodes the [Bitmap] as a JPEG and stores it in the "images/" directory of the apps private
      * storage area.
      */
-    private val takePicture: ActivityResultLauncher<Void> =
+    private val takePicture: ActivityResultLauncher<Void?> =
         registerForActivityResult(TakePicturePreview()) { bitmap ->
-            viewModel.saveImageFromCamera(bitmap)
+            viewModel.saveImageFromCamera(bitmap ?: return@registerForActivityResult)
         }
 
     /**
