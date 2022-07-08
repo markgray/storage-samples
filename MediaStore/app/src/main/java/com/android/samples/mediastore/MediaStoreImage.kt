@@ -50,7 +50,7 @@ data class MediaStoreImage(
          * [ListAdapter] to calculate the diff between two non-null [MediaStoreImage] objects in its
          * dataset when a new [List] is submitted.
          */
-        val DiffCallback = object : DiffUtil.ItemCallback<MediaStoreImage>() {
+        val DiffCallback: DiffUtil.ItemCallback<MediaStoreImage> = object : DiffUtil.ItemCallback<MediaStoreImage>() {
             /**
              * Called to check whether two objects represent the same item. We return the [Boolean]
              * result of comparing the [MediaStoreImage.id] property or our two parameters for

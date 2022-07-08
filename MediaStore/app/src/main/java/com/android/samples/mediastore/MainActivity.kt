@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity() {
      * The [AndroidViewModel] subclass we use as our view model.
      */
     private val viewModel: MainActivityViewModel by viewModels()
+
     /**
      * The [ActivityMainBinding] view binding that is inflated, bound, and set as our content view
      * and which is generated from the layout file layout/activity_main.xml which consists of a
@@ -409,7 +410,7 @@ class MainActivity : AppCompatActivity() {
      * @param onClick a lambda that each image displayed in our [RecyclerView] will call with the
      * [MediaStoreImage] it is associated with when the image is clicked.
      */
-    private inner class GalleryAdapter(val onClick: (MediaStoreImage) -> Unit) :
+    private class GalleryAdapter(val onClick: (MediaStoreImage) -> Unit) :
         ListAdapter<MediaStoreImage, ImageViewHolder>(MediaStoreImage.DiffCallback) {
 
         /**
@@ -491,6 +492,7 @@ private class ImageViewHolder(
      * The [View] we use as our [ImageViewHolder.itemView].
      */
     val rootView = view
+
     /**
      * The [ImageView] in our [rootView] field that we use to display our image.
      */

@@ -62,6 +62,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] ("content://media/external/images/media").
      */
     private val _images = MutableLiveData<List<MediaStoreImage>>()
+
     /**
      * Public read-only access to our [_images] field. An observer is added to it in the `onCreate`
      * override of [MainActivity] whose lambda calls the [ListAdapter.submitList] method of the
@@ -97,6 +98,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * modifying it, public read-only access is provided by our [permissionNeededForDelete] field.
      */
     private val _permissionNeededForDelete = MutableLiveData<IntentSender?>()
+
     /**
      * Public read-only access to our [_permissionNeededForDelete] field. An observer is added to it
      * in the `onCreate` override of [MainActivity] whose lambda launches the activity described by
