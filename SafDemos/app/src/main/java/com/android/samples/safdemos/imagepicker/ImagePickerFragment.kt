@@ -40,7 +40,7 @@ import java.io.InputStream
 /**
  * The MIME type of the files we would like the user to select for us to display (images of any kind)
  */
-const val IMAGE_MIME_TYPE = "image/*"
+const val IMAGE_MIME_TYPE: String = "image/*"
 
 /**
  * Demo that will launch an [Intent] for the action [Intent.ACTION_GET_CONTENT] for the mime type

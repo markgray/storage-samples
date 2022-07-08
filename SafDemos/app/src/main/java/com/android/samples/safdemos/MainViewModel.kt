@@ -18,6 +18,9 @@ package com.android.samples.safdemos
 
 import androidx.lifecycle.ViewModel
 
+/**
+ * Unused skeletal [ViewModel]
+ */
 @Suppress("unused")
 class MainViewModel : ViewModel() {
     // TODO: Implement the ViewModel

@@ -125,7 +125,7 @@ data class Demo(
  */
 private class DemoViewHolder(
     val binding: ListItemDemoBinding
-    ) : RecyclerView.ViewHolder(binding.root)
+) : RecyclerView.ViewHolder(binding.root)
 
 /**
  * The custom [RecyclerView.Adapter] that feeds views derived from [Demo] objects to the
