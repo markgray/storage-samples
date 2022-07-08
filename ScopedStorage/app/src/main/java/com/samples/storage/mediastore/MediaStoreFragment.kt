@@ -68,6 +68,7 @@ class MediaStoreFragment : Fragment() {
      * from modifying it, but its read-only accessor [binding] is private too so what the hay.
      */
     private var _binding: FragmentListBinding? = null
+
     /**
      * Read-only access to our [FragmentListBinding] field [_binding].
      */

@@ -122,5 +122,5 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
      *
      * @return The total number of items in this adapter.
      */
-    override fun getItemCount() = dataSet.size
+    override fun getItemCount(): Int = dataSet.size
 }

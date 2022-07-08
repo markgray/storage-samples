@@ -30,6 +30,24 @@ class DeleteMediaFragment : Fragment() {
     private var _binding: FragmentDemoBinding? = null
     private val binding get() = _binding!!
 
+    /**
+     * Called to have the fragment instantiate its user interface view. First we initialize our
+     * [FragmentDemoBinding] field [_binding] by having the [FragmentDemoBinding.inflate] method
+     * use our [LayoutInflater] parameter [inflater] to inflate the layout file `fragment_demo.xml`
+     * with our [ViewGroup] parameter [container] supplying the `LayoutParams`. We initialize our
+     * [View] variable `val view` to the outermost View in the layout file associated with [binding],
+     * and then return `view` to the caller to have it serve as our fragment's UI.
+     *
+     * @param inflater The [LayoutInflater] object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-`null`, this is the parent view that the fragment's
+     * UI will be attached to. The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-`null`, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return Return the [View] for the fragment's UI, or null.
+     */
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,6 +59,12 @@ class DeleteMediaFragment : Fragment() {
         return view
     }
 
+    /**
+     * Called when the [View] previously created by [onCreateView] has been detached from the
+     * fragment. The next time the fragment needs to be displayed, a new view will be created.
+     * This is called after [onStop] and before [onDestroy]. First we call our super's implementation
+     * of `onDestroyView`, then we set our [FragmentDemoBinding] field [_binding] to `null`.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

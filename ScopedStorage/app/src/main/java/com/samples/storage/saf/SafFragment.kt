@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.samples.storage.saf
 
 import android.content.ContentResolver
@@ -109,6 +110,7 @@ class SafFragment : Fragment() {
      * returned by [DocumentFile.getName] (aka kotlin `name` property) of `documentFile`, followed
      * by the [String] `text`.
      */
+    @Suppress("DEPRECATION") // Should pass a mime type to `CreateDocument` constructor.
     private val actionCreateDocument: ActivityResultLauncher<String> =
         registerForActivityResult(CreateDocument()) { uri: Uri? ->
             // If the user returns to this fragment without creating a file, uri will be null
