@@ -58,6 +58,6 @@ open class SampleActivityBase : AppCompatActivity() {
         /**
          * TAG used for logging
          */
-        const val TAG = "SampleActivityBase"
+        const val TAG: String = "SampleActivityBase"
     }
 }

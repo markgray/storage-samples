@@ -28,15 +28,41 @@ import kotlin.jvm.JvmOverloads
  * to its equivalent in LogNode.
  */
 object Log {
-    // Grabbing the native values from Android's native logging facilities,
-    // to make for easy migration and interop.
-    const val NONE = -1
-    const val VERBOSE = Log.VERBOSE
-    const val DEBUG = Log.DEBUG
-    const val INFO = Log.INFO
-    const val WARN = Log.WARN
-    const val ERROR = Log.ERROR
-    const val ASSERT = Log.ASSERT
+    /**
+     * Grabbing the native values from Android's native logging facilities,
+     * to make for easy migration and interop.
+     */
+    const val NONE: Int = -1
+
+    /**
+     * The most verbose (least important) logging priority. Used by Log.v()
+     */
+    const val VERBOSE: Int = Log.VERBOSE
+
+    /**
+     * The second most verbose logging priority. Used by Log.d()
+     */
+    const val DEBUG: Int = Log.DEBUG
+
+    /**
+     * The third most verbose logging priority. Used by Log.i()
+     */
+    const val INFO: Int = Log.INFO
+
+    /**
+     * The fourth most verbose logging priority. Used by Log.w()
+     */
+    const val WARN: Int = Log.WARN
+
+    /**
+     * The fifth most verbose logging priority. Used by Log.e()
+     */
+    const val ERROR: Int = Log.ERROR
+
+    /**
+     * The most serious and least verbose logging priority. Used by Log.wtf()
+     */
+    const val ASSERT: Int = Log.ASSERT
 
     /**
      * Stores the beginning of the LogNode topology.
@@ -56,7 +82,7 @@ object Log {
     @JvmOverloads
     fun println(priority: Int, tag: String?, msg: String?, tr: Throwable? = null) {
         if (logNode != null) {
-            logNode!!.println(priority, tag, msg, tr)
+            (logNode ?: return).println(priority, tag, msg, tr)
         }
     }
 

@@ -97,12 +97,12 @@ class MainActivity : SampleActivityBase() {
         // On screen logging via a fragment with a TextView.
         val logFragment = supportFragmentManager
             .findFragmentById(R.id.log_fragment) as LogFragment?
-        msgFilter.next = logFragment!!.logView
+        msgFilter.next = (logFragment ?: return).logView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            logFragment.logView!!.setTextAppearance(R.style.Log)
+            (logFragment.logView ?: return).setTextAppearance(R.style.Log)
         } else {
             @Suppress("DEPRECATION") // The one argument version requires SDK 23
-            logFragment.logView!!.setTextAppearance(this, R.style.Log)
+            (logFragment.logView ?: return).setTextAppearance(this, R.style.Log)
         }
         Log.i(TAG, "Ready")
     }
@@ -111,11 +111,11 @@ class MainActivity : SampleActivityBase() {
         /**
          * TAG used for logging.
          */
-        const val TAG = "MainActivity"
+        const val TAG: String = "MainActivity"
 
         /**
          * The fragment tag we use when adding the [StorageClientFragment] to the activity state.
          */
-        const val FRAGTAG = "StorageClientFragment"
+        const val FRAGTAG: String = "StorageClientFragment"
     }
 }

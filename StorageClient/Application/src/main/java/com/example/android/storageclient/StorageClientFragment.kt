@@ -60,6 +60,7 @@ class StorageClientFragment : Fragment() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @Suppress("DEPRECATION")
         setHasOptionsMenu(true)
     }
 
@@ -74,6 +75,7 @@ class StorageClientFragment : Fragment() {
      * @return boolean Return `false` to allow normal menu processing to proceed, `true` to consume
      * it here.
      */
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.sample_action) {
             performFileSearch()
@@ -206,7 +208,7 @@ class StorageClientFragment : Fragment() {
             var parcelFileDescriptor: ParcelFileDescriptor? = null
             return try {
                 parcelFileDescriptor = requireActivity().contentResolver.openFileDescriptor(uri, "r")
-                val fileDescriptor = parcelFileDescriptor!!.fileDescriptor
+                val fileDescriptor = (parcelFileDescriptor ?: return null).fileDescriptor
                 val image: Bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor)
                 parcelFileDescriptor.close()
                 image
@@ -287,7 +289,7 @@ class StorageClientFragment : Fragment() {
         override fun onStop() {
             super.onStop()
             if (dialog != null) {
-                dialog!!.dismiss()
+                (dialog ?: return).dismiss()
             }
         }
 
@@ -309,12 +311,12 @@ class StorageClientFragment : Fragment() {
          *
          * @param uri The [Uri] for the document whose metadata should be printed.
          */
-        fun dumpImageMetaData(uri: Uri?) {
+        private fun dumpImageMetaData(uri: Uri?) {
             // The query, since it only applies to a single document, will only return one row.
             // no need to filter, sort, or select fields, since we want all fields for one
             // document.
             val cursor: Cursor? = requireActivity().contentResolver
-                .query(uri!!, null, null, null, null, null)
+                .query(uri ?: return, null, null, null, null, null)
             cursor?.use { cursorIt: Cursor ->
                 // moveToFirst() returns false if the cursorIt has 0 rows.  Very handy for
                 // "if there's anything to look at, look at it" conditionals.
@@ -349,6 +351,6 @@ class StorageClientFragment : Fragment() {
         /**
          * TAG used for logging.
          */
-        const val TAG = "StorageClientFragment"
+        const val TAG: String = "StorageClientFragment"
     }
 }

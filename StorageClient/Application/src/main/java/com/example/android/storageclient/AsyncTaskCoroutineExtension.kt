@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
@@ -22,7 +23,7 @@ fun CoroutineScope.getBitmapAndDisplay(
     doInBackground: (uri: Uri) -> Bitmap,
     onPostExecute: (Bitmap) -> Unit,
     uri: Uri
-) = launch {
+): Job = launch {
     val result = withContext(Dispatchers.IO) { // runs in background thread without blocking the Main Thread
         doInBackground(uri)
     }
