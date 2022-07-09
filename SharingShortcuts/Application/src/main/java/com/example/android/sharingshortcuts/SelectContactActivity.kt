@@ -152,6 +152,6 @@ class SelectContactActivity : Activity() {
         /**
          * The action string for Intents.
          */
-        const val ACTION_SELECT_CONTACT = "com.example.android.sharingshortcuts.intent.action.SELECT_CONTACT"
+        const val ACTION_SELECT_CONTACT: String = "com.example.android.sharingshortcuts.intent.action.SELECT_CONTACT"
     }
 }

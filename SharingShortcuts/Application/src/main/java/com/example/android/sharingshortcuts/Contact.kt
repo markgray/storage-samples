@@ -36,7 +36,7 @@ class Contact(
         /**
          * The list of dummy contacts.
          */
-        val CONTACTS = arrayOf(
+        val CONTACTS: Array<Contact> = arrayOf(
             Contact("Tereasa"),
             Contact("Chang"),
             Contact("Kory"),
@@ -51,12 +51,12 @@ class Contact(
         /**
          * The contact ID.
          */
-        const val ID = "contact_id"
+        const val ID: String = "contact_id"
 
         /**
          * Representative invalid contact ID.
          */
-        const val INVALID_ID = -1
+        const val INVALID_ID: Int = -1
 
         /**
          * Finds a [Contact] specified by a contact ID.
