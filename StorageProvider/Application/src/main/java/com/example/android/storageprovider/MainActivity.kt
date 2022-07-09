@@ -98,19 +98,26 @@ class MainActivity : SampleActivityBase() {
         // On screen logging via a fragment with a TextView.
         val logFragment = supportFragmentManager
             .findFragmentById(R.id.log_fragment) as LogFragment?
-        msgFilter.next = logFragment!!.logView
+        msgFilter.next = (logFragment ?: return).logView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            logFragment.logView!!.setTextAppearance(R.style.Log)
+            (logFragment.logView ?: return).setTextAppearance(R.style.Log)
         } else {
             @Suppress("DEPRECATION")
-            logFragment.logView!!.setTextAppearance(this, R.style.Log)
+            (logFragment.logView ?: return).setTextAppearance(this, R.style.Log)
         }
-        logFragment.logView!!.setBackgroundColor(Color.WHITE)
+        (logFragment.logView ?: return).setBackgroundColor(Color.WHITE)
         Log.i(TAG, "Ready")
     }
 
     companion object {
-        const val TAG = "MainActivity"
-        const val FRAGTAG = "StorageProviderFragment"
+        /**
+         * TAG used for logging.
+         */
+        const val TAG: String = "MainActivity"
+
+        /**
+         * TAG for our [Fragment]
+         */
+        const val FRAGTAG: String = "StorageProviderFragment"
     }
 }

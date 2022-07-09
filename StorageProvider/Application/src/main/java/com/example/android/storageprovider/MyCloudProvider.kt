@@ -308,8 +308,8 @@ class MyCloudProvider : DocumentsProvider() {
         // Create a queue to store the most recent documents, which orders by last modified.
         val lastModifiedFiles = PriorityQueue(
             5
-        ) {
-            i: File?, j: File? -> i!!.lastModified().compareTo(j!!.lastModified())
+        ) { i: File?, j: File? ->
+            i!!.lastModified().compareTo(j!!.lastModified())
         }
 
         // Iterate through all files and directories in the file structure under the root.  If
@@ -866,7 +866,7 @@ class MyCloudProvider : DocumentsProvider() {
             fileLocal = getFileForDocId(docIdLocal)
         }
         var flags = 0
-        if (fileLocal!!.isDirectory) {
+        if ((fileLocal ?: return).isDirectory) {
             // Request the folder to lay out as a grid rather than a list. This also allows a larger
             // thumbnail to be displayed for each image.
             //            flags |= Document.FLAG_DIR_PREFERS_GRID;
@@ -1021,18 +1021,20 @@ class MyCloudProvider : DocumentsProvider() {
      * @param extension the file extension (ex. .png, .mp3)
      */
     private fun writeFileToInternalStorage(resId: Int, extension: String) {
-        val ins: InputStream = context!!.resources.openRawResource(resId)
+        val ins: InputStream = (context ?: return).resources.openRawResource(resId)
         val outputStream = ByteArrayOutputStream()
         var size: Int
         var buffer: ByteArray? = ByteArray(1024)
         try {
             while (ins.read(buffer, 0, 1024).also { size = it } >= 0) {
-                outputStream.write(buffer!!, 0, size)
+                outputStream.write(buffer ?: return, 0, size)
             }
             ins.close()
             buffer = outputStream.toByteArray()
-            val filename: String = context!!.resources.getResourceEntryName(resId) + extension
-            val fos: FileOutputStream = context!!.openFileOutput(filename, Context.MODE_PRIVATE)
+            val filename: String = (context
+                ?: return).resources.getResourceEntryName(resId) + extension
+            val fos: FileOutputStream = (context
+                ?: return).openFileOutput(filename, Context.MODE_PRIVATE)
             fos.write(buffer)
             fos.close()
         } catch (e: IOException) {

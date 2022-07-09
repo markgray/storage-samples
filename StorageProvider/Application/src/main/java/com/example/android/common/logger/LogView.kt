@@ -114,7 +114,7 @@ class LogView : androidx.appcompat.widget.AppCompatTextView, LogNode {
             appendToLog(outputBuilder.toString())
         })
         if (next != null) {
-            next!!.println(priority, tag, msg, tr)
+            (next ?: return).println(priority, tag, msg, tr)
         }
     }
 
