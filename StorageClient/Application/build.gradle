@@ -11,11 +11,11 @@ repositories {
 
 dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation "androidx.core:core-ktx:1.8.0"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3'
-    implementation "androidx.fragment:fragment-ktx:1.5.0"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.0"
+    implementation "androidx.fragment:fragment-ktx:1.5.2"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
 }
 
 // The sample build uses multiple directories to
