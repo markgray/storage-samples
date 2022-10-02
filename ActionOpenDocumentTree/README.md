@@ -30,7 +30,7 @@ An app can utilize the ACTION_OPEN_DOCUMENT_TREE intent by building an Intent an
 to start the system document picker:
 
 ```kotlin
-@file:Suppress("PublicApiImplicitType")
+@file:Suppress("PublicApiImplicitType", "KDocMissingDocumentation", "KDocMissingDocumentation")
 
 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
 startActivityForResult(intent, OPEN_DIRECTORY_REQUEST_CODE)
@@ -40,6 +40,8 @@ Your app will then receive the results of this in [`Activity.onActivityResult`](
 The return can be handled like this:
 
 ```kotlin
+@file:Suppress("KDocMissingDocumentation")
+
 override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     super.onActivityResult(requestCode, resultCode, data)
     if (requestCode == OPEN_DIRECTORY_REQUEST_CODE) {
