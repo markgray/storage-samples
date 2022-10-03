@@ -58,6 +58,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  * The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission.
  */
 private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
+// TODO: In order to target 33 One needs to request fine grained permission )-:
 
 /**
  * MainActivity for the sample that displays a gallery of images retrieved using the `MediaStore`

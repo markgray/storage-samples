@@ -31,7 +31,7 @@ android {
     defaultConfig {
         applicationId "com.android.samples.mediastore"
         minSdkVersion 16
-        targetSdkVersion 32
+        targetSdkVersion 32 // TODO: targetSdkVersion 33 needs you to request fine grained permission )-:
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
