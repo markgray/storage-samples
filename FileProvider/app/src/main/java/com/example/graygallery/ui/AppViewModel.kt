@@ -291,7 +291,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun clearFiles() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                imagesFolder.deleteRecursively()
+                imagesFolder.deleteRecursively() // TODO: Fix crash that occurs if you download after doing this
                 _images.postValue(emptyList())
                 _notification.postValue("Images cleared")
             }
