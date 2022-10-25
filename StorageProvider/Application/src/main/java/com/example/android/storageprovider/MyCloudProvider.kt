@@ -873,11 +873,13 @@ class MyCloudProvider : DocumentsProvider() {
 
             // Add FLAG_DIR_SUPPORTS_CREATE if the file is a writable directory.
             if (fileLocal.isDirectory && fileLocal.canWrite()) {
+                @Suppress("KotlinConstantConditions") // TODO: Fix this Suppress
                 flags = flags or DocumentsContract.Document.FLAG_DIR_SUPPORTS_CREATE
             }
         } else if (fileLocal.canWrite()) {
             // If the file is writable set FLAG_SUPPORTS_WRITE and
             // FLAG_SUPPORTS_DELETE
+            @Suppress("KotlinConstantConditions") // TODO: Fix this Suppress
             flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_WRITE
             flags = flags or DocumentsContract.Document.FLAG_SUPPORTS_DELETE
         }
