@@ -184,6 +184,7 @@ class StorageClientFragment : Fragment() {
          */
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
+            @Suppress("DEPRECATION") // TODO: Fix getParcelable DEPRECATION
             mUri = requireArguments().getParcelable("URI")
         }
 
