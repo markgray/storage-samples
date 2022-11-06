@@ -28,7 +28,7 @@ open class Event<out T>(private val content: T) {
     /**
      * Flag to prevent our [T] field [content] from being accessed more than once.
      */
-    @Suppress("MemberVisibilityCanBePrivate")
+    @Suppress("MemberVisibilityCanBePrivate") // I like to use kdoc [] references
     var hasBeenHandled: Boolean = false
         private set // Allow external read but not write
 
@@ -52,6 +52,6 @@ open class Event<out T>(private val content: T) {
      *
      * @return the [T] field [content] we are holding.
      */
-    @Suppress("unused")
+    @Suppress("unused") // Suggested change would make class less reusable
     fun peekContent(): T = content
 }

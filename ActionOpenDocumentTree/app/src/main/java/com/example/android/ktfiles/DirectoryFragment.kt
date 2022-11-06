@@ -16,7 +16,6 @@
 
 package com.example.android.ktfiles
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.DialogInterface
@@ -128,9 +127,7 @@ class DirectoryFragment : Fragment() {
         directoryUri = arguments?.getString(ARG_DIRECTORY_URI)?.toUri()
             ?: throw IllegalArgumentException("Must pass URI of directory to open")
 
-        @Suppress("ReplaceGetOrSet")
-        viewModel = ViewModelProvider(this)
-            .get(DirectoryFragmentViewModel::class.java)
+        viewModel = ViewModelProvider(this)[DirectoryFragmentViewModel::class.java]
 
         binding = FragmentDirectoryBinding.inflate(inflater)
         binding.list.layoutManager = LinearLayoutManager(binding.list.context)
@@ -249,7 +246,6 @@ class DirectoryFragment : Fragment() {
      * @param document a [CachingDocumentFile] referencing the file that the user has chosen to
      * rename.
      */
-    @SuppressLint("InflateParams")
     private fun renameDocument(document: CachingDocumentFile) {
         // Normally we don't want to pass `null` in as the parent, but the dialog doesn't exist,
         // so there isn't a parent layout to use yet.
