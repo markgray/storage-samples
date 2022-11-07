@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("PermissionUtils")
-
 package com.android.samples.filemanager
 
 import android.Manifest
@@ -253,7 +251,7 @@ fun requestStoragePermissionApi30(activity: AppCompatActivity) {
  * @param activity the [AppCompatActivity] we should use to access our apps resources.
  * @return `true` if we have permission to access external storage, and `false` if we do not.
  */
-@SuppressLint("ObsoleteSdkInt", "SupportAnnotationUsage")
+@SuppressLint("ObsoleteSdkInt", "SupportAnnotationUsage") // Suggested change would make class less reusable
 @RequiresApi(19)
 fun checkStoragePermissionApi19(activity: AppCompatActivity): Boolean {
     val status: Int =
@@ -276,7 +274,7 @@ fun checkStoragePermissionApi19(activity: AppCompatActivity): Boolean {
  *
  * @param activity the [AppCompatActivity] we should use to access app resources.
  */
-@SuppressLint("ObsoleteSdkInt", "SupportAnnotationUsage")
+@SuppressLint("ObsoleteSdkInt", "SupportAnnotationUsage") // Suggested change would make class less reusable
 @RequiresApi(19)
 fun requestStoragePermissionApi19(activity: AppCompatActivity) {
     val permissions: Array<String> = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)

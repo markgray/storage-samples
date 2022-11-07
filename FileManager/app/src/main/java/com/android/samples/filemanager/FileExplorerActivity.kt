@@ -39,7 +39,7 @@ import java.io.File
  * to request the permission `Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION` but startActivity
  * is all that is needed since `onResume` handles the return instead of `onActivityResult`
  */
-@Suppress("unused")
+@Suppress("unused") // It used to be used
 const val MANAGE_EXTERNAL_STORAGE_PERMISSION_REQUEST: Int = 1
 
 /**
@@ -163,7 +163,7 @@ class FileExplorerActivity : AppCompatActivity() {
             binding.filesTreeView.visibility = View.VISIBLE
 
             // TODO: Use getStorageDirectory instead https://developer.android.com/reference/android/os/Environment.html#getStorageDirectory()
-            @Suppress("DEPRECATION") // See ActionOpenDocumentTree for modern way to do this.
+            @Suppress("DEPRECATION") // TODO: See ActionOpenDocumentTree for modern way to do this.
             open(getExternalStorageDirectory())
         } else {
             binding.rationaleView.visibility = View.VISIBLE
