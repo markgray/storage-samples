@@ -16,7 +16,6 @@
 
 package com.android.samples.mediastore
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.app.PendingIntent
 import android.app.RecoverableSecurityException
@@ -47,6 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 
@@ -375,20 +375,15 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     /**
      * Convenience method to convert a day/month/year date into a UNIX timestamp.
      *
-     * We're suppressing the lint warning because we're not actually using the date formatter
-     * to format the date to display, just to specify a format to use to parse it, and so the
-     * locale warning doesn't apply.
-     *
      * @param day the day of the month (1-31)
      * @param month the month (1-12)
      * @param year the year
      * @return the number of milliseconds since January 1, 1970, 00:00:00 GMT for the date specified
      * by our parameters.
      */
-    @Suppress("SameParameterValue")
-    @SuppressLint("SimpleDateFormat")
+    @Suppress("SameParameterValue") // Suggested change would make method less reusable
     private fun dateToTimestamp(day: Int, month: Int, year: Int): Long =
-        SimpleDateFormat("dd.MM.yyyy").let { formatter ->
+        SimpleDateFormat("dd.MM.yyyy", Locale.US).let { formatter ->
             TimeUnit.MICROSECONDS.toSeconds(formatter.parse("$day.$month.$year")?.time ?: 0)
         }
 

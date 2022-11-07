@@ -463,7 +463,7 @@ class MainActivity : AppCompatActivity() {
             val mediaStoreImage: MediaStoreImage = getItem(position)
             holder.rootView.tag = mediaStoreImage
 
-            @Suppress("DEPRECATION")
+            @Suppress("DEPRECATION") // TODO: replace .thumbnail with thumbnail(RequestBuilder)
             Glide.with(holder.imageView)
                 .load(mediaStoreImage.contentUri)
                 .thumbnail(0.33f)
