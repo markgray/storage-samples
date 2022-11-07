@@ -74,7 +74,7 @@ class MainFragment : Fragment() {
      * from a previous saved state as given here.
      * @return Return the [View] for the fragment's UI, or null.
      */
-    @Suppress("RedundantNullableReturnType")
+    @Suppress("RedundantNullableReturnType") // The method we override returns nullable
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -153,7 +153,7 @@ private class DemoAdapter(
      * @param viewType The view type of the new View.
      * @return A new [DemoViewHolder] that holds a View of the given view type.
      */
-    @Suppress("ComplexRedundantLet")
+    @Suppress("ComplexRedundantLet") // Code looks lots prettier this way
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DemoViewHolder =
         LayoutInflater.from(parent.context).let { layoutInflater ->
             DemoViewHolder(ListItemDemoBinding.inflate(layoutInflater, parent, false))

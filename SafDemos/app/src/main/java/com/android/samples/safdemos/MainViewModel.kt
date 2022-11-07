@@ -21,7 +21,7 @@ import androidx.lifecycle.ViewModel
 /**
  * Unused skeletal [ViewModel]
  */
-@Suppress("unused")
+@Suppress("unused") // Unused skeletal class for future use
 class MainViewModel : ViewModel() {
     // TODO: Implement the ViewModel
 }
