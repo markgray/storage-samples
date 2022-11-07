@@ -70,7 +70,6 @@ val ACCEPTED_MIMETYPES: Array<String> = arrayOf("image/jpeg", "image/png")
 /**
  * This [AndroidViewModel] is used by both [DashboardFragment] and [GalleryFragment].
  */
-@Suppress("BlockingMethodInNonBlockingContext")
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * This is the [OkHttpClient] instance that is used by our [saveRandomImageFromInternet] method
@@ -261,7 +260,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             withContext(Dispatchers.IO) {
                 val response: Response = httpClient.newCall(request).execute()
 
-                @Suppress("UNNECESSARY_SAFE_CALL")
+                @Suppress("UNNECESSARY_SAFE_CALL") // Better safe than sorry
                 response.body?.let { responseBody ->
                     val imageFile = File(imagesFolder, generateFilename(Source.INTERNET))
                     // TODO: Apply grayscale filter before saving image
@@ -360,7 +359,7 @@ private fun getImagesFolder(context: Context): File {
  * @return a [Map] of [String] to [String] of the attribute names and their values for the element
  * in [xml] whose name is [nodeName].
  */
-@Suppress("SameParameterValue")
+@Suppress("SameParameterValue") // Suggested change would make method less reusable
 private fun getAttributesFromXmlNode(
     xml: XmlResourceParser,
     nodeName: String

@@ -31,6 +31,6 @@ import java.io.InputStream
  * @return the [Bitmap] decoded from the [InputStream] returned by the [ResponseBody.byteStream]
  * method of our parameter [responseBody]
  */
-@Suppress("unused")
+@Suppress("unused") // Suggested change would make class less reusable
 fun getBitmapFromResponseBody(responseBody: ResponseBody): Bitmap =
     BitmapFactory.decodeStream(responseBody.byteStream())

@@ -83,6 +83,6 @@ suspend fun applyGrayscaleFilter(original: Bitmap): Bitmap {
  * @param byteArray the [ByteArray] to decode into an immutable [Bitmap].
  * @return The decoded [Bitmap], or `null` if the image could not be decoded.
  */
-@Suppress("unused")
+@Suppress("unused") // Suggested change would make class less reusable
 fun byteArrayToBitmap(byteArray: ByteArray): Bitmap? =
     BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
