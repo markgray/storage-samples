@@ -243,7 +243,7 @@ class ImageProvider : ContentProvider() {
      * @param uri the [Uri] to query.
      * @return a MIME type [String], or `null` if there is no type.
      */
-    @Suppress("RedundantNullableReturnType")
+    @Suppress("RedundantNullableReturnType") // The method we override returns nullable
     override fun getType(uri: Uri): String? {
         return when (sUriMatcher.match(uri)) {
             IMAGES -> "vnd.android.cursor.dir/images"

@@ -96,7 +96,7 @@ internal class ImageAdapter(private val mContext: Context) :
      * the item at the given position in the data set.
      * @param position The position of the item within the adapter's data set.
      */
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n") // This is a US only app
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val resources: Resources = mContext.resources
         if (mImageDocuments.size > position) {
