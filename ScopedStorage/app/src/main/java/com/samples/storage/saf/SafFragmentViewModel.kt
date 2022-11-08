@@ -76,7 +76,6 @@ class SafFragmentViewModel : ViewModel() {
      */
     suspend fun createDocumentExample(outputStream: OutputStream): String {
 
-        @Suppress("BlockingMethodInNonBlockingContext")
         return withContext(Dispatchers.IO) {
             val lines = mutableListOf<String>()
 
@@ -143,7 +142,6 @@ class SafFragmentViewModel : ViewModel() {
      * [inputStream] formatted as two character hex strings separated by the ":" character.
      */
     suspend fun openDocumentExample(inputStream: InputStream): String {
-        @Suppress("BlockingMethodInNonBlockingContext")
         return withContext(Dispatchers.IO) {
             inputStream.use { stream: InputStream ->
                 val messageDigest: MessageDigest = MessageDigest.getInstance("SHA-256")

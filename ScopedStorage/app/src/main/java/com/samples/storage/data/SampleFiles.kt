@@ -18,7 +18,7 @@ package com.samples.storage.data
 /**
  * List of remote sample files to be used in the different samples
  */
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate") // I like to use kdoc [] references
 object SampleFiles {
     /**
      * URL's of sample image files that can be downloaded 
@@ -43,7 +43,7 @@ object SampleFiles {
     /**
      * [List] of all the sample files contained in both [images] and [video] lists.
      */
-    @Suppress("unused")
+    @Suppress("unused") // Suggested change would make class less reusable
     val media: List<String> = images + video
 
     /**

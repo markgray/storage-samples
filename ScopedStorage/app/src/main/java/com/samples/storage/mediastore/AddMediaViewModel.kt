@@ -276,7 +276,6 @@ class AddMediaViewModel(
      * and copying it to shared storage. The `OnClickListener` of the "Download Picture" button in
      * the UI of [AddMediaFragment] re-enables the button in the lambda it calls us with.
      */
-    @Suppress("BlockingMethodInNonBlockingContext")
     fun saveRandomImageFromInternet(callback: () -> Unit) {
         viewModelScope.launch {
             val imageUri: Uri? = createPhotoUri(Source.INTERNET)

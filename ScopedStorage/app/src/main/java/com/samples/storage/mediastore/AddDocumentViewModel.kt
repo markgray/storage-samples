@@ -229,7 +229,6 @@ class AddDocumentViewModel(
      *  (causing the observer of its accessor field [isDownloading] to enable the "Download Random
      *  File" button in the [AddDocumentFragment] UI).
      */
-    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun addRandomFile() {
         _isDownloading.postValue(true)
 
@@ -339,7 +338,7 @@ class AddDocumentViewModel(
      * one-shot stream from the origin server to the client application with the raw bytes of the
      * response body. Each response body is supported by an active connection to the webserver.
      */
-    @Suppress("BlockingMethodInNonBlockingContext", "RedundantNullableReturnType")
+    @Suppress("RedundantNullableReturnType") // Better safe than sorry
     private suspend fun downloadFileFromInternet(url: String): ResponseBody? {
         // We use OkHttp to create HTTP request
         val request: Request = Request.Builder().url(url).build()
@@ -366,9 +365,7 @@ class AddDocumentViewModel(
      * and the pathname string in our [String] parameter [filename] (ie. the [File] points to the
      * file we created in the Downloads folder).
      */
-    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun addFileToDownloadsApi21(filename: String): File {
-        @Suppress("DEPRECATION")
         val downloadsFolder = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
 
         // Get path of the destination where the file will be saved
@@ -406,8 +403,7 @@ class AddDocumentViewModel(
      * @return a [Uri] which can be used to open an [OutputStream] to write to the file with the
      * name of our [String] parameter [filename] in the Downloads folder.
      */
-    @Suppress("BlockingMethodInNonBlockingContext")
-    @RequiresApi(Build.VERSION_CODES.Q)
+    @RequiresApi(Build.VERSION_CODES.Q) // Only used for Q and above
     private suspend fun addFileToDownloadsApi29(filename: String): Uri {
         val collection: Uri = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
 
@@ -478,7 +474,6 @@ class AddDocumentViewModel(
         return withContext(Dispatchers.IO) {
             val cursor: Cursor = context.contentResolver.query(
                 uri,
-                @Suppress("DEPRECATION")
                 arrayOf(FileColumns.DATA),
                 null,
                 null,
@@ -489,7 +484,6 @@ class AddDocumentViewModel(
                 if (!cursor.moveToFirst()) {
                     return@withContext null
                 }
-                @Suppress("DEPRECATION")
                 return@withContext cursor.getString(cursor.getColumnIndexOrThrow(FileColumns.DATA))
             }
         }
@@ -540,7 +534,6 @@ class AddDocumentViewModel(
                     FileColumns.SIZE,
                     FileColumns.MIME_TYPE,
                     FileColumns.DATE_ADDED,
-                    @Suppress("DEPRECATION")
                     FileColumns.DATA
                 ),
                 null,
@@ -557,8 +550,6 @@ class AddDocumentViewModel(
                 val sizeColumn = cursor.getColumnIndexOrThrow(FileColumns.SIZE)
                 val mimeTypeColumn = cursor.getColumnIndexOrThrow(FileColumns.MIME_TYPE)
                 val dateAddedColumn = cursor.getColumnIndexOrThrow(FileColumns.DATE_ADDED)
-
-                @Suppress("DEPRECATION")
                 val dataColumn = cursor.getColumnIndexOrThrow(FileColumns.DATA)
 
                 return@withContext FileEntry(

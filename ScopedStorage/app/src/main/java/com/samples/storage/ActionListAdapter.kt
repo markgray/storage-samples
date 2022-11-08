@@ -52,7 +52,7 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
      *
      * @param view a [View] that is inflated from the layout file [R.layout.list_row_item].
      */
-    @Suppress("RedundantEmptyInitializerBlock")
+    @Suppress("RedundantEmptyInitializerBlock") // Skeleton code for future use
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         /**
          * Cached reference to the [TextView] in our [itemView] with resource ID [R.id.textView]

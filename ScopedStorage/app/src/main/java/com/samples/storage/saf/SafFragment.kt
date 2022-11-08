@@ -126,7 +126,6 @@ class SafFragment : Fragment() {
             // We launch a coroutine within the lifecycle of the viewmodel. The coroutine will be
             // automatically cancelled if the viewmodel is cleared
             viewLifecycleOwner.lifecycleScope.launch {
-                @Suppress("BlockingMethodInNonBlockingContext")
                 val documentStream: OutputStream = withContext(Dispatchers.IO) {
                     requireContext().contentResolver.openOutputStream(documentUri)
                 } ?: return@launch
@@ -182,7 +181,6 @@ class SafFragment : Fragment() {
             ?: return@registerForActivityResult
 
         viewLifecycleOwner.lifecycleScope.launch {
-            @Suppress("BlockingMethodInNonBlockingContext")
             val documentStream: InputStream = withContext(Dispatchers.IO) {
                 requireContext().contentResolver.openInputStream(documentUri)
             } ?: return@launch
