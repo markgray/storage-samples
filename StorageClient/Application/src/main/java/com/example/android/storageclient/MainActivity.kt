@@ -101,8 +101,12 @@ class MainActivity : SampleActivityBase() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             (logFragment.logView ?: return).setTextAppearance(R.style.Log)
         } else {
-            @Suppress("DEPRECATION") // The one argument version requires SDK 23
-            (logFragment.logView ?: return).setTextAppearance(this, R.style.Log)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                (logFragment.logView ?: return).setTextAppearance(R.style.Log)
+            } else {
+                @Suppress("DEPRECATION") // Needed for Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+                (logFragment.logView ?: return).setTextAppearance(this, R.style.Log)
+            }
         }
         Log.i(TAG, "Ready")
     }

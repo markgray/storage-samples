@@ -60,7 +60,7 @@ class StorageClientFragment : Fragment() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION")
+        @Suppress("DEPRECATION") // TODO: Replace setHasOptionsMenu with MenuProvider
         setHasOptionsMenu(true)
     }
 
@@ -75,7 +75,7 @@ class StorageClientFragment : Fragment() {
      * @return boolean Return `false` to allow normal menu processing to proceed, `true` to consume
      * it here.
      */
-    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION") // TODO: Replace onOptionsItemSelected with MenuProvider
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.sample_action) {
             performFileSearch()
