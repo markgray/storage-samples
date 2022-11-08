@@ -121,7 +121,7 @@ class SharingShortcutsManager {
      * Note that if a shortcut is set as long-lived, it may still be available in the system as a
      * cached shortcut even after being removed from the list of dynamic shortcuts.
      */
-    @Suppress("unused")
+    @Suppress("unused") // Suggested change would make class less reusable
     fun removeAllDirectShareTargets(context: Context) {
         ShortcutManagerCompat.removeAllDynamicShortcuts(context)
     }
