@@ -102,8 +102,12 @@ class MainActivity : SampleActivityBase() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             (logFragment.logView ?: return).setTextAppearance(R.style.Log)
         } else {
-            @Suppress("DEPRECATION")
-            (logFragment.logView ?: return).setTextAppearance(this, R.style.Log)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                (logFragment.logView ?: return).setTextAppearance(R.style.Log)
+            } else {
+                @Suppress("DEPRECATION") // Needed for Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+                (logFragment.logView ?: return).setTextAppearance(this, R.style.Log)
+            }
         }
         (logFragment.logView ?: return).setBackgroundColor(Color.WHITE)
         Log.i(TAG, "Ready")

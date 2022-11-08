@@ -741,7 +741,7 @@ class MyCloudProvider : DocumentsProvider() {
      * @param parent the File for the parent directory
      * @return a string of the unique MIME data types the parent directory supports
      */
-    @Suppress("UNUSED_PARAMETER")
+    @Suppress("UNUSED_PARAMETER") // Suggested change would make method less reusable
     private fun getChildMimeTypes(parent: File?): String {
         val mimeTypes: MutableSet<String> = HashSet()
         mimeTypes.add("image/*")

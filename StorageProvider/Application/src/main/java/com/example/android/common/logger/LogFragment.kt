@@ -28,12 +28,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("MemberVisibilityCanBePrivate")
+@file:Suppress("MemberVisibilityCanBePrivate") // I like to use kdoc [] references
 
 package com.example.android.common.logger
 
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -105,8 +106,12 @@ class LogFragment : Fragment() {
         logView!!.setPadding(paddingPixels, paddingPixels, paddingPixels, paddingPixels)
         logView!!.compoundDrawablePadding = paddingPixels
         logView!!.gravity = Gravity.BOTTOM
-        @Suppress("DEPRECATION")
-        logView!!.setTextAppearance(activity, android.R.style.TextAppearance_Holo_Medium)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            logView!!.setTextAppearance(android.R.style.TextAppearance_Holo_Medium)
+        } else {
+            @Suppress("DEPRECATION") // Needed for Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+            logView!!.setTextAppearance(activity, android.R.style.TextAppearance_Holo_Medium)
+        }
         mScrollView.addView(logView)
         return mScrollView
     }
@@ -132,7 +137,7 @@ class LogFragment : Fragment() {
      * from a previous saved state as given here.
      * @return Return the [View] for the fragment's UI.
      */
-    @Suppress("RedundantNullableReturnType")
+    @Suppress("RedundantNullableReturnType") // The method we override returns nullable
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

@@ -109,7 +109,7 @@ class StorageProviderFragment : Fragment() {
                     0
                 )
             } else {
-                @Suppress("DEPRECATION")
+                @Suppress("DEPRECATION") // TODO: migrate to notifyChange(Uri, ContentObserver, int)
                 requireActivity().contentResolver.notifyChange(
                     DocumentsContract.buildRootsUri(AUTHORITY),
                     null,
