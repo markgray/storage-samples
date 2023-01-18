@@ -16,6 +16,7 @@
 
 package com.example.android.contentproviderpaging
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentProvider
 import android.content.ContentResolver
@@ -192,6 +193,7 @@ class ImageClientFragment : Fragment() {
          * @param args Any arguments supplied by the caller.
          * @return Return a new [Loader] instance that is ready to start loading.
          */
+        @SuppressLint("StaticFieldLeak") // TODO: Fix non-static CursorLoader leak warning
         override fun onCreateLoader(id: Int, args: Bundle?): Loader<Cursor> {
             val activity: Activity? = this@ImageClientFragment.activity
             return object : CursorLoader(activity as Context) {
