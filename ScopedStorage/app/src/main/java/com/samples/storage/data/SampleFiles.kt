@@ -21,7 +21,7 @@ package com.samples.storage.data
 @Suppress("MemberVisibilityCanBePrivate") // I like to use kdoc [] references
 object SampleFiles {
     /**
-     * URL's of sample image files that can be downloaded 
+     * URL's of sample image files that can be downloaded
      */
     val images: List<String> = listOf(
         "https://storage.googleapis.com/android-tv/Sample%20videos/Demo%20Slam/Google%20Demo%20Slam_%20Balcony%20Toss/card.jpg",
