@@ -218,10 +218,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun copyImageFromUri(uri: Uri) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                context.contentResolver.openInputStream(uri)?.let {
+                context.contentResolver.openInputStream(uri)?.let { inputStream: InputStream ->
                     // TODO: Apply grayscale filter before saving image
-                    copyImageFromStream(it, imagesFolder)
+                    copyImageFromStream(inputStream, imagesFolder)
                     _notification.postValue("Image copied")
+                    inputStream.close()
                 }
             }
         }
