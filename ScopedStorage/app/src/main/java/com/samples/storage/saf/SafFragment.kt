@@ -110,7 +110,7 @@ class SafFragment : Fragment() {
      * returned by [DocumentFile.getName] (aka kotlin `name` property) of `documentFile`, followed
      * by the [String] `text`.
      */
-    @Suppress("DEPRECATION") // Should pass a mime type to `CreateDocument` constructor.
+    @Suppress("DEPRECATION") // TODO: Should pass a mime type to `CreateDocument` constructor.
     private val actionCreateDocument: ActivityResultLauncher<String> =
         registerForActivityResult(CreateDocument()) { uri: Uri? ->
             // If the user returns to this fragment without creating a file, uri will be null
