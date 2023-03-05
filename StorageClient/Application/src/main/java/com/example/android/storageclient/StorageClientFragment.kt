@@ -26,12 +26,16 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.provider.OpenableColumns
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.Window
 import android.widget.ImageView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -60,27 +64,45 @@ class StorageClientFragment : Fragment() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // TODO: Replace setHasOptionsMenu with MenuProvider
-        setHasOptionsMenu(true)
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(menuProvider, this)
     }
 
     /**
-     * This hook is called whenever an item in your options menu is selected. If the `itemId` property
-     * (aka [MenuItem.getItemId] return value) of [item] is [R.id.sample_action] (the item with the
-     * title "Show Me The Image") then we call our [performFileSearch] method to have it fire an
-     * intent to spin up the "file chooser" activity and have the user select an image. In any case
-     * we return `true` to the caller to consume the event here.
-     *
-     * @param item The [MenuItem] that was selected.
-     * @return boolean Return `false` to allow normal menu processing to proceed, `true` to consume
-     * it here.
+     * Our  [MenuProvider]
      */
-    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION") // TODO: Replace onOptionsItemSelected with MenuProvider
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.sample_action) {
-            performFileSearch()
+    private val menuProvider: MenuProvider = object : MenuProvider {
+        /**
+         * Initialize the contents of the Fragment host's standard options menu. We use our
+         * [MenuInflater] parameter [menuInflater] to inflate our menu layout file
+         * [R.menu.main] into our [Menu] parameter [menu].
+         *
+         * @param menu The options menu in which you place your items.
+         * @param menuInflater a [MenuInflater] you can use to inflate an XML menu file with.
+         */
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.main, menu)
         }
-        return true
+
+        /**
+         * This hook is called whenever an item in your options menu is selected. If the `itemId`
+         * property (aka [MenuItem.getItemId] return value) of [menuItem] is [R.id.sample_action]
+         * (the item with the title "Show Me The Image") then we call our [performFileSearch] method
+         * to have it fire an intent to spin up the "file chooser" activity and have the user select
+         * an image, then we return `true` to the caller to consume the event here. If it is not our
+         * [MenuItem] we return `false` to allow normal menu processing to proceed.
+         *
+         * @param menuItem The [MenuItem] that was selected.
+         * @return boolean Return `false` to allow normal menu processing to proceed, `true` to
+         * consume it here.
+         */
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            if (menuItem.itemId == R.id.sample_action) {
+                performFileSearch()
+                return true
+            }
+            return false
+        }
     }
 
     /**

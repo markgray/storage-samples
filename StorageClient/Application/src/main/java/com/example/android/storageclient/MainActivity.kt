@@ -15,12 +15,13 @@
 */
 package com.example.android.storageclient
 
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -56,6 +57,8 @@ class MainActivity : SampleActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val menuHost: MenuHost = this
+        menuHost.addMenuProvider(menuProvider, this)
         if (supportFragmentManager.findFragmentByTag(FRAGTAG) == null) {
             val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
             val fragment = StorageClientFragment()
@@ -65,20 +68,31 @@ class MainActivity : SampleActivityBase() {
     }
 
     /**
-     * Initialize the contents of the Activity's standard options menu. We use a [MenuInflater] for
-     * this [Context] to inflate our options menu file [R.menu.main] into our [Menu] parameter [menu]
-     * (it consists of a single [MenuItem] with the ID [R.id.sample_action] and the android:title
-     * "Show Me The Image"). Then we return `true` so that the menu will be displayed. Note that
-     * [StorageClientFragment] overrides [onOptionsItemSelected] and will handle any clicks on the
-     * [MenuItem] in our options [Menu].
-     *
-     * @param menu The options [Menu] in which you place your items.
-     * @return You must return `true` for the menu to be displayed;
-     * if you return `false` it will not be shown.
+     * Our  [MenuProvider]
      */
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return true
+    private val menuProvider: MenuProvider = object : MenuProvider {
+        /**
+         * Called by the [MenuHost] to allow the [MenuProvider] to inflate [MenuItem]s into the menu.
+         * We leave this up to our [StorageClientFragment] fragment.
+         *
+         * @param menu The options menu in which you place your items.
+         * @param menuInflater a [MenuInflater] you can use to inflate an XML menu file with.
+         */
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            return
+        }
+
+        /**
+         * Called by the [MenuHost] when a [MenuItem] is selected from the menu. We do not implement
+         * anything yet, this will be done in `MarsRealEstateFinal`. We leave this up to our
+         * [StorageClientFragment] fragment.
+         *
+         * @param menuItem the menu item that was selected
+         * @return `true` if the given menu item is handled by this menu provider, `false` otherwise.
+         */
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            return false
+        }
     }
 
     /**
