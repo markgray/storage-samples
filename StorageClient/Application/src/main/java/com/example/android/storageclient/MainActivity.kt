@@ -78,6 +78,7 @@ class MainActivity : SampleActivityBase() {
          * @param menu The options menu in which you place your items.
          * @param menuInflater a [MenuInflater] you can use to inflate an XML menu file with.
          */
+        @Suppress("EmptyMethod") // No real need to remove it
         override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
             return
         }
