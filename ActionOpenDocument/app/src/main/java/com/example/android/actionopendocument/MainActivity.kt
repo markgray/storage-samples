@@ -150,10 +150,12 @@ class MainActivity : AppCompatActivity() {
                     .show()
                 return true
             }
+
             R.id.action_open -> {
                 openDocumentPicker()
                 return true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
