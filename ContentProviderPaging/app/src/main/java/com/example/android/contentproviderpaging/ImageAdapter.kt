@@ -57,7 +57,7 @@ internal class ImageAdapter(private val mContext: Context) :
      *
      * We initialize our [View] variable `val view` to the [View] that the [LayoutInflater] from
      * the context of our [ViewGroup] parameter [parent] returns when its [LayoutInflater.inflate]
-     * method inflates the layout file with resource ID [R.layout.viewholder_image] using [parent]
+     * method inflates the layout file with resource ID `R.layout.viewholder_image` using [parent]
      * for its LayoutParams without attaching to it. We then return a new instance of [ImageViewHolder]
      * constructed to hold `view`.
      *
@@ -68,7 +68,7 @@ internal class ImageAdapter(private val mContext: Context) :
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view: View = LayoutInflater.from(parent.context)
-            .inflate(R.layout.viewholder_image, parent, false)
+            .inflate(com.example.android.contentproviderpaging.common.R.layout.viewholder_image, parent, false)
         return ImageViewHolder(view)
     }
 
@@ -105,12 +105,12 @@ internal class ImageAdapter(private val mContext: Context) :
             Log.i(TAG, "Loading ${mImageDocuments[position].mAbsolutePath}")
             Glide.with(mContext)
                 .load(mImageDocuments[position].mAbsolutePath)
-                .placeholder(R.drawable.cat_placeholder)
+                .placeholder(com.example.android.contentproviderpaging.common.R.drawable.cat_placeholder)
                 .into(holder.mImageView)
             holder.mTextView.text = (position + 1).toString()
         } else {
             holder.mImageView.setImageDrawable(
-                ResourcesCompat.getDrawable(resources, R.drawable.cat_placeholder, null)
+                ResourcesCompat.getDrawable(resources, com.example.android.contentproviderpaging.common.R.drawable.cat_placeholder, null)
             )
         }
     }
