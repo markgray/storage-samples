@@ -42,11 +42,11 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(com.example.android.contentproviderpaging.common.R.layout.activity_main)
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .add(R.id.container, ImageClientFragment.newInstance())
+                .add(com.example.android.contentproviderpaging.common.R.id.container, ImageClientFragment.newInstance())
                 .commit()
         }
     }

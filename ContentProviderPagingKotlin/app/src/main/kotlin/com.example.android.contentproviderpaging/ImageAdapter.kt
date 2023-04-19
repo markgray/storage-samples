@@ -66,7 +66,7 @@ internal class ImageAdapter(private val mContext: Context) :
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.viewholder_image, parent, false)
+            .inflate(com.example.android.contentproviderpaging.common.R.layout.viewholder_image, parent, false)
         return ImageViewHolder(view)
     }
 
@@ -102,12 +102,12 @@ internal class ImageAdapter(private val mContext: Context) :
         if (mImageDocuments.size > position) {
             Glide.with(mContext)
                 .load(mImageDocuments[position].absolutePath)
-                .placeholder(R.drawable.cat_placeholder)
+                .placeholder(com.example.android.contentproviderpaging.common.R.drawable.cat_placeholder)
                 .into(holder.mImageView)
             holder.mTextView.text = (position + 1).toString()
         } else {
             holder.mImageView.setImageDrawable(
-                ResourcesCompat.getDrawable(resources, R.drawable.cat_placeholder, null)
+                ResourcesCompat.getDrawable(resources, com.example.android.contentproviderpaging.common.R.drawable.cat_placeholder, null)
             )
         }
     }

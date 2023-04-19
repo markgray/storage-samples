@@ -31,11 +31,11 @@ internal class ImageViewHolder(itemView: View) : ViewHolder(itemView) {
     /**
      * The [ImageView] in our [itemView] that displays the jpeg.
      */
-    var mImageView: ImageView = itemView.findViewById(R.id.imageview)
+    var mImageView: ImageView = itemView.findViewById(com.example.android.contentproviderpaging.common.R.id.imageview)
 
     /**
      * The [TextView] in our [itemView] that displays the image number.
      */
-    var mTextView: TextView = itemView.findViewById(R.id.textview_image_label)
+    var mTextView: TextView = itemView.findViewById(com.example.android.contentproviderpaging.common.R.id.textview_image_label)
 
 }

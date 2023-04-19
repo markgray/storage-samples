@@ -91,7 +91,7 @@ class ImageClientFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_image_client, container, false)
+        return inflater.inflate(com.example.android.contentproviderpaging.common.R.layout.fragment_image_client, container, false)
     }
 
     /**
@@ -133,7 +133,7 @@ class ImageClientFragment : Fragment() {
         super.onViewCreated(rootView, savedInstanceState)
 
         val activity: Activity? = activity
-        val recyclerView = (activity ?: return).findViewById<RecyclerView>(R.id.recyclerview)
+        val recyclerView = (activity ?: return).findViewById<RecyclerView>(com.example.android.contentproviderpaging.common.R.id.recyclerview)
         if (mLayoutManager == null) {
             mLayoutManager = LinearLayoutManager(activity)
         }
@@ -161,7 +161,7 @@ class ImageClientFragment : Fragment() {
             }
         })
 
-        val showButton = rootView.findViewById<Button>(R.id.button_show)
+        val showButton = rootView.findViewById<Button>(com.example.android.contentproviderpaging.common.R.id.button_show)
         showButton.setOnClickListener {
             LoaderManager.getInstance(this).restartLoader(0, null, mLoaderCallback)
             showButton.visibility = View.GONE
@@ -311,7 +311,7 @@ class ImageClientFragment : Fragment() {
             val offsetSnapShot = mOffset.get()
             val message = (activity ?: return).resources
                 .getString(
-                    R.string.fetched_images_out_of, offsetSnapShot + 1,
+                    com.example.android.contentproviderpaging.common.R.string.fetched_images_out_of, offsetSnapShot + 1,
                     offsetSnapShot + cursorCount, totalSize
                 )
             mOffset.addAndGet(cursorCount)
