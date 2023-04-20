@@ -373,6 +373,7 @@ private fun generateFilename(source: Source, extension: String): String {
         Source.CAMERA -> {
             "camera-${System.currentTimeMillis()}.$extension"
         }
+
         Source.INTERNET -> {
             "internet-${System.currentTimeMillis()}.$extension"
         }
