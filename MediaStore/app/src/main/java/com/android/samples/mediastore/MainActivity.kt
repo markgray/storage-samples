@@ -17,6 +17,7 @@
 package com.android.samples.mediastore
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.RecoverableSecurityException
 import android.content.ContentResolver
@@ -371,11 +372,13 @@ class MainActivity : AppCompatActivity() {
      * return to our [onRequestPermissionsResult] override (so it knows that the results are for
      * this request).
      */
+    @SuppressLint("InlinedApi")
     private fun requestPermission() {
         if (!haveStoragePermission()) {
             val permissions: Array<String> = arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_VIDEO,
+                Manifest.permission.READ_MEDIA_AUDIO
             )
             ActivityCompat.requestPermissions(this, permissions, READ_EXTERNAL_STORAGE_REQUEST)
         }
