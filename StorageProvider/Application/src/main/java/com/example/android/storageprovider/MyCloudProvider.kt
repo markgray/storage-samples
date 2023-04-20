@@ -793,9 +793,11 @@ class MyCloudProvider : DocumentsProvider() {
             rootPath == path -> {
                 ""
             }
+
             rootPath.endsWith("/") -> {
                 path.substring(rootPath.length)
             }
+
             else -> {
                 path.substring(rootPath.length + 1)
             }
