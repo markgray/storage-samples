@@ -136,6 +136,7 @@ class SendMessageActivity : Activity() {
                 }
                 prepareUi()
             }
+
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
