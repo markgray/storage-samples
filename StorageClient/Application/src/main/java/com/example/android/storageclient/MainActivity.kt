@@ -15,6 +15,7 @@
 */
 package com.example.android.storageclient
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -116,6 +117,7 @@ class MainActivity : SampleActivityBase() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             (logFragment.logView ?: return).setTextAppearance(R.style.Log)
         } else {
+            @SuppressLint("ObsoleteSdkInt")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 (logFragment.logView ?: return).setTextAppearance(R.style.Log)
             } else {
