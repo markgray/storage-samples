@@ -15,13 +15,11 @@
  */
 
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdk 33
+    compileSdk 34
     buildTypes {
         release {
             minifyEnabled false
@@ -31,8 +29,8 @@ android {
     defaultConfig {
         applicationId "com.android.samples.mediastore"
         minSdkVersion 16
-        //noinspection OldTargetApi
-        targetSdkVersion 33 // TODO: targetSdkVersion 33 needs you to request fine grained permission )-:
+        //noinspection EditedTargetSdkVersion
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
