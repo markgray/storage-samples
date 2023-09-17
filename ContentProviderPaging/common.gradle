@@ -6,7 +6,6 @@ android {
     defaultConfig {
         applicationId "com.example.android.contentproviderpaging"
         minSdkVersion 26
-        //noinspection EditedTargetSdkVersion
         targetSdkVersion 34
     }
 
