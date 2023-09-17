@@ -5,7 +5,6 @@ android {
 
     defaultConfig {
         minSdkVersion 16
-        //noinspection EditedTargetSdkVersion
         targetSdkVersion 34
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
