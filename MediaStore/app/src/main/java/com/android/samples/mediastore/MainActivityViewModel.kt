@@ -417,6 +417,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
  * @return a [ContentObserver] configured to watch the [Uri] parameter [uri] for changes and to
  * execute the [observer] parameter lambda when they occur.
  */
+@Suppress("SameParameterValue")
 private fun ContentResolver.registerObserver(
     uri: Uri,
     observer: (selfChange: Boolean) -> Unit
