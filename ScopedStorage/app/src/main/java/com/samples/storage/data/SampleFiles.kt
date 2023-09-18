@@ -43,6 +43,7 @@ object SampleFiles {
     /**
      * [List] of all the sample files contained in both [images] and [video] lists.
      */
+    @Suppress("unused")
     val media: List<String> = images + video
 
     /**
