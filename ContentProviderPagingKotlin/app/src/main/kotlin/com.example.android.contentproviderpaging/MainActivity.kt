@@ -20,6 +20,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import com.example.android.contentproviderpaging.common.R
 
 /**
  * The launcher Activity.
@@ -42,11 +43,11 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(com.example.android.contentproviderpaging.common.R.layout.activity_main)
+        setContentView(R.layout.activity_main)
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .add(com.example.android.contentproviderpaging.common.R.id.container, ImageClientFragment.newInstance())
+                .add(R.id.container, ImageClientFragment.newInstance())
                 .commit()
         }
     }

@@ -30,6 +30,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.util.Log
+import com.example.android.contentproviderpaging.common.R
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -360,7 +361,7 @@ class ImageProvider : ContentProvider() {
             return
         }
 
-        val imageResIds: IntArray = getResourceIdArray(context, com.example.android.contentproviderpaging.common.R.array.image_res_ids)
+        val imageResIds: IntArray = getResourceIdArray(context, R.array.image_res_ids)
         for (i in 0 until REPEAT_COUNT_WRITE_FILES) {
             for (resId in imageResIds) {
                 writeFileToInternalStorage(context, resId, "-$i.jpeg")
