@@ -19,6 +19,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import com.example.android.contentproviderpaging.common.R
 
 /**
  * The launcher Activity.
@@ -26,12 +27,12 @@ import androidx.fragment.app.FragmentTransaction
 class MainActivity : AppCompatActivity() {
     /**
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file `R.layout.activity_main` which consists of a
-     * single `FrameLayout` root view with the resource ID `R.id.container`. If our [Bundle] parameter
+     * then we set our content view to our layout file [R.layout.activity_main] which consists of a
+     * single `FrameLayout` root view with the resource ID [R.id.container]. If our [Bundle] parameter
      * [savedInstanceState] is `null` this is the first time we are being run so we fetch the
      * [FragmentManager] for interacting with fragments associated with this activity and use it to
      * begin a [FragmentTransaction] which we use to add a new instance of [ImageClientFragment] to
-     * the container with resource ID `R.id.container` and then we commit the [FragmentTransaction].
+     * the container with resource ID [R.id.container] and then we commit the [FragmentTransaction].
      * Note: if [savedInstanceState] is not `null` we are being restarted after previously being
      * shut down and the system will take care of restoring our [ImageClientFragment] for us.
      *
@@ -41,10 +42,10 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(com.example.android.contentproviderpaging.common.R.layout.activity_main)
+        setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .add(com.example.android.contentproviderpaging.common.R.id.container, ImageClientFragment.newInstance())
+                .add(R.id.container, ImageClientFragment.newInstance())
                 .commit()
         }
     }
