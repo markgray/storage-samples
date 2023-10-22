@@ -15,6 +15,7 @@
  */
 package com.example.android.sharingshortcuts
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.Person
@@ -80,6 +81,7 @@ class SharingShortcutsManager {
      * @param context the [Context] of [MainActivity], used to retrieve resources, access system
      * services, and identify this app.
      */
+    @SuppressLint("ReportShortcutUsage")
     fun pushDirectShareTargets(context: Context) {
         val shortcuts = ArrayList<ShortcutInfoCompat>()
 
