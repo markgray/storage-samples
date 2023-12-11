@@ -49,6 +49,9 @@ android {
         jvmTarget = '17'
     }
     namespace 'com.android.samples.filemanager'
+    buildFeatures {
+        buildConfig true
+    }
 
 }
 
