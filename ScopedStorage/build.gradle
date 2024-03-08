@@ -22,7 +22,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath 'com.android.tools.build:gradle:8.3.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -45,7 +45,7 @@ subprojects {
     spotless {
         kotlin {
             target '**/*.kt'
-            targetExclude("$buildDir/**/*.kt")
+            targetExclude("$layout.buildDir/**/*.kt")
             targetExclude('bin/**/*.kt')
             ktlint('0.41.0')
             licenseHeaderFile rootProject.file('spotless/copyright.txt')

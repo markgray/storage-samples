@@ -54,7 +54,7 @@ class DeleteMediaFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDemoBinding.inflate(inflater, container, false)
-        @Suppress("UnnecessaryVariable") // Easier to breakpoint this way
+        // Easier to breakpoint this way
         val view = binding.root
         return view
     }
