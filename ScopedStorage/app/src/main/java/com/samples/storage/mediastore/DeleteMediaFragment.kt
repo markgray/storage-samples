@@ -48,13 +48,13 @@ class DeleteMediaFragment : Fragment() {
      *
      * @return Return the [View] for the fragment's UI, or null.
      */
+    @Suppress("UnnecessaryVariable") // Easier to breakpoint this way
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentDemoBinding.inflate(inflater, container, false)
-        // Easier to breakpoint this way
         val view = binding.root
         return view
     }
