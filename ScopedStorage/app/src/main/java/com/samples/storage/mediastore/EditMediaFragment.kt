@@ -48,7 +48,7 @@ class EditMediaFragment : Fragment() {
      *
      * @return Return the [View] for the fragment's UI, or null.
      */
-    @Suppress("UnnecessaryVariable") // Easier to breakpoint this way
+    // Easier to breakpoint this way
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
