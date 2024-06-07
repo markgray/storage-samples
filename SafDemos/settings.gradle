@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-rootProject.name='SAF Demos'
-include ':app'
+rootProject.name="SAF Demos"
+include(":app")
