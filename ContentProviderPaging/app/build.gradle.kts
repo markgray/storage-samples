@@ -29,6 +29,6 @@ android {
     namespace = "com.example.android.contentproviderpaging"
 }
 dependencies {
-    implementation ("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core-ktx:1.13.1")
     implementation(project(":resources"))
 }
