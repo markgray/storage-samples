@@ -55,7 +55,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    implementation("androidx.fragment:fragment-ktx:1.8.2")
+    implementation("androidx.fragment:fragment-ktx:1.8.3")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
 
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
@@ -66,8 +66,8 @@ dependencies {
     implementation("androidx.documentfile:documentfile:1.0.1")
 
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.fragment:fragment-ktx:1.8.2")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
+    implementation("androidx.fragment:fragment-ktx:1.8.3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.6.2")
