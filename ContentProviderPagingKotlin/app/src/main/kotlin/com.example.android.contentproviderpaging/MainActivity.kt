@@ -17,7 +17,13 @@
 package com.example.android.contentproviderpaging
 
 import android.os.Bundle
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.example.android.contentproviderpaging.common.R
@@ -42,8 +48,24 @@ class MainActivity : AppCompatActivity() {
      * Note: Otherwise it is null.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val rootView = findViewById<FrameLayout>(R.id.container)
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Apply the insets as a margin to the view.
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = insets.left
+                rightMargin = insets.right
+                topMargin = insets.top
+                bottomMargin = insets.bottom
+            }
+            // Return CONSUMED if you don't want want the window insets to keep passing
+            // down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
+
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
