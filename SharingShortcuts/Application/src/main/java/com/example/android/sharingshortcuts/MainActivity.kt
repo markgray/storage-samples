@@ -15,7 +15,6 @@
  */
 package com.example.android.sharingshortcuts
 
-import android.app.Activity
 import android.content.ClipData
 import android.content.ContentResolver
 import android.content.Intent
@@ -24,12 +23,19 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.core.content.FileProvider
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -40,7 +46,7 @@ import java.io.OutputStream
  * Provides the landing screen of this sample. There is nothing particularly interesting here. All
  * the codes related to the Direct Share feature are in [SharingShortcutsManager].
  */
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
     /**
      * The [EditText] in our UI with resource ID [R.id.body] which the user uses to type the message
      * he wants to share.
@@ -71,8 +77,23 @@ class MainActivity : Activity() {
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val rootView = findViewById<LinearLayout>(R.id.root_view)
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Apply the insets as a margin to the view.
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = insets.left
+                rightMargin = insets.right
+                topMargin = insets.top
+                bottomMargin = insets.bottom
+            }
+            // Return CONSUMED if you don't want want the window insets to keep passing
+            // down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
         mEditBody = findViewById(R.id.body)
         findViewById<View>(R.id.share).setOnClickListener(mOnClickListener)
         mSharingShortcutsManager = SharingShortcutsManager()
