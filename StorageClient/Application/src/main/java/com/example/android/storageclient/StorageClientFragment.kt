@@ -121,7 +121,7 @@ class StorageClientFragment : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
                 data?.data.also { uri: Uri? ->
-                    Log.i(TAG, "Uri: " + uri.toString())
+                    Log.i(TAG, "Uri: $uri")
                     showImage(uri)
                 }
             }
