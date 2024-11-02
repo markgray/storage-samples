@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 35
     defaultConfig {
         minSdk = 21
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -33,5 +33,5 @@ dependencies {
     api("androidx.recyclerview:recyclerview:1.3.2")
     api("com.github.bumptech.glide:glide:4.16.0")
     testImplementation("junit:junit:4.13.2")
-    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core-ktx:1.15.0")
 }
