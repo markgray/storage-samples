@@ -56,9 +56,9 @@ import java.io.InputStream
 private const val FILEPATH_XML_KEY = "files-path"
 
 /**
- * The URL that we use to fetch random images from the Internet.
+ * The URL that we use to fetch an image from the Internet. (Random does not work anymore).
  */
-private const val RANDOM_IMAGE_URL = "https://source.unsplash.com/random/500x500"
+private const val RANDOM_IMAGE_URL = "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee"
 
 /**
  * This is used as the "input" [Array] of [String] when launching the [ActivityResultLauncher]
