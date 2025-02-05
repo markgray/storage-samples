@@ -36,13 +36,13 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 class SelectContactActivity : Activity() {
     /**
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file [R.layout.activity_select_contact]. This
+     * then we set our content view to our layout file `R.layout.activity_select_contact`. This
      * layout holds only a single [RecyclerView] as its root view.
      *
      * Next we initialize our [Intent] variable `val intent` to the [Intent] that started this
      * activity, and if the action of `intent` is not [ACTION_SELECT_CONTACT] we call [finish]
      * to close this activity and return. Otherwise we initialize our [RecyclerView] variable
-     * `val recyclerView` by finding the view with ID [R.id.recycler_view] in our UI, then set
+     * `val recyclerView` by finding the view with ID `R.id.recycler_view` in our UI, then set
      * its [RecyclerView.Adapter] to our field [mContactAdapter], and set its [RecyclerView.LayoutManager]
      * to a new instance of [LinearLayoutManager].
      *
@@ -72,7 +72,7 @@ class SelectContactActivity : Activity() {
              * Called when [RecyclerView] needs a new [ContactViewHolder] of the given type to
              * represent an item. We initialize our [TextView] variable `val textView` to the
              * [View] that the [LayoutInflater] for the [Context] of our [ViewGroup] parameter
-             * [parent] inflates from the layout file [R.layout.item_contact] using [parent] for
+             * [parent] inflates from the layout file `R.layout.item_contact` using [parent] for
              * its `LayoutParams` without attaching to it. Finally we return a new instance of
              * [ContactViewHolder] constructed to use `textView` as its `itemView`.
              *

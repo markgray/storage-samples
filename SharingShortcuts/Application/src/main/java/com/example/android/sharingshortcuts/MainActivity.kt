@@ -48,7 +48,7 @@ import java.io.OutputStream
  */
 class MainActivity : ComponentActivity() {
     /**
-     * The [EditText] in our UI with resource ID [R.id.body] which the user uses to type the message
+     * The [EditText] in our UI with resource ID `R.id.body` which the user uses to type the message
      * he wants to share.
      */
     private lateinit var mEditBody: EditText
@@ -61,13 +61,13 @@ class MainActivity : ComponentActivity() {
 
     /**
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file [R.layout.activity_main]. It consists of a
+     * then we set our content view to our layout file `R.layout.activity_main`. It consists of a
      * vertical `LinearLayout` holding a [TextView] with the message: "This app demonstrates how to
      * implement Direct Share. Use some other app and share a text. For your convenience, you can
      * also use the input below to share the text" above an [EditText] where the user can enter their
      * message, with a "Share" [Button] at the bottom of the UI. Next we initialize our [EditText]
-     * field [mEditBody] by finding the view with ID [R.id.body], and set the [View.OnClickListener]
-     * of the view with ID [R.id.share] to our [View.OnClickListener] field [mOnClickListener].
+     * field [mEditBody] by finding the view with ID `R.id.body`, and set the [View.OnClickListener]
+     * of the view with ID `R.id.share` to our [View.OnClickListener] field [mOnClickListener].
      *
      * Finally we initialize our [SharingShortcutsManager] field [mSharingShortcutsManager] to a new
      * instance and call its [SharingShortcutsManager.pushDirectShareTargets] method to have it
@@ -102,7 +102,7 @@ class MainActivity : ComponentActivity() {
 
     /**
      * This is the [View.OnClickListener] that is used by the "Share" [Button] in our UI (resource
-     * ID [R.id.share]). When the ID of the of [View] that was clicked is [R.id.share] we call our
+     * ID `R.id.share`). When the ID of the of [View] that was clicked is `R.id.share` we call our
      * [share] method to have it construct a "share" [Intent] and use it to create an [Intent] with
      * the action [Intent.ACTION_CHOOSER] whose activity it then launches so that the user can select
      * an activity to perform the "share" [Intent].
@@ -185,7 +185,7 @@ class MainActivity : ComponentActivity() {
      *
      * We initialize our [Bitmap] variable `val bm` to the [Bitmap] that the method
      * [BitmapFactory.decodeResource] decodes from our app's launcher image (resource ID
-     * [R.mipmap.ic_launcher]). We initialize our [File] variable `val cachePath` to the
+     * `R.mipmap.ic_launcher`). We initialize our [File] variable `val cachePath` to the
      * path to the [IMAGE_CACHE_DIR] ("images") directory in our application specific cache
      * directory on the filesystem. We call the [File.mkdirs] method of `cachePath` to create
      * that directory, including any necessary but nonexistent parent directories. We initialize

@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * Called when the activity is starting.First we call our super's implementation of `onCreate`.
      * Then we use the [ActivityMainBinding.inflate] method with the LayoutInflater instance that
-     * this Window retrieved from its Context to inflate our layout file [R.layout.activity_main]
+     * this Window retrieved from its Context to inflate our layout file `R.layout.activity_main`
      * into an [ActivityMainBinding] instance which we use to initialize our field [binding], and
      * set our content view to the outermost View in the associated layout file associated with
      * [ActivityMainBinding]. Next we call the [setSupportActionBar] method with the
@@ -195,7 +195,7 @@ class MainActivity : AppCompatActivity() {
      *  - Initialize our variable `val directoryFragment` to a new instance of [DirectoryFragment]
      *  that is constructed to display [directoryUri].
      *  - Execute the [FragmentTransaction.replace] method of our receiver to have it replace the
-     *  contents of the container with ID [R.id.fragment_container] with `directoryFragment` using
+     *  contents of the container with ID `R.id.fragment_container` with `directoryFragment` using
      *  `directoryTag` as the fragment TAG.
      *  - Execute the [FragmentTransaction.addToBackStack] method of our receiver to have it add
      *  itself to the backstack with the name `directoryTag`.

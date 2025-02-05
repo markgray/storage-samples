@@ -55,7 +55,7 @@ const val DOCUMENT_FRAGMENT_TAG: String = "com.example.android.actionopendocumen
 class MainActivity : AppCompatActivity() {
 
     /**
-     * This is the `ConstraintLayout` with ID [R.id.no_document_view] in our UI which holds the
+     * This is the `ConstraintLayout` with ID `R.id.no_document_view` in our UI which holds the
      * "Open File" [Button] which when clicked calls our [openDocumentPicker] method to allow the
      * user to pick a file to view, as well as a `ImageView` holding an icon drawable and a
      * `TextView` with the text: "Click "open" to view the contents of a PDF." Its visibility is set
@@ -66,14 +66,14 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file [R.layout.activity_main_real]. This layout
+     * then we set our content view to our layout file `R.layout.activity_main_real`. This layout
      * consists of a `FrameLayout` root view holding a `ConstraintLayout` displaying our startup
      * UI, which is replaced by an [ActionOpenDocumentFragment] once the user has selected a PDF
      * file to view.
      *
      * Next we initialize our [ViewGroup] field [noDocumentView] by finding the view with the ID
-     * [R.id.no_document_view] (the `ConstraintLayout` mentioned above), then find the [Button] with
-     * ID [R.id.open_file] (labeled "Open File") and set its [View.OnClickListener] to a lambda
+     * `R.id.no_document_view` (the `ConstraintLayout` mentioned above), then find the [Button] with
+     * ID `R.id.open_file` (labeled "Open File") and set its [View.OnClickListener] to a lambda
      * which call our method [openDocumentPicker] to have it launch an [Intent.ACTION_OPEN_DOCUMENT]
      * activity to allow the user to pick a PDF to display.
      *
@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
      * and if data is found use the [String] stored under that key to create an [Uri] to initialize
      * our variable `val documentUri` which we then pass to our method [openDocument] to have it
      * construct an instance of [ActionOpenDocumentFragment] to display that file in place of the
-     * `ConstraintLayout` with ID [R.id.no_document_view] that our [ViewGroup] field [noDocumentView]
+     * `ConstraintLayout` with ID `R.id.no_document_view` that our [ViewGroup] field [noDocumentView]
      * points to. If our [SharedPreferences] does not contain data under the key [LAST_OPENED_URI_KEY]
      * we leave things as they are.
      *
@@ -132,10 +132,10 @@ class MainActivity : AppCompatActivity() {
      * items in to the [Menu] parameter [menu]. This is only called once, the first time the options
      * menu is displayed. To update the menu every time it is displayed, see [onPrepareOptionsMenu].
      * We fetch a [MenuInflater] for our context and use it to inflate the menu layout file with ID
-     * [R.menu.main] into our [Menu] parameter [menu]. It holds two [MenuItem]s:
-     *  - [R.id.action_open] "Open..." calls our method [openDocumentPicker] to allow the user to
+     * `R.menu.main` into our [Menu] parameter [menu]. It holds two [MenuItem]s:
+     *  - `R.id.action_open` "Open..." calls our method [openDocumentPicker] to allow the user to
      *  choose a PDF file to display.
-     *  - [R.id.action_info] "Info" displays an [AlertDialog] describing what this demo does.
+     *  - `R.id.action_info` "Info" displays an [AlertDialog] describing what this demo does.
      *
      * Finally we return `true` so that the [Menu] will be displayed.
      *
@@ -151,9 +151,9 @@ class MainActivity : AppCompatActivity() {
     /**
      * This hook is called whenever an item in your options menu is selected. We branch on the
      * `itemId` of our [MenuItem] parameter [item]:
-     *  - [R.id.action_info] labeled "Info": we display an [AlertDialog] describing what this demo
+     *  - `R.id.action_info` labeled "Info": we display an [AlertDialog] describing what this demo
      *  does, then return `true` to consume the event here.
-     *  - [R.id.action_open] labeled "Open...": we call our method [openDocumentPicker] to allow the
+     *  - `R.id.action_open` labeled "Open...": we call our method [openDocumentPicker] to allow the
      *  user to choose a PDF file to display, then return `true` to consume the event here.
      *  - all other `itemId`s we return the value returned by our super's implementation of
      *  `onOptionsItemSelected`.
@@ -183,14 +183,14 @@ class MainActivity : AppCompatActivity() {
     /**
      * Constructs a new instance of [ActionOpenDocumentFragment] to display the PDF document that is
      * accessible using our [Uri] parameter [documentUri] and adds it to our UI in the `FrameLayout`
-     * with resource ID [R.id.container]. First we save the [String] version of [documentUri] in the
+     * with resource ID `R.id.container`. First we save the [String] version of [documentUri] in the
      * [SharedPreferences] field named [TAG] under the key [LAST_OPENED_URI_KEY]. Then we use the
      * method [ActionOpenDocumentFragment.newInstance] to construct a new instance of
      * [ActionOpenDocumentFragment] to retrieve and display the PDF file specified by our [Uri]
      * parameter [documentUri] and use it to initialize our variable `val fragment`. We use the
      * `FragmentManager.commitNow` extension method to have it run a lambda in a [FragmentTransaction]
      * which is automatically committed, with the lambda consisting of a [FragmentTransaction.replace]
-     * command which replaces any existing fragment in the container with ID [R.id.container] with
+     * command which replaces any existing fragment in the container with ID `R.id.container` with
      * `fragment`, using [DOCUMENT_FRAGMENT_TAG] as the tag name for the fragment.
      *
      * Finally now that the document is open we set the visibility of our [ViewGroup] field

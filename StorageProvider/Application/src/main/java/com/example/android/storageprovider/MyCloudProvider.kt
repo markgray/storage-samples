@@ -152,7 +152,7 @@ class MyCloudProvider : DocumentsProvider() {
      * the column values for the new row. We add a new column to `row` whose name is
      * [Root.COLUMN_ROOT_ID] ("root_id") and whose value is [ROOT] ("root"), and we add another new
      * column to `row` whose name is [Root.COLUMN_SUMMARY] ("summary") and whose value is the resource
-     * [String] with ID [R.string.root_summary] ("cloudy with a chance of &#8230;").
+     * [String] with ID `R.string.root_summary` ("cloudy with a chance of &#8230;").
      *
      * Next we add a column to `row` with the column name [Root.COLUMN_FLAGS] ("flags") and whose is
      * value is formed by the bitwise or of the flags [Root.FLAG_SUPPORTS_CREATE] (means at least
@@ -161,7 +161,7 @@ class MyCloudProvider : DocumentsProvider() {
      * [Root.FLAG_SUPPORTS_SEARCH] (allows users to search all documents the application shares).
      *
      * Next we add a column whose name is [Root.COLUMN_TITLE] ("title") and whose value is the
-     * [String] with resource ID [R.string.app_name] (this is the root title e.g. what will be
+     * [String] with resource ID `R.string.app_name` (this is the root title e.g. what will be
      * displayed to identify your provider).
      *
      * We then add a column whose name is [Root.COLUMN_DOCUMENT_ID] ("document_id") and whose
@@ -180,7 +180,7 @@ class MyCloudProvider : DocumentsProvider() {
      * (110,123,040,768 on my pixel 3).
      *
      * We add a column whose name is [Root.COLUMN_ICON] ("icon") and whose value is the resource ID
-     * [R.drawable.ic_launcher] which is also used as our launcher ICON.
+     * `R.drawable.ic_launcher` which is also used as our launcher ICON.
      *
      * Finally we return our [MatrixCursor] variable `result` to the caller.
      *
@@ -850,7 +850,7 @@ class MyCloudProvider : DocumentsProvider() {
      *  - the column [DocumentsContract.Document.COLUMN_FLAGS] column with the value `flags` (the
      *  Flags that apply to the document)
      *  - the column [DocumentsContract.Document.COLUMN_ICON] column with the value the drawable
-     *  resource ID [R.drawable.ic_launcher] (Specific icon resource ID for a document, in our case
+     *  resource ID `R.drawable.ic_launcher` (Specific icon resource ID for a document, in our case
      *  the `android:icon` icon for our application.
      *
      * @param result the cursor to modify
@@ -953,19 +953,19 @@ class MyCloudProvider : DocumentsProvider() {
      * [RuntimeException] "mBaseDir.list() is null".
      *
      * Otherwise we initialize our [IntArray] variable `val imageResIds` to the resource IDs in the
-     * resource array [R.array.image_res_ids], then loop over the [Int] variable `resId` for all of
+     * resource array `R.array.image_res_ids`, then loop over the [Int] variable `resId` for all of
      * the resource IDs in `imageResIds` calling our [writeFileToInternalStorage] method to copy
      * the raw resource whose ID is `resId` to a file in [mBaseDir] using the entry name of the
      * resource identifier `resId` and the extension ".jpeg" as the filename.
      *
      * Next we initialize our [IntArray] variable `val textResIds` to the resource IDs in the
-     * resource array [R.array.text_res_ids], then loop over the [Int] variable `resId` for all of
+     * resource array `R.array.text_res_ids`, then loop over the [Int] variable `resId` for all of
      * the resource IDs in `textResIds` calling our [writeFileToInternalStorage] method to copy
      * the raw resource whose ID is `resId` to a file in [mBaseDir] using the entry name of the
      * resource identifier `resId` and the extension ".txt" as the filename.
      *
      * Finally we initialize our [IntArray] variable `val docxResIds` to the resource IDs in the
-     * resource array [R.array.text_res_ids], then loop over the [Int] variable `resId` for all of
+     * resource array `R.array.text_res_ids`, then loop over the [Int] variable `resId` for all of
      * the resource IDs in `docxResIds` calling our [writeFileToInternalStorage] method to copy
      * the raw resource whose ID is `resId` to a file in [mBaseDir] using the entry name of the
      * resource identifier `resId` and the extension ".docx" as the filename.
@@ -1078,12 +1078,12 @@ class MyCloudProvider : DocumentsProvider() {
     /**
      * Dummy function to determine whether the user is logged in. We initialize our [SharedPreferences]
      * variable `val sharedPreferences` to the instance holding the contents of the preferences file
-     * whose name is the [String] with resource ID [R.string.app_name] ("StorageProvider") that the
+     * whose name is the [String] with resource ID `R.string.app_name` ("StorageProvider") that the
      * [Context.getSharedPreferences] method returns through which we can retrieve and modify its
      * values (only one instance of the [SharedPreferences] object is returned to any callers for
      * the same name, meaning they will see each other's edits as soon as they are made). Then we
      * initialize our [Boolean] variable `val isTheUserLoggedIn` to the value stored in `sharedPreferences`
-     * under the [String] whose resource ID is [R.string.key_logged_in] ("logged_in") defaulting to
+     * under the [String] whose resource ID is `R.string.key_logged_in` ("logged_in") defaulting to
      * `false` if the preference does not exist. If `isTheUserLoggedIn` is `false` we log the message
      * "The user is NOT logged in" and if it is `true` we log the message "The user IS logged in".
      * Finally we return `isTheUserLoggedIn` to the caller.

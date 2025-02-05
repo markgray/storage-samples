@@ -41,17 +41,17 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class MainActivity : AppCompatActivity() {
     /**
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to the layout file [R.layout.activity_main]. This consists of a
+     * then we set our content view to the layout file `R.layout.activity_main`. This consists of a
      * `ConstraintLayout` root view holding a [BottomNavigationView] at its bottom (resource ID
-     * [R.id.nav_view]) with a `fragment` container at its top (resource ID [R.id.nav_host_fragment]).
+     * `R.id.nav_view`) with a `fragment` container at its top (resource ID `R.id.nav_host_fragment`).
      *
      * Next we initialize our [BottomNavigationView] variable `val navView` by finding the view with
-     * ID [R.id.nav_view], and our [NavController] variable `val navController` by finding the view
-     * with ID [R.id.nav_host_fragment] (this `fragment` container uses the "android:name" attribute
+     * ID `R.id.nav_view`, and our [NavController] variable `val navController` by finding the view
+     * with ID `R.id.nav_host_fragment` (this `fragment` container uses the "android:name" attribute
      * to specify a [NavHostFragment] as the fragment class to instantiate). We initialize our
      * [AppBarConfiguration] variable `val appBarConfiguration` to a new instance whose set of top
-     * level destinations consists of [R.id.navigation_dashboard] (our [DashboardFragment] fragment)
-     * and [R.id.navigation_gallery] (our [GalleryFragment]). Note: The Up button will not be
+     * level destinations consists of `R.id.navigation_dashboard` (our [DashboardFragment] fragment)
+     * and `R.id.navigation_gallery` (our [GalleryFragment]). Note: The Up button will not be
      * displayed when on these destinations.
      *
      * We then call the [setupActionBarWithNavController] method to set up the `ActionBar` for use

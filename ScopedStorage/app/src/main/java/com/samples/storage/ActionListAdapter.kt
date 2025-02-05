@@ -48,14 +48,14 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
 
     /**
      * Our custom [RecyclerView.ViewHolder], it just caches a reference to the [TextView] with
-     * resource ID [R.id.textView] in the [View] parameter of its constructor (its [itemView]).
+     * resource ID `R.id.textView` in the [View] parameter of its constructor (its [itemView]).
      *
-     * @param view a [View] that is inflated from the layout file [R.layout.list_row_item].
+     * @param view a [View] that is inflated from the layout file `R.layout.list_row_item`.
      */
     @Suppress("RedundantEmptyInitializerBlock") // Skeleton code for future use
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         /**
-         * Cached reference to the [TextView] in our [itemView] with resource ID [R.id.textView]
+         * Cached reference to the [TextView] in our [itemView] with resource ID `R.id.textView`
          * that the [ActionListAdapter.onBindViewHolder] override uses to display the [String] with
          * the resource ID of the [Action.nameRes] field of the [Action] that it is binding to our
          * [ViewHolder].
@@ -70,7 +70,7 @@ class ActionListAdapter(private val dataSet: Array<Action>) :
     /**
      * Called when [RecyclerView] needs a new [ViewHolder] of the given type to represent an item.
      * We initialize our [View] variable `val view` by having the [LayoutInflater] from the [Context]
-     * of our [ViewGroup] parameter [parent] inflate the layout file with ID [R.layout.list_row_item]
+     * of our [ViewGroup] parameter [parent] inflate the layout file with ID `R.layout.list_row_item`
      * (the file layout/list_row_item.xml) using [parent] for the layout params without attaching to
      * it. Finally we return a new instance of [ViewHolder] constructed to use `view` as its itemView.
      * Invoked by the layout manager.

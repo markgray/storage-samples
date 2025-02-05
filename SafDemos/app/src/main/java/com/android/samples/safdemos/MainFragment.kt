@@ -47,13 +47,13 @@ class MainFragment : Fragment() {
      * [onViewCreated]. We initialize our [FragmentMainBinding] variable `val binding` to the
      * instance that the [FragmentMainBinding.inflate] method returns when it uses the cached
      * [LayoutInflater] used to inflate Views of this Fragment to inflate and bind to its associated
-     * layout file layout/fragment_main.xml (resource ID [R.layout.fragment_main]). We initialize
+     * layout file layout/fragment_main.xml (resource ID `R.layout.fragment_main`). We initialize
      * our [Array] of [Demo] variable `val demoItems` to a new instance holding a single [Demo]
      * object for the [ImagePickerFragment] demo whose [Demo.title] is the [String] "Image Picker",
      * whose [Demo.text] is the [String] "Demo of using ACTION_GET_CONTENT to allow a user to pick
      * an image, for example, for a profile picture", whose [Demo.icon] is the drawable with resource
-     * ID [R.drawable.ic_image_black_24dp] (an idealized icon of two white mountains with a blue
-     * background), and the [Demo.action] resource ID [R.id.action_mainFragment_to_imagePickerFragment]
+     * ID `R.drawable.ic_image_black_24dp` (an idealized icon of two white mountains with a blue
+     * background), and the [Demo.action] resource ID `R.id.action_mainFragment_to_imagePickerFragment`
      * (which is the navigation action for navigating to the [ImagePickerFragment]).
      *
      * We initialize our [DemoAdapter] variable `val adapter` to an instance constructed to use

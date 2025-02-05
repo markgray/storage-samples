@@ -81,7 +81,7 @@ fun getStoragePermissionName(): String {
  *  "package" and the scheme-specific-part is the name of this application's package (the resulting
  *  [Uri] is "package:com.android.samples.filemanager" in our case).
  *
- * It is called by the `onClickListener` of the button with ID [R.id.openSettingsButton] ("Open Settings")
+ * It is called by the `onClickListener` of the button with ID `R.id.openSettingsButton` ("Open Settings")
  * in the UI of [SettingsActivity].
  *
  * @param activity the [AppCompatActivity] we can use to access application info and call its method
@@ -174,9 +174,9 @@ fun checkStoragePermission(activity: AppCompatActivity): Boolean {
  * to have it ask for permission to access external storage using the the API used for Android versions
  * older than "R".
  *
- * It is called from the `OnClickListener` of the button with ID [R.id.permissionButton] ("Give
+ * It is called from the `OnClickListener` of the button with ID `R.id.permissionButton` ("Give
  * Permission") in the UI for [FileExplorerActivity] and from the `OnClickListener` of the button
- * with ID [R.id.requestPermissionButton] ("Request Permission") in the UI for [SettingsActivity].
+ * with ID `R.id.requestPermissionButton` ("Request Permission") in the UI for [SettingsActivity].
  *
  * @param activity the [AppCompatActivity] to use to access app resources and methods.
  */

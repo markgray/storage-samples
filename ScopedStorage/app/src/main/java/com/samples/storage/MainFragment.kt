@@ -35,9 +35,9 @@ import com.samples.storage.saf.SafFragment
  * `action` that can be found in the navigation graph of the app (the file navigation/nav_graph.xml).
  * The [View.OnClickListener] of the [TextView] of each [Action] object is a lambda which will navigate
  * to the destination fragment of the navigation `action`. Thus the [Action] object whose
- * [Action.nameRes] field is the resource ID [R.string.demo_mediastore] ("MediaStore") will navigate
+ * [Action.nameRes] field is the resource ID `R.string.demo_mediastore` ("MediaStore") will navigate
  * to the [MediaStoreFragment] when clicked, and the [Action] object whose [Action.nameRes] field is
- * the resource ID [R.string.demo_saf] ("Storage Access Framework") will navigate to the [SafFragment]
+ * the resource ID `R.string.demo_saf` ("Storage Access Framework") will navigate to the [SafFragment]
  * when clicked.
  */
 private val apiList: Array<Action> = arrayOf(
@@ -53,8 +53,8 @@ private val apiList: Array<Action> = arrayOf(
 class MainFragment : Fragment() {
     /**
      * The view binding generated from our layout file layout/fragment_list.xml (resource ID
-     * [R.layout.fragment_list]). It consists of a `FrameLayout` root view holding a single
-     * [RecyclerView] (resource ID [R.id.recyclerView]). It is private to prevent other classes
+     * `R.layout.fragment_list`). It consists of a `FrameLayout` root view holding a single
+     * [RecyclerView] (resource ID `R.id.recyclerView`). It is private to prevent other classes
      * from modifying it, but its read-only accessor [binding] is private too so what the hay.
      */
     private var _binding: FragmentListBinding? = null

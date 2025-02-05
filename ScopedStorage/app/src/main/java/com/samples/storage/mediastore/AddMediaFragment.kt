@@ -49,7 +49,7 @@ import kotlinx.coroutines.launch
 class AddMediaFragment : Fragment() {
     /**
      * The view binding generated from our layout file layout/fragment_add_media.xml (resource ID
-     * [R.layout.fragment_add_media]). It consists of a `ConstraintLayout` root view holding a
+     * `R.layout.fragment_add_media`). It consists of a `ConstraintLayout` root view holding a
      * "Request Permission" `LinearLayout` section, an [ImageView] which displays the image in
      * the [AddMediaViewModel.currentMediaUri] whenever it changes, and a `LinearLayout` "Action
      * Section" holding three buttons that the user can click to "Take Picture", "Take Video", or

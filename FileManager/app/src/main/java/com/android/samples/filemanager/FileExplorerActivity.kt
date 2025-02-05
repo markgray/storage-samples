@@ -70,21 +70,21 @@ class FileExplorerActivity : AppCompatActivity() {
      * which we use as our UI. It consists of a `ConstraintLayout` root view holding at its top a
      * `MaterialToolbar`, with two `LinearLayout` and a `ListView` occupying the same space below
      * the `MaterialToolbar` whose visisbility is switched between "visible" and "gone" depending
-     * on the state of the app at the moment. The `LinearLayout` with ID [R.id.rationaleView] is
+     * on the state of the app at the moment. The `LinearLayout` with ID `R.id.rationaleView` is
      * visible when the app does not have permission to access the file system and it holds a
      * `TextView` explaining why it needs the user's permission to access the file system and a
      * `Button` (labled "Give Permission") which when clicked will call our [requestStoragePermission]
      * method to allow the user to grant us that permission. The `LinearLayout` with ID
-     * [R.id.legacyStorageView] is visible when the app is running on an Android "Q" device and
+     * `R.id.legacyStorageView` is visible when the app is running on an Android "Q" device and
      * tells the user that he needs to enable the `requestLegacyExternalStorage` flag in the app's
-     * AndroidManifest.xml file. The `ListView` with ID [R.id.filesTreeView] is visible when the app
+     * AndroidManifest.xml file. The `ListView` with ID `R.id.filesTreeView` is visible when the app
      * has a directory listing it can display in it.
      */
     private lateinit var binding: ActivityFileExplorerBinding
 
     /**
      * The [File] object of the directory that the user has chosen to have displayed in the `ListView`
-     * with ID [R.id.filesTreeView].
+     * with ID `R.id.filesTreeView`.
      */
     private lateinit var currentDirectory: File
 
@@ -94,7 +94,7 @@ class FileExplorerActivity : AppCompatActivity() {
     private lateinit var filesList: List<File>
 
     /**
-     * The [ArrayAdapter] that feeds views to the `ListView` with ID [R.id.filesTreeView]. Its
+     * The [ArrayAdapter] that feeds views to the `ListView` with ID `R.id.filesTreeView`. Its
      * dataset is an array of [String] which holds the value of [File.getName] (kotlin `name`
      * property) of all of the [File] objects in [filesList].
      */
@@ -106,7 +106,7 @@ class FileExplorerActivity : AppCompatActivity() {
      * [ActivityFileExplorerBinding.inflate] method use the [LayoutInflater] instance that this
      * Window retrieved from its [Context] to inflate and bind to its associated layout file
      * (layout/activity_file_explorer.xml). We then have the `MaterialToolbar` in [binding] with
-     * ID [R.id.toolbar] inflate the menu resource with ID [R.menu.file_manager_menu] into itself
+     * ID `R.id.toolbar` inflate the menu resource with ID `R.menu.file_manager_menu` into itself
      * (it consists of a single `item` with the title "Settings"). Next we set our content view to
      * the outermost View in the associated layout file of [binding] (its `root` property). Finally
      * we call our [setupUi] method to have it finish the initialization and configuration of the

@@ -47,7 +47,7 @@ class GalleryAdapter(private val onClick: (File) -> Unit) :
      * item. We initialize our [LayoutInflater] variable `val layoutInflater` to the [LayoutInflater]
      * from the context of our [ViewGroup] parameter [parent]. Then we initialize our [View] variable
      * `val view` to the [View] that `layoutInflater` inflates from the layout file with the resource
-     * ID [R.layout.gallery_item_layout] using [parent] for its `LayoutParams` without attaching to
+     * ID `R.layout.gallery_item_layout` using [parent] for its `LayoutParams` without attaching to
      * it. Finally we return a new instance of [ImageViewHolder] constructed to use `view` as its
      * [ImageViewHolder.rootView] and [onClick] as the method that the [OnClickListener] of the
      * [ImageView] in `view` calls when the user clicks on the [ImageView].
@@ -125,13 +125,13 @@ class ListItemCallback : DiffUtil.ItemCallback<File>() {
 class ImageViewHolder(view: View, onClick: (File) -> Unit) : RecyclerView.ViewHolder(view) {
     /**
      * A copy of the [View] parameter `view` of our constructor. It is the `ConstraintLayout` root
-     * view of the layout file with resource ID [R.layout.gallery_item_layout] in our case
+     * view of the layout file with resource ID `R.layout.gallery_item_layout` in our case
      */
     val rootView: View = view
 
     /**
      * The [ImageView] in the the [View] parameter `view` of our constructor with resource ID
-     * [R.id.image]. Its [OnClickListener] is set to a lambda in our `init` block which calls the
+     * `R.id.image`. Its [OnClickListener] is set to a lambda in our `init` block which calls the
      * `onClick` parameter function with the [File] that is stored in the `tag` of [rootView].
      */
     val imageView: ImageView = view.findViewById(R.id.image)

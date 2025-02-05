@@ -31,8 +31,8 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 
 /**
- * This class just sets the content view to the layout file [R.layout.main_activity] and configures
- * the [NavController] of the [NavHostFragment] in that file (resource ID [R.id.nav_host_fragment])
+ * This class just sets the content view to the layout file `R.layout.main_activity` and configures
+ * the [NavController] of the [NavHostFragment] in that file (resource ID `R.id.nav_host_fragment`)
  * to be used by the `ActionBar` for "UP" button behavior. The layout file consists of a root
  * `ConstraintLayout` holding only a `fragment` container whose contents is the [NavHostFragment].
  * The "app:navGraph" element specifies the file navigation/nav_graph.xml to be the navigation graph
@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * Configuration options for the action bar `NavigationUI` methods (such as "UP"). We construct
      * this instance in our [onCreate] override to use the navigation graph associated with the
-     * [NavController] for the [NavHostFragment] in the [R.id.nav_host_fragment] `fragment` of our
+     * [NavController] for the [NavHostFragment] in the `R.id.nav_host_fragment` `fragment` of our
      * layout file. Its start destination ([MainFragment]) will be considered the only top level
      * destination. The Up button will not be displayed when on the start destination of the graph.
      */
@@ -50,11 +50,11 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Called then the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file [R.layout.main_activity]. It consists of a
+     * then we set our content view to our layout file `R.layout.main_activity`. It consists of a
      * `ConstraintLayout` root view holding a single `fragment` container whose "android:name"
      * attribute specifies that a [NavHostFragment] will be instantiated in it. We initialize our
      * [NavController] variable `val navController` by finding the [NavHostFragment] with the
-     * resource ID [R.id.nav_host_fragment] in our UI. We initialize our [AppBarConfiguration] field
+     * resource ID `R.id.nav_host_fragment` in our UI. We initialize our [AppBarConfiguration] field
      * [appBarConfiguration] to a new instance constructed to use the navigation graph of
      * `navController` (the file navigation/nav_graph.xml) for its "UP" behavior (its start
      * destination ([MainFragment]) will be considered the only top level destination, and the "Up"
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
     /**
      * This method is called whenever the user chooses to navigate Up within your application's
      * activity hierarchy from the action bar. We initialize our [NavController] variable
-     * `val navController` by finding the [NavHostFragment] with the resource ID [R.id.nav_host_fragment]
+     * `val navController` by finding the [NavHostFragment] with the resource ID `R.id.nav_host_fragment`
      * in our UI. If the [NavController.navigateUp] method of `navController` when passed our
      * [AppBarConfiguration] field [appBarConfiguration] (the [NavController] was able to navigate up)
      * we return `true` to the callers, otherwise we return the value returned by our super's

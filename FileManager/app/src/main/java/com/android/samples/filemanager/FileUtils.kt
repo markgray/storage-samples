@@ -74,7 +74,7 @@ fun getFilesList(selectedItem: File): List<File> {
 
 /**
  * Returns the [String] which should be used to represent the parent directory of a directory. We
- * return the [String] with resource ID [R.string.go_parent_label] ("⬆️ Parent folder").
+ * return the [String] with resource ID `R.string.go_parent_label` ("⬆️ Parent folder").
  *
  * @param activity the [AppCompatActivity] we should use to access resource strings.
  * @return the [String] which should be used to represent the parent directory.
@@ -86,9 +86,9 @@ fun renderParentLink(activity: AppCompatActivity): String {
 /**
  * Returns the [String] which should be used to represent the [File] parameter [file]. If our [File]
  * parameter [file] is a directory we return the formatted string produced by applying the format
- * in the resource [String] whose ID is [R.string.folder_item] ("🗂 %1$s") to the name property of
+ * in the resource [String] whose ID is `R.string.folder_item` ("🗂 %1$s") to the name property of
  * [file], otherwise we return the formatted string produced by applying the format in the resource
- * [String] whose ID is [R.string.file_item] ("📄 %1$s") to the name property of [file]
+ * [String] whose ID is `R.string.file_item` ("📄 %1$s") to the name property of [file]
  *
  * @param activity the [AppCompatActivity] to use to access [String] resources.
  * @param file the [File] we want to represent with a [String].

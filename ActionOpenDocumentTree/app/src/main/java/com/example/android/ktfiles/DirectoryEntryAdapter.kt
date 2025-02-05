@@ -54,7 +54,7 @@ class DirectoryEntryAdapter(
      *
      * We initialize our [View] variable `val view` by retrieving the [LayoutInflater] from the
      * [Context] of our [ViewGroup] parameter [parent] and using it to inflate the layout file with
-     * ID [R.layout.directory_item] using [parent] for its LayoutParams without attaching to it.
+     * ID `R.layout.directory_item` using [parent] for its LayoutParams without attaching to it.
      * Finally we return a new instance of [ViewHolder] constructed to hold `view`.
      *
      * @param parent   The [ViewGroup] into which the new [View] will be added after it is bound to
@@ -77,7 +77,7 @@ class DirectoryEntryAdapter(
      *  - Initialize our [CachingDocumentFile] variable `val item` to the object in position [position]
      *  in our [MutableList] of [CachingDocumentFile] dataset field [directoryEntries].
      *  - Initialize our [Int] variable `val itemDrawableRes` to the drawable resource ID
-     *  [R.drawable.ic_folder_black_24dp] if `item` is a directory, or to [R.drawable.ic_file_black_24dp]
+     *  `R.drawable.ic_folder_black_24dp` if `item` is a directory, or to `R.drawable.ic_file_black_24dp`
      *  if it is not a directory.
      *  - Set the text of the [TextView] field [ViewHolder.fileName] of our receiver to the
      *  [CachingDocumentFile.name] field of `item`.
@@ -158,11 +158,11 @@ class DirectoryEntryAdapter(
      *
      * We initialize our fields as follows:
      *  - `val root` - we store a reference to the [itemView] we were constructed to hold here.
-     *  - `val fileName` - we find the [TextView] in `view` with ID [R.id.file_name] which is used
+     *  - `val fileName` - we find the [TextView] in `view` with ID `R.id.file_name` which is used
      *  to display the display name of the [DocumentFile] we are bound to.
-     *  - `val mimeType` - we find the [TextView] in `view` with ID [R.id.mime_type] which is used
+     *  - `val mimeType` - we find the [TextView] in `view` with ID `R.id.mime_type` which is used
      *  to display the MIME type of the [DocumentFile] we are bound to.
-     *  - `val imageView` - we find the [ImageView] in `view` with ID [R.id.entry_image] which is
+     *  - `val imageView` - we find the [ImageView] in `view` with ID `R.id.entry_image` which is
      *  used to display a drawable icon representing a directory if the [DocumentFile] we are bound
      *  to is a directory or a drawable icon representing a file otherwise.
      *
@@ -175,19 +175,19 @@ class DirectoryEntryAdapter(
         val root: View = view
 
         /**
-         * The [TextView] in `view` with ID [R.id.file_name] which is used to display the display
+         * The [TextView] in `view` with ID `R.id.file_name` which is used to display the display
          * name of the [DocumentFile] we are bound to.
          */
         val fileName: TextView = view.findViewById(R.id.file_name)
 
         /**
-         * The [TextView] in `view` with ID [R.id.mime_type] which is used to display the display
+         * The [TextView] in `view` with ID `R.id.mime_type` which is used to display the display
          * MIME type of the [DocumentFile] we are bound to.
          */
         val mimeType: TextView = view.findViewById(R.id.mime_type)
 
         /**
-         * The [ImageView] in `view` with ID [R.id.entry_image] which is used to display a drawable
+         * The [ImageView] in `view` with ID `R.id.entry_image` which is used to display a drawable
          * icon representing a directory if the [DocumentFile] we are bound to is a directory or a
          * drawable icon representing a file otherwise.
          */

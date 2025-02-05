@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
      * then we initialize our [ActivityMainBinding] field [binding] to the view binding that the
      * [DataBindingUtil.setContentView] method returns when it sets the Activity's content view to
-     * the layout file [R.layout.activity_main] and returns the associated binding. We initialize our
+     * the layout file `R.layout.activity_main` and returns the associated binding. We initialize our
      * [GalleryAdapter] variable `val galleryAdapter` to a new instance whose constructor argument is
      * a lambda which calls our [deleteImage] method with the [MediaStoreImage] parameter passed to
      * it (the [ImageViewHolder] used for each image in our [RecyclerView] sets the `OnClickListener`
@@ -441,7 +441,7 @@ class MainActivity : AppCompatActivity() {
          * an item. We initialize our [LayoutInflater] variable `val layoutInflater` to the
          * [LayoutInflater] from the context of our [ViewGroup] parameter [parent]. We initialize
          * our [View] variable `val view` by having `layoutInflater` inflate the layout file with
-         * resource ID [R.layout.gallery_layout] using [parent] for its layout params without
+         * resource ID `R.layout.gallery_layout` using [parent] for its layout params without
          * attaching to it (the layout file consists of a `ConstraintLayout` root view containing
          * an [ImageView]). Finally we return a new instance of [ImageViewHolder] constructed to use
          * `view` as its root view and [GalleryAdapter.onClick] as the lambda that the
@@ -501,7 +501,7 @@ class MainActivity : AppCompatActivity() {
  * with the [MediaStoreImage] that the `onBindViewHolder` override of `GalleryAdapter` stores in the
  * tag of our [rootView] field when this [ImageViewHolder] is bound to its [MediaStoreImage]. Our
  * constructor saves our `view` parameter in our [rootView] field and initializes our [ImageView]
- * field [imageView] by finding the view in `view` with ID [R.id.image].
+ * field [imageView] by finding the view in `view` with ID `R.id.image`.
  *
  * @param view the view to use as our root [View].
  * @param onClick the lambda that the [View.OnClickListener] of the [ImageView] in our root view

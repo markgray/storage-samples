@@ -50,7 +50,7 @@ const val IMAGE_MIME_TYPE: String = "image/*"
 class ImagePickerFragment : Fragment() {
     /**
      * The [FragmentImagePickerBinding] that is inflated from its associated layout file
-     * layout/fragment_image_picker.xml (resource ID [R.layout.fragment_image_picker]) and
+     * layout/fragment_image_picker.xml (resource ID `R.layout.fragment_image_picker`) and
      * used for the fragment's UI. The layout file consists of a `ConstraintLayout` root view
      * holding a [TextView] with the text "Select an image", an [ImageView] that the selected
      * image will be displayed in, and a `FloatingActionButton` that when clicked will launch
@@ -95,7 +95,7 @@ class ImagePickerFragment : Fragment() {
      * and move logic that operates on the returned View to [onViewCreated]. We initialize our
      * [FragmentImagePickerBinding] field [binding] by having the [FragmentImagePickerBinding.inflate]
      * method inflate its associated layout file layout/fragment_image_picker.xml (resource ID
-     * [R.layout.fragment_image_picker]) and bind to it (the use of [getLayoutInflater] (aka kotlin
+     * `R.layout.fragment_image_picker`) and bind to it (the use of [getLayoutInflater] (aka kotlin
      * `layoutInflater` property) in the call to inflate instead of the [inflater] parameter is a
      * bit puzzling, but the result is the same so what of it?). Next we set the [View.OnClickListener]
      * of the `FloatingActionButton` found in the [FragmentImagePickerBinding.selectImageButton] field

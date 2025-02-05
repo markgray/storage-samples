@@ -47,7 +47,7 @@ class StorageProviderFragment : Fragment() {
      * overrides [onCreateOptionsMenu] to create the options menu, but we override the method
      * [onPrepareOptionsMenu] (to change the title of the [MenuItem] in the options menu from
      * "Log in" to "Log out" and vice versa depending on the value of our [mLoggedIn] field) and
-     * [onOptionsItemSelected] to do what needs doing when the [MenuItem] with ID [R.id.sample_action]
+     * [onOptionsItemSelected] to do what needs doing when the [MenuItem] with ID `R.id.sample_action`
      * is clicked.
      *
      * @param savedInstanceState We do not override [onSaveInstanceState] so do not use.
@@ -63,7 +63,7 @@ class StorageProviderFragment : Fragment() {
      * Prepare the Fragment host's standard options menu to be displayed. This is called right
      * before the menu is shown, every time it is shown. First we call our super's implementation
      * of `onPrepareOptionsMenu`, then we initialize our [MenuItem] variable `val item` to the
-     * item in our [Menu] parameter [menu] with the ID [R.id.sample_action]. If our [mLoggedIn]
+     * item in our [Menu] parameter [menu] with the ID `R.id.sample_action`. If our [mLoggedIn]
      * field is `true` we set the title of `item` to "Log out", otherwise we set it to "Log in".
      *
      * @param menu The options [Menu] as last shown or first initialized by [onCreateOptionsMenu].
@@ -79,7 +79,7 @@ class StorageProviderFragment : Fragment() {
     /**
      * This hook is called whenever an item in your options menu is selected. If the value returned
      * by [MenuItem.getItemId] (aka kotlin `itemId` property) of our parameter [item] is
-     * [R.id.sample_action] we call our [toggleLogin] method to toggle the value of our [Boolean]
+     * `R.id.sample_action` we call our [toggleLogin] method to toggle the value of our [Boolean]
      * field [mLoggedIn], then set the title of [item] to "Log out" if [mLoggedIn] is now `true` or
      * to "Log in" if it is now `false`. If the SDK version of the software currently running on
      * this hardware device is greater than equal to [Build.VERSION_CODES.N] we fetch a
@@ -141,12 +141,12 @@ class StorageProviderFragment : Fragment() {
     /**
      * Convenience method to save the user's logged in status to our shared preferences file. We
      * initialize our [SharedPreferences] variable `val sharedPreferences` by retrieving the contents
-     * of the preferences file with the name [R.string.app_name] ("StorageProvider") specifying the
+     * of the preferences file with the name `R.string.app_name` ("StorageProvider") specifying the
      * mode [Context.MODE_PRIVATE] (the created file can only be accessed by the calling application
      * or all applications sharing the same user ID). Then we call the [SharedPreferences.edit] method
      * of `sharedPreferences` to create a new [SharedPreferences.Editor] for it and call the
      * [SharedPreferences.Editor.putBoolean] method of the editor to store the value of our [loggedIn]
-     * parameter under the key [R.string.key_logged_in] ("key_logged_in"), then commit the change back
+     * parameter under the key `R.string.key_logged_in` ("key_logged_in"), then commit the change back
      * to the [SharedPreferences] object `sharedPreferences` that we just edited.
      *
      * @param loggedIn the [Boolean] value we are to store in our shared preferences file.
@@ -162,10 +162,10 @@ class StorageProviderFragment : Fragment() {
     /**
      * Convenience method to determine whether the user is logged in. We initialize our
      * [SharedPreferences] variable `val sharedPreferences` by retrieving the contents of the
-     * preferences file with the name [R.string.app_name] ("StorageProvider") specifying the
+     * preferences file with the name `R.string.app_name` ("StorageProvider") specifying the
      * mode [Context.MODE_PRIVATE] (the created file can only be accessed by the calling application
      * or all applications sharing the same user ID). Then we return the [Boolean] stored in
-     * `sharedPreferences` under the key [R.string.key_logged_in] ("key_logged_in") defaulting to
+     * `sharedPreferences` under the key `R.string.key_logged_in` ("key_logged_in") defaulting to
      * `false` if a preference with that key does not exist.
      *
      * @return `true` if the user is logged in according to the value stored in our shared preferences

@@ -46,7 +46,7 @@ import com.example.android.common.logger.MessageOnlyLogFilter
 class MainActivity : SampleActivityBase() {
     /**
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file [R.layout.activity_main], which consists of
+     * then we set our content view to our layout file `R.layout.activity_main`, which consists of
      * a vertical `LinearLayout` root view that holds a `ScrollView` holding a `TextView` displaying
      * our into message, with a 1dp "darker_gray" `View` seperating it from a `FragmentContainerView`
      * that holds a `LogFragment` that displays any messages our app logs.

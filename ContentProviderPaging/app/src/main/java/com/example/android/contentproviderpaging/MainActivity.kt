@@ -33,12 +33,12 @@ import com.example.android.contentproviderpaging.common.R
 class MainActivity : AppCompatActivity() {
     /**
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file [R.layout.activity_main] which consists of a
-     * single `FrameLayout` root view with the resource ID [R.id.container]. If our [Bundle] parameter
+     * then we set our content view to our layout file `R.layout.activity_main` which consists of a
+     * single `FrameLayout` root view with the resource ID `R.id.container`. If our [Bundle] parameter
      * [savedInstanceState] is `null` this is the first time we are being run so we fetch the
      * [FragmentManager] for interacting with fragments associated with this activity and use it to
      * begin a [FragmentTransaction] which we use to add a new instance of [ImageClientFragment] to
-     * the container with resource ID [R.id.container] and then we commit the [FragmentTransaction].
+     * the container with resource ID `R.id.container` and then we commit the [FragmentTransaction].
      * Note: if [savedInstanceState] is not `null` we are being restarted after previously being
      * shut down and the system will take care of restoring our [ImageClientFragment] for us.
      *

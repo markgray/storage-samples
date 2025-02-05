@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
      * Called when the activity is starting. First we call our super's implementation of `onCreate`.
      * Then we set our [ActivityMainBinding] variable `val binding` to the instance that the
      * [ActivityMainBinding.inflate] method inflates from its associated layout file activity_main.xml
-     * (resource ID [R.layout.activity_main]). This layout consists of a vertical `LinearLayout` root
+     * (resource ID `R.layout.activity_main`). This layout consists of a vertical `LinearLayout` root
      * view holding an `AppBarLayout` (which holds a `Toolbar`) above a `FragmentContainerView` whose
      * fragment is the `NavHostFragment` for the navigation graph navigation/nav_graph.xml of the app.
      *

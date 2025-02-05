@@ -56,7 +56,7 @@ internal class ImageAdapter(private val mContext: Context) :
      *
      * We initialize our [View] variable `val view` to the [View] that the [LayoutInflater] from
      * the context of our [ViewGroup] parameter [parent] returns when its [LayoutInflater.inflate]
-     * method inflates the layout file with resource ID [R.layout.viewholder_image] using [parent]
+     * method inflates the layout file with resource ID `R.layout.viewholder_image` using [parent]
      * for its LayoutParams without attaching to it. We then return a new instance of [ImageViewHolder]
      * constructed to hold `view`.
      *
@@ -83,7 +83,7 @@ internal class ImageAdapter(private val mContext: Context) :
      *      - Request that it load the file whose [ImageDocument.mAbsolutePath] path is given by the
      *      [ImageDocument] in the [position] element of [mImageDocuments].
      *      - Set the Android resource id for a Drawable resource to display while a resource is
-     *      loading to [R.drawable.cat_placeholder].
+     *      loading to `R.drawable.cat_placeholder`.
      *      - And sets the [ImageView] the resource will be loaded into to the [ImageViewHolder.mImageView]
      *      field of [holder]
      *      - We then set the text of the [ImageViewHolder.mTextView] field of [holder] to the string
@@ -91,7 +91,7 @@ internal class ImageAdapter(private val mContext: Context) :
      *  2. The size of [mImageDocuments] is less than or equal (the image has not yet been fetched
      *  from our provider):
      *      - We set the [ImageView] that the [ImageViewHolder.mImageView] field of [holder] will
-     *      display to the drawable with resource ID [R.drawable.cat_placeholder]
+     *      display to the drawable with resource ID `R.drawable.cat_placeholder`
      *
      * @param holder   The [ImageViewHolder] which should be updated to represent the contents of
      * the item at the given position in the data set.

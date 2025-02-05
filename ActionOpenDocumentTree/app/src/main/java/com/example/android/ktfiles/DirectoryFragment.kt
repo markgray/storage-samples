@@ -74,7 +74,7 @@ class DirectoryFragment : Fragment() {
      * We use the [FragmentDirectoryBinding.inflate] method to have it use our [LayoutInflater]
      * parameter [inflater] to inflate itself in to an [FragmentDirectoryBinding] instance which we
      * use to initialize our field [binding]. ([FragmentDirectoryBinding] is created from the layout
-     * file with ID [R.layout.fragment_directory] by the build system).
+     * file with ID `R.layout.fragment_directory` by the build system).
      *
      * We set the [RecyclerView.LayoutManager] that the [RecyclerView] in [binding] whose reference
      * is found in its [FragmentDirectoryBinding.list] property to a [LinearLayoutManager] instance.
@@ -217,8 +217,8 @@ class DirectoryFragment : Fragment() {
      * [CachingDocumentFile] parameter [document]. First we initialize our [View] variable
      * `val dialogView` to the [View] returned by the [LayoutInflater.inflate] method of the cached
      * [LayoutInflater] used to inflate Views of this [Fragment] when it inflates the layout file
-     * with the resource ID [R.layout.rename_layout]. We then initialize our [EditText] variable
-     * `val editText` by finding the view in `dialogView` with the ID [R.id.file_name] and set the
+     * with the resource ID `R.layout.rename_layout`. We then initialize our [EditText] variable
+     * `val editText` by finding the view in `dialogView` with the ID `R.id.file_name` and set the
      * text of that [EditText] to the [CachingDocumentFile.name] property of our parameter [document].
      * We initialize our [DialogInterface.OnClickListener] variable `val buttonCallback` to a lambda
      * which will when the `buttonId` of the dialog button clicked is [DialogInterface.BUTTON_POSITIVE]:
@@ -230,7 +230,7 @@ class DirectoryFragment : Fragment() {
      *
      * Next we initialize our [AlertDialog] variable `val renameDialog` by using an [AlertDialog.Builder]
      * for the parent context theme of the `FragmentActivity` this fragment is currently associated with
-     * to create an [AlertDialog] whose title is the [String] with resource ID [R.string.rename_title]
+     * to create an [AlertDialog] whose title is the [String] with resource ID `R.string.rename_title`
      * ("Rename"), whose custom view contents is `dialogView`, whose listener to be invoked when the
      * positive button of the dialog is pressed is `buttonCallback` and whose text is "Rename", and
      * whose listener to be invoked when the negative button of the dialog is pressed is `buttonCallback`

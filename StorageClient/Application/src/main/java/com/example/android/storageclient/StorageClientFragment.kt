@@ -75,7 +75,7 @@ class StorageClientFragment : Fragment() {
         /**
          * Initialize the contents of the Fragment host's standard options menu. We use our
          * [MenuInflater] parameter [menuInflater] to inflate our menu layout file
-         * [R.menu.main] into our [Menu] parameter [menu].
+         * `R.menu.main` into our [Menu] parameter [menu].
          *
          * @param menu The options menu in which you place your items.
          * @param menuInflater a [MenuInflater] you can use to inflate an XML menu file with.
@@ -86,7 +86,7 @@ class StorageClientFragment : Fragment() {
 
         /**
          * This hook is called whenever an item in your options menu is selected. If the `itemId`
-         * property (aka [MenuItem.getItemId] return value) of [menuItem] is [R.id.sample_action]
+         * property (aka [MenuItem.getItemId] return value) of [menuItem] is `R.id.sample_action`
          * (the item with the title "Show Me The Image") then we call our [performFileSearch] method
          * to have it fire an intent to spin up the "file chooser" activity and have the user select
          * an image, then we return `true` to the caller to consume the event here. If it is not our

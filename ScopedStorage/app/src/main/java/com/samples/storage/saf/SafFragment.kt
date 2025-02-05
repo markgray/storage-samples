@@ -60,11 +60,11 @@ private const val DEFAULT_FILE_NAME = "SAF Demo File.txt"
 class SafFragment : Fragment() {
     /**
      * The view binding generated from our layout file layout/fragment_saf.xml (resource ID
-     * [R.layout.fragment_saf]. It consists of a `ConstraintLayout` root view holding three
-     * [Button] widgets labeled "Create Document" (resource ID [R.id.create_file] aka
-     * [FragmentSafBinding.createFile]), "Open Document" (resource ID [R.id.open_file] aka
-     * [FragmentSafBinding.openFile]) and "Open Folder" (resource ID [R.id.open_folder] aka
-     * [FragmentSafBinding.openFolder]) above a [TextView] (resource ID [R.id.output] aka
+     * `R.layout.fragment_saf`. It consists of a `ConstraintLayout` root view holding three
+     * [Button] widgets labeled "Create Document" (resource ID `R.id.create_file` aka
+     * [FragmentSafBinding.createFile]), "Open Document" (resource ID `R.id.open_file` aka
+     * [FragmentSafBinding.openFile]) and "Open Folder" (resource ID `R.id.open_folder` aka
+     * [FragmentSafBinding.openFolder]) above a [TextView] (resource ID `R.id.output` aka
      * [FragmentSafBinding.output]). This is private to prevent other classes from modifying it,
      * read-only access is provided by our [binding] field.
      */

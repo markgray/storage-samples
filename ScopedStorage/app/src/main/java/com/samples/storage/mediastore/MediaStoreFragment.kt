@@ -37,13 +37,13 @@ import com.samples.storage.databinding.FragmentListBinding
  * `action` that can be found in the navigation graph of the app (the file navigation/nav_graph.xml).
  * The [View.OnClickListener] of the [TextView] of each [Action] object is a lambda which will navigate
  * to the destination fragment of the navigation `action`. Thus the [Action] object whose
- * [Action.nameRes] field is the resource ID [R.string.mediastore_add] ("Add Media File") will navigate
+ * [Action.nameRes] field is the resource ID `R.string.mediastore_add` ("Add Media File") will navigate
  * to the [AddMediaFragment] when clicked, the [Action] object whose [Action.nameRes] field is the
- * resource ID [R.string.mediastore_edit] ("Edit Media File") will navigate to the [EditMediaFragment]
+ * resource ID `R.string.mediastore_edit` ("Edit Media File") will navigate to the [EditMediaFragment]
  * when clicked, the [Action] object whose [Action.nameRes] field is the resource ID
- * [R.string.mediastore_delete] ("Delete Media File") will navigate to the [DeleteMediaFragment]
+ * `R.string.mediastore_delete` ("Delete Media File") will navigate to the [DeleteMediaFragment]
  * when clicked, and the [Action] object whose [Action.nameRes] field is the resource ID
- * [R.string.mediastore_downloads] ("Add Document to Downloads") will navigate to the
+ * `R.string.mediastore_downloads` ("Add Document to Downloads") will navigate to the
  * [AddDocumentFragment] when clicked.
  */
 private val demoList = arrayOf(
@@ -63,8 +63,8 @@ private val demoList = arrayOf(
 class MediaStoreFragment : Fragment() {
     /**
      * The view binding generated from our layout file layout/fragment_list.xml (resource ID
-     * [R.layout.fragment_list]). It consists of a `FrameLayout` root view holding a single
-     * [RecyclerView] (resource ID [R.id.recyclerView]). It is private to prevent other classes
+     * `R.layout.fragment_list`). It consists of a `FrameLayout` root view holding a single
+     * [RecyclerView] (resource ID `R.id.recyclerView`). It is private to prevent other classes
      * from modifying it, but its read-only accessor [binding] is private too so what the hay.
      */
     private var _binding: FragmentListBinding? = null

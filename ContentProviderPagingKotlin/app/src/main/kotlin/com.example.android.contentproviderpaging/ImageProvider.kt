@@ -343,7 +343,7 @@ class ImageProvider : ContentProvider() {
      * already and done our work).
      *
      * Otherwise we initialize our [IntArray] variable `val imageResIds` to the [IntArray] that is
-     * returned by [getResourceIdArray] when it reads the array with ID [R.array.image_res_ids]
+     * returned by [getResourceIdArray] when it reads the array with ID `R.array.image_res_ids`
      * from our resources (this array consists of `item`s like "@raw/cat_1" which are references to
      * images stored in our "raw" resources directory).
      *

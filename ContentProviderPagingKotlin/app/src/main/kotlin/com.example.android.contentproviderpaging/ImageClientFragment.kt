@@ -74,7 +74,7 @@ class ImageClientFragment : Fragment() {
      * [onCreate] and [onViewCreated]. It is recommended to only inflate the layout in this method
      * and move logic that operates on the returned [View] to [onViewCreated]. We return the [View]
      * that our [LayoutInflater] parameter [inflater] inflates from the layout file with resource ID
-     * [R.layout.fragment_image_client] using our [ViewGroup] parameter [container] for `LayoutParams`
+     * `R.layout.fragment_image_client` using our [ViewGroup] parameter [container] for `LayoutParams`
      * without attaching to it. This layout file consists of a vertical `LinearLayout` holding a
      * [Button] with the label "Show images" above a [RecyclerView].
      *
@@ -100,7 +100,7 @@ class ImageClientFragment : Fragment() {
      * restored in to the view. First we call our super's implementation of `onViewCreated`. We
      * initialize our [Activity] variable `val activity` to the [FragmentActivity] this fragment
      * is currently associated with, and we initialize our [RecyclerView] variable `val recyclerView`
-     * to the [View] with ID [R.id.recyclerview].
+     * to the [View] with ID `R.id.recyclerview`.
      *
      * If our [LinearLayoutManager] field [mLayoutManager] is `null` we first initialize it to a
      * new instance of [LinearLayoutManager] before setting the [RecyclerView.LayoutManager] that
@@ -121,7 +121,7 @@ class ImageClientFragment : Fragment() {
      *    with `null` for its args, and [mLoaderCallback] for its [LoaderManager.LoaderCallbacks]
      *
      * Next we initialize our [Button] variable `val showButton` to the view in our [View] parameter
-     * [rootView] with resource ID [R.id.button_show] (labeled "Show images") and then set its
+     * [rootView] with resource ID `R.id.button_show` (labeled "Show images") and then set its
      * [View.OnClickListener] to a lambda which uses an instance of [LoaderManager] to start or
      * restart a new [Loader] whose ID is 0, with `null` for its args, and [mLoaderCallback] for its
      * [LoaderManager.LoaderCallbacks], and then sets the visibility of `showButton` to GONE.

@@ -60,19 +60,19 @@ class ActionOpenDocumentFragment : Fragment() {
     private var currentPageNumber: Int = INITIAL_PAGE_INDEX
 
     /**
-     * The [ImageView] in our layout file with ID [R.id.image] that we use to display the [Bitmap]
+     * The [ImageView] in our layout file with ID `R.id.image` that we use to display the [Bitmap]
      * of the PDF page we are currently rendering.
      */
     private lateinit var pdfPageView: ImageView
 
     /**
-     * The [Button] in our layout file with ID [R.id.previous] (labeled "Previous") that when clicked
+     * The [Button] in our layout file with ID `R.id.previous` (labeled "Previous") that when clicked
      * moves back one page in the PDF document.
      */
     private lateinit var previousButton: Button
 
     /**
-     * The [Button] in our layout file with ID [R.id.next] (labeled "Next") that when clicked moves
+     * The [Button] in our layout file with ID `R.id.next` (labeled "Next") that when clicked moves
      * forward one page in the PDF document.
      */
     private lateinit var nextButton: Button
@@ -116,7 +116,7 @@ class ActionOpenDocumentFragment : Fragment() {
      * [onCreate] and [onViewCreated]. It is recommended to _only_ inflate the layout in this method
      * and move logic that operates on the returned [View] to [onViewCreated]. We return the [View]
      * that our [LayoutInflater] parameter [inflater] inflates from the layout file with resource ID
-     * [R.layout.fragment_pdf_renderer_basic] using our [ViewGroup] parameter [container] for its
+     * `R.layout.fragment_pdf_renderer_basic` using our [ViewGroup] parameter [container] for its
      * `LayoutParams` without attaching to it. This [View] consists of a vertical `LinearLayout`
      * holding the [ImageView] we use to display pages from our PDF document above a horizontal
      * `LinearLayout` holding two [Button]s the user can use to move the page number displayed up
@@ -145,10 +145,10 @@ class ActionOpenDocumentFragment : Fragment() {
      * they know their view hierarchy has been completely created. The fragment's view hierarchy
      * is not however attached to its parent at this point. First we call our super's implementation
      * of `onViewCreated`. We initialize our [Button] field [previousButton] by finding the view
-     * with ID [R.id.previous] and immediately use the [apply] extension function to set its
+     * with ID `R.id.previous` and immediately use the [apply] extension function to set its
      * [View.OnClickListener] to a lambda which calls our [showPage] method to have it display the
      * page before the page index of our [PdfRenderer.Page] field [currentPage]. We initialize our
-     * [Button] field [nextButton] by finding the view with ID [R.id.next] and immediately use the
+     * [Button] field [nextButton] by finding the view with ID `R.id.next` and immediately use the
      * [apply] extension function to set its [View.OnClickListener] to a lambda which calls our
      * [showPage] method to have it display the page after the page index of our [PdfRenderer.Page]
      * field [currentPage]. Finally, if our [Bundle] parameter [savedInstanceState] is not `null`
@@ -308,7 +308,7 @@ class ActionOpenDocumentFragment : Fragment() {
      * [PdfRenderer] field [pdfRenderer] is holding then proceed to enable the [Button] field
      * [previousButton] if [index] is not equal to 0, and enable the [Button] field [nextButton] if
      * [index] plus 1 is less than `pageCount`. Finally we set the title associated with this activity
-     * to the string formed by using the format [String] with ID [R.string.app_name_with_index] to
+     * to the string formed by using the format [String] with ID `R.string.app_name_with_index` to
      * format [index] plus 1 and `pageCount` into its decimal placeholders (the result is like so:
      *
      *     "aodViewer  1/42"

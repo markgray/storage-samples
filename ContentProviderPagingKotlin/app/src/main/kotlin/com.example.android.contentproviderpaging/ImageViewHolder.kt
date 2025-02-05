@@ -25,7 +25,7 @@ import com.example.android.contentproviderpaging.common.R
 /**
  * [ViewHolder] that represents an image.
  *
- * @param itemView the [View] that we are holding, inflated from the [R.layout.viewholder_image]
+ * @param itemView the [View] that we are holding, inflated from the `R.layout.viewholder_image`
  * layout file.
  */
 internal class ImageViewHolder(itemView: View) : ViewHolder(itemView) {

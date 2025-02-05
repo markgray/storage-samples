@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
 class AddDocumentFragment : Fragment() {
     /**
      * The view binding generated from our layout file layout/fragment_add_document.xml (resource ID
-     * [R.layout.fragment_add_document]). It consists of a `ConstraintLayout` root view holding three
+     * `R.layout.fragment_add_document`). It consists of a `ConstraintLayout` root view holding three
      * separate `LinearLayout`: a "permissions section" for requesting storage permission if needed,
      * a "file details section" for displaying information about the file that was downloaded, and a
      * "Download Random File" from the Internet section. The visibility of the permissions section

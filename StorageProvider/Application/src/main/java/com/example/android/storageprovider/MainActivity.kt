@@ -45,7 +45,7 @@ import com.example.android.common.logger.MessageOnlyLogFilter
 class MainActivity : SampleActivityBase() {
     /**
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file [R.layout.activity_main], which consists of
+     * then we set our content view to our layout file `R.layout.activity_main`, which consists of
      * a vertical `LinearLayout` root view that holds a `TextView` displaying our info message, with
      * a 1dp "darker_gray" `View` seperating it from a `FragmentContainerView` that holds a
      * `LogFragment` that displays any messages our app logs.
@@ -88,8 +88,8 @@ class MainActivity : SampleActivityBase() {
 
     /**
      * Initialize the contents of the Activity's standard options menu. We use a [MenuInflater] for
-     * this [Context] to inflate our options menu file [R.menu.main] into our [Menu] parameter [menu]
-     * (it consists of a single [MenuItem] with the ID [R.id.sample_action] and the android:title
+     * this [Context] to inflate our options menu file `R.menu.main` into our [Menu] parameter [menu]
+     * (it consists of a single [MenuItem] with the ID `R.id.sample_action` and the android:title
      * "Log in"). Then we return `true` so that the menu will be displayed. Note that
      * [StorageProviderFragment] overrides [onOptionsItemSelected] and will handle any clicks on the
      * [MenuItem] in our options [Menu].

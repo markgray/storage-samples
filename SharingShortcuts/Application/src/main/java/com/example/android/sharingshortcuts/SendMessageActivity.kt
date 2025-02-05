@@ -40,29 +40,29 @@ class SendMessageActivity : Activity() {
     private var mContactId: Int = 0
 
     /**
-     * The [TextView] in our UI with the ID [R.id.contact_name]. It holds the name of the contact
+     * The [TextView] in our UI with the ID `R.id.contact_name`. It holds the name of the contact
      * that the message is being sent to.
      */
     private lateinit var mTextContactName: TextView
 
     /**
-     * The [TextView] in our UI with the ID [R.id.message_body]. It holds the message that is being
+     * The [TextView] in our UI with the ID `R.id.message_body`. It holds the message that is being
      * sent to the contact.
      */
     private lateinit var mTextMessageBody: TextView
 
     /**
      * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file [R.layout.activity_send_message] and call the
+     * then we set our content view to our layout file `R.layout.activity_send_message` and call the
      * [setTitle] method to change the title of this activity to "Sending a message". We initialize
-     * our [TextView] field [mTextContactName] by finding the view with the ID [R.id.contact_name]
-     * and our [TextView] field [mTextMessageBody] by finding the view with the ID [R.id.message_body].
+     * our [TextView] field [mTextContactName] by finding the view with the ID `R.id.contact_name`
+     * and our [TextView] field [mTextMessageBody] by finding the view with the ID `R.id.message_body`.
      * We initialize our [Boolean] variable `val handled` to the value returned by our [handleIntent]
      * method when passed the [Intent] that started this activity (it returns `true` if it was able
      * to use the [Intent] to set the text of our [mBody] field and the value of our contact ID field
      * [mContactId], and `false` if it was not able to). If `handled` is `false` we just call the
      * [finish] method to close our activity and return from [onCreate. Otherwise we set the
-     * [View.OnClickListener] for the view with ID [R.id.send] to our field [mOnClickListener] and
+     * [View.OnClickListener] for the view with ID `R.id.send` to our field [mOnClickListener] and
      * call our [prepareUi] method to set up our UI.
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
@@ -212,8 +212,8 @@ class SendMessageActivity : Activity() {
     }
 
     /**
-     * The [View.OnClickListener] for the "Send" [Button] in our UI, resource ID [R.id.send].
-     * When the `id` property of the [View] that was clicked is [R.id.send] we call our [send]
+     * The [View.OnClickListener] for the "Send" [Button] in our UI, resource ID `R.id.send`.
+     * When the `id` property of the [View] that was clicked is `R.id.send` we call our [send]
      * method to have it pretend to send the text to the contact.
      */
     private val mOnClickListener = View.OnClickListener { view: View ->

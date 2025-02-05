@@ -62,7 +62,7 @@ private const val RANDOM_IMAGE_URL = "https://images.unsplash.com/photo-15343089
 
 /**
  * This is used as the "input" [Array] of [String] when launching the [ActivityResultLauncher]
- * field `selectPicture` of [DashboardFragment] when the [R.id.selectPicture] button (labeled
+ * field `selectPicture` of [DashboardFragment] when the `R.id.selectPicture` button (labeled
  * "Select picture") is clicked in the UI of [DashboardFragment].
  */
 val ACCEPTED_MIMETYPES: Array<String> = arrayOf("image/jpeg", "image/png")
@@ -306,7 +306,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
  *
  * We initialize our [XmlResourceParser] variable `val xml` by using the [Resources.getXml] method of
  * a [Resources] instance for the application's package to retrieve an [XmlResourceParser] which we
- * can use to read the generic XML resource file whose ID is [R.xml.filepaths]. We initialize our
+ * can use to read the generic XML resource file whose ID is `R.xml.filepaths`. We initialize our
  * [Map] of [String] to [String] variable `val attributes` by using our [getAttributesFromXmlNode]
  * method to parse `xml` looking for the element name [FILEPATH_XML_KEY] ("files-path") and then to
  * extract the attribute name and value of all of its attributes to use as their key and value in the
