@@ -34,7 +34,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.android.samples.safdemos.databinding.FragmentImagePickerBinding
-import com.android.samples.safdemos.R
 import java.io.InputStream
 
 /**
