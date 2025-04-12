@@ -33,5 +33,5 @@ dependencies {
     api("androidx.recyclerview:recyclerview:1.4.0")
     api("com.github.bumptech.glide:glide:4.16.0")
     testImplementation("junit:junit:4.13.2")
-    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.core:core-ktx:1.16.0")
 }
