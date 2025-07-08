@@ -35,7 +35,7 @@ import androidx.recyclerview.widget.RecyclerView
  * @param actionRes the resource ID for a navigation action that can be used to navigate to the demo
  * fragment that this [Action] object represents.
  */
-data class Action(@StringRes val nameRes: Int, @IdRes val actionRes: Int)
+data class Action(@param:StringRes val nameRes: Int, @param:IdRes val actionRes: Int)
 
 /**
  * The custom [RecyclerView.Adapter] that is used to feed views to the [RecyclerView] in the UI of
