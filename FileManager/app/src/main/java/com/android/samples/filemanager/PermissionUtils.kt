@@ -210,7 +210,7 @@ fun requestStoragePermission(activity: AppCompatActivity) {
 @RequiresApi(30)
 fun checkStoragePermissionApi30(activity: AppCompatActivity): Boolean {
     val appOps: AppOpsManager = activity.getSystemService(AppOpsManager::class.java)
-    val mode: Int = appOps.unsafeCheckOpNoThrow(
+    val mode: Int = appOps.checkOpNoThrow(
         MANAGE_EXTERNAL_STORAGE_PERMISSION,
         activity.applicationInfo.uid,
         activity.packageName
