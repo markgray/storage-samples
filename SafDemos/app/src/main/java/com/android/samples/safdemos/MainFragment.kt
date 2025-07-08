@@ -112,8 +112,8 @@ class MainFragment : Fragment() {
 data class Demo(
     val title: String,
     val text: String,
-    @DrawableRes val icon: Int,
-    @IdRes val action: Int
+    @param:DrawableRes val icon: Int,
+    @param:IdRes val action: Int
 )
 
 /**
