@@ -22,6 +22,7 @@ import android.net.Uri
 import android.provider.BaseColumns
 import androidx.loader.content.Loader
 import java.io.File
+import androidx.core.net.toUri
 
 /**
  * The contract for the [ImageProvider].
@@ -39,7 +40,7 @@ internal object ImageContract {
      * override of the `LoaderCallback` used to create a new [Loader] instance that is ready to
      * start loading in [ImageClientFragment].
      */
-    val CONTENT_URI = Uri.parse("content://$AUTHORITY/images")!!
+    val CONTENT_URI = "content://$AUTHORITY/images".toUri()
 
     /**
      * The column names used by [ImageProvider].
