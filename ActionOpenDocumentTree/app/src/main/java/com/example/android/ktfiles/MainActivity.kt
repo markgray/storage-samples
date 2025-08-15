@@ -171,6 +171,7 @@ class MainActivity : AppCompatActivity() {
      */
     private val resultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            @Suppress("RemoveRedundantQualifierName")
             if (result.resultCode == Activity.RESULT_OK) {
                 // There are no request codes
                 val data: Intent? = result.data
