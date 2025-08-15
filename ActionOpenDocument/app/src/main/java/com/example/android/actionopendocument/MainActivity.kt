@@ -118,6 +118,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState != null) return
+        @Suppress("RemoveRedundantQualifierName")
         getSharedPreferences(TAG, Context.MODE_PRIVATE).let { sharedPreferences ->
             if (sharedPreferences.contains(LAST_OPENED_URI_KEY)) {
                 val documentUri: Uri =
@@ -205,6 +206,7 @@ class MainActivity : AppCompatActivity() {
          * uri saved indefinitely, because we called [ContentResolver.takePersistableUriPermission]
          * up in [onActivityResult].
          */
+        @Suppress("RemoveRedundantQualifierName")
         getSharedPreferences(TAG, Context.MODE_PRIVATE).edit {
             putString(LAST_OPENED_URI_KEY, documentUri.toString())
         }
@@ -233,6 +235,7 @@ class MainActivity : AppCompatActivity() {
      */
     private val resultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            @Suppress("RemoveRedundantQualifierName")
             if (result.resultCode == Activity.RESULT_OK) {
                 // There are no request codes
                 val data: Intent? = result.data
