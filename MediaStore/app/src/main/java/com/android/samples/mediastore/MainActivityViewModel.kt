@@ -316,7 +316,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
      * of a `try` block intended to catch and deal with [SecurityException] and in the `try` block
      * we use a [ContentResolver] instance for our application's package to delete the row whose URL
      * is the [MediaStoreImage.contentUri] property of our [image] parameter, filtering for rows where
-     * the [MediaStore.Images.Media._ID] column consists of the [String] value of the [MediaStoreImage.id]
+     * the `MediaStore.Images.Media._ID` column consists of the [String] value of the [MediaStoreImage.id]
      * property of [image].
      *
      * If we `catch` [SecurityException] we check if [Build.VERSION.SDK_INT] (SDK version of the

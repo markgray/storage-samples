@@ -26,12 +26,12 @@ import java.util.Date
 /**
  * Simple data class to hold information about an image included in the device's MediaStore.
  *
- * @param id this is the value of the [MediaStore.Images.Media._ID] column of the [Cursor] retrieved
+ * @param id this is the value of the `MediaStore.Images.Media._ID` column of the [Cursor] retrieved
  * from the [MediaStore] for the image whose information we hold (a unique [Long] for each image).
- * @param displayName this is the value of the [MediaStore.Images.Media.DISPLAY_NAME] column of the
+ * @param displayName this is the value of the `MediaStore.Images.Media.DISPLAY_NAME` column of the
  * [Cursor] retrieved from the [MediaStore] for the image whose information we hold (the display
  * name of the media item ie. the file name).
- * @param dateAdded this is the value of the [MediaStore.Images.Media.DATE_ADDED] column of the
+ * @param dateAdded this is the value of the `MediaStore.Images.Media.DATE_ADDED` column of the
  * [Cursor] retrieved from the [MediaStore] for the image whose information we hold (time the media
  * item was first added).
  * @param contentUri a content [Uri] for the image formed by appending the [id] to the value of

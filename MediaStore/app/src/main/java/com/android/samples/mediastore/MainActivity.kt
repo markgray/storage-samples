@@ -58,6 +58,7 @@ import com.android.samples.mediastore.databinding.ActivityMainBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.core.net.toUri
 
 /**
  * The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission.
@@ -102,6 +103,7 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
         ) { result: ActivityResult ->
+            @Suppress("RemoveRedundantQualifierName")
             if (result.resultCode == Activity.RESULT_OK) {
                 viewModel.deletePendingImage()
             }
@@ -360,7 +362,7 @@ class MainActivity : AppCompatActivity() {
     private fun goToSettings() {
         Intent(
             ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.parse("package:$packageName")
+            "package:$packageName".toUri()
         ).apply {
             addCategory(Intent.CATEGORY_DEFAULT)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
