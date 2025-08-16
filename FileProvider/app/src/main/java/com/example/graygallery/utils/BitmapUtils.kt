@@ -26,6 +26,7 @@ import android.graphics.Rect
 import com.example.graygallery.ui.AppViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.core.graphics.createBitmap
 
 /**
  * Converts the full color [Bitmap] parameter [original] to a black and white [Bitmap]. Our `return`
@@ -61,7 +62,11 @@ suspend fun applyGrayscaleFilter(original: Bitmap): Bitmap {
         val height: Int = original.height
         val width: Int = original.width
 
-        val modifiedBitmap: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+        val modifiedBitmap: Bitmap = createBitmap(
+            width = width,
+            height = height,
+            config = Bitmap.Config.RGB_565
+        )
         val canvas = Canvas(modifiedBitmap)
         val paint = Paint()
         val colorMatrix = ColorMatrix().apply {
