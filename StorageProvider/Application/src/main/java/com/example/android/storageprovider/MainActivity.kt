@@ -123,6 +123,7 @@ class MainActivity : SampleActivityBase() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             (logFragment.logView ?: return).setTextAppearance(R.style.Log)
         } else {
+            @Suppress("KotlinConstantConditions")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 (logFragment.logView ?: return).setTextAppearance(R.style.Log)
             } else {

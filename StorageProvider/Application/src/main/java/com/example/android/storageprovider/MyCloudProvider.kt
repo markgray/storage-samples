@@ -643,7 +643,7 @@ class MyCloudProvider : DocumentsProvider() {
                     Log.i(TAG, "A file with id " + documentId + " has been closed!  Time to " +
                         "update the server.")
                 }
-            } catch (e: IOException) {
+            } catch (_: IOException) {
                 throw FileNotFoundException("Failed to open document with id " + documentId +
                     " and mode " + mode)
             }
@@ -677,7 +677,7 @@ class MyCloudProvider : DocumentsProvider() {
             file.createNewFile()
             file.setWritable(true)
             file.setReadable(true)
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             throw FileNotFoundException("Failed to create document with name " +
                 displayName + " and documentId " + documentId)
         }
@@ -741,7 +741,7 @@ class MyCloudProvider : DocumentsProvider() {
      * @param parent the File for the parent directory
      * @return a string of the unique MIME data types the parent directory supports
      */
-    @Suppress("UNUSED_PARAMETER") // Suggested change would make method less reusable
+    @Suppress("UNUSED_PARAMETER", "RedundantSuppression") // Suggested change would make method less reusable
     private fun getChildMimeTypes(parent: File?): String {
         val mimeTypes: MutableSet<String> = HashSet()
         mimeTypes.add("image/*")
