@@ -55,7 +55,7 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.fragment:fragment-ktx:1.8.9")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.3")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test:runner:1.7.0")
