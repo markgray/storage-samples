@@ -35,7 +35,7 @@ android {
 dependencies {
     api("androidx.appcompat:appcompat:1.7.1")
     api("androidx.recyclerview:recyclerview:1.4.0")
-    api("com.github.bumptech.glide:glide:5.0.3")
+    api("com.github.bumptech.glide:glide:5.0.5")
     testImplementation("junit:junit:4.13.2")
     implementation("androidx.core:core-ktx:1.17.0")
 }
