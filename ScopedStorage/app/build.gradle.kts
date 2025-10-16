@@ -26,6 +26,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -55,7 +56,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
 
-    implementation("com.squareup.okhttp3:okhttp:5.1.0")
+    implementation("com.squareup.okhttp3:okhttp:5.2.1")
     implementation("com.github.bumptech.glide:glide:5.0.5")
     annotationProcessor("com.github.bumptech.glide:compiler:5.0.5")
 
