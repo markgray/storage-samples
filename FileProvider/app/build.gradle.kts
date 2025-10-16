@@ -22,6 +22,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -54,7 +55,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.9.5")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("com.google.android.material:material:1.13.0")
-    implementation("com.squareup.okhttp3:okhttp:5.1.0")
+    implementation("com.squareup.okhttp3:okhttp:5.2.1")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
