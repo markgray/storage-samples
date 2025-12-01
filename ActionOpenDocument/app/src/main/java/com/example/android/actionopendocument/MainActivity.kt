@@ -19,7 +19,6 @@ package com.example.android.actionopendocument
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ContentResolver
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
@@ -31,12 +30,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.edit
+import androidx.core.graphics.Insets
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -55,21 +58,37 @@ const val DOCUMENT_FRAGMENT_TAG: String = "com.example.android.actionopendocumen
 class MainActivity : AppCompatActivity() {
 
     /**
-     * This is the `ConstraintLayout` with ID `R.id.no_document_view` in our UI which holds the
+     * This is the [ConstraintLayout] with ID `R.id.no_document_view` in our UI which holds the
      * "Open File" [Button] which when clicked calls our [openDocumentPicker] method to allow the
-     * user to pick a file to view, as well as a `ImageView` holding an icon drawable and a
-     * `TextView` with the text: "Click "open" to view the contents of a PDF." Its visibility is set
+     * user to pick a file to view, as well as a [ImageView] holding an icon drawable and a
+     * [TextView] with the text: "Click "open" to view the contents of a PDF." Its visibility is set
      * to GONE and its `FrameLayout` parent [ViewGroup] is used to hold [ActionOpenDocumentFragment]
      * once a file is chosen to be displayed.
      */
     private lateinit var noDocumentView: ViewGroup
 
     /**
-     * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we set our content view to our layout file `R.layout.activity_main_real`. This layout
-     * consists of a `FrameLayout` root view holding a `ConstraintLayout` displaying our startup
-     * UI, which is replaced by an [ActionOpenDocumentFragment] once the user has selected a PDF
-     * file to view.
+     * Called when the activity is starting. First we call [enableEdgeToEdge]
+     * to enable edge to edge display, then we call our super's implementation
+     * of `onCreate`, and set our content view to our layout file `R.layout.activity_main_real`.
+     * This layout consists of a `FrameLayout` root view holding a `ConstraintLayout` displaying
+     * our startup UI, which is replaced by an [ActionOpenDocumentFragment] once the user has
+     * selected a PDF file to view.
+     *
+     * We initialize our [FrameLayout] variable `rootView` to the view with ID
+     * `R.id.container` then call [ViewCompat.setOnApplyWindowInsetsListener] to
+     * take over the policy for applying window insets to `rootView`, with the
+     * `listener` argument a lambda that accepts the [View] passed the lambda
+     * in variable `v` and the [WindowInsetsCompat] passed the lambda
+     * in variable `windowInsets`. It initializes its [Insets] variable
+     * `insets` to the [WindowInsetsCompat.getInsets] of `windowInsets` with
+     * [WindowInsetsCompat.Type.systemBars] as the argument, then it updates
+     * the layout parameters of `v` to be a [ViewGroup.MarginLayoutParams]
+     * with the left margin set to `insets.left`, the right margin set to
+     * `insets.right`, the top margin set to `insets.top`, and the bottom margin
+     * set to `insets.bottom`. Finally it returns [WindowInsetsCompat.CONSUMED]
+     * to the caller (so that the window insets will not keep passing down to
+     * descendant views).
      *
      * Next we initialize our [ViewGroup] field [noDocumentView] by finding the view with the ID
      * `R.id.no_document_view` (the `ConstraintLayout` mentioned above), then find the [Button] with
@@ -85,7 +104,7 @@ class MainActivity : AppCompatActivity() {
      * and if data is found use the [String] stored under that key to create an [Uri] to initialize
      * our variable `val documentUri` which we then pass to our method [openDocument] to have it
      * construct an instance of [ActionOpenDocumentFragment] to display that file in place of the
-     * `ConstraintLayout` with ID `R.id.no_document_view` that our [ViewGroup] field [noDocumentView]
+     * [ConstraintLayout] with ID `R.id.no_document_view` that our [ViewGroup] field [noDocumentView]
      * points to. If our [SharedPreferences] does not contain data under the key [LAST_OPENED_URI_KEY]
      * we leave things as they are.
      *
@@ -98,8 +117,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_real)
         val rootView = findViewById<FrameLayout>(R.id.container)
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v: View, windowInsets: WindowInsetsCompat ->
+            val insets: Insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             // Apply the insets as a margin to the view.
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 leftMargin = insets.left
@@ -118,8 +137,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState != null) return
-        @Suppress("RemoveRedundantQualifierName")
-        getSharedPreferences(TAG, Context.MODE_PRIVATE).let { sharedPreferences ->
+        getSharedPreferences(TAG, MODE_PRIVATE).let { sharedPreferences ->
             if (sharedPreferences.contains(LAST_OPENED_URI_KEY)) {
                 val documentUri: Uri =
                     sharedPreferences.getString(LAST_OPENED_URI_KEY, null)?.toUri() ?: return@let
@@ -206,8 +224,7 @@ class MainActivity : AppCompatActivity() {
          * uri saved indefinitely, because we called [ContentResolver.takePersistableUriPermission]
          * up in [onActivityResult].
          */
-        @Suppress("RemoveRedundantQualifierName")
-        getSharedPreferences(TAG, Context.MODE_PRIVATE).edit {
+        getSharedPreferences(TAG, MODE_PRIVATE).edit {
             putString(LAST_OPENED_URI_KEY, documentUri.toString())
         }
 
@@ -235,8 +252,7 @@ class MainActivity : AppCompatActivity() {
      */
     private val resultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            @Suppress("RemoveRedundantQualifierName")
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == RESULT_OK) {
                 // There are no request codes
                 val data: Intent? = result.data
                 data?.data.also { documentUri ->
