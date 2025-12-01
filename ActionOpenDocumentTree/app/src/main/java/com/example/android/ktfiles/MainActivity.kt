@@ -21,6 +21,7 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
@@ -29,6 +30,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -52,18 +54,31 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     /**
-     * Called when the activity is starting.First we call our super's implementation of `onCreate`.
-     * Then we use the [ActivityMainBinding.inflate] method with the LayoutInflater instance that
-     * this Window retrieved from its Context to inflate our layout file `R.layout.activity_main`
-     * into an [ActivityMainBinding] instance which we use to initialize our field [binding], and
-     * set our content view to the outermost View in the associated layout file associated with
-     * [ActivityMainBinding]. Next we call the [setSupportActionBar] method with the
-     * [ActivityMainBinding.toolbar] property of [binding] to set that [Toolbar] to act as the
-     * ActionBar for this Activity window. We set the [View.OnClickListener] of the
-     * [FloatingActionButton] pointed to by the [ActivityMainBinding.fabOpenDirectory] property of
-     * [binding] to a lambda that calls our [openDirectory] method to have it launch an
-     * [Intent.ACTION_OPEN_DOCUMENT_TREE] activity to allow the user to choose a directory to
-     * work with.
+     * Called when the activity is starting. First we call [enableEdgeToEdge] to enable edge to
+     * edge display, then we call our super's implementation of `onCreate`. Next we use the
+     * [ActivityMainBinding.inflate] method with the [LayoutInflater] instance that this Window
+     * retrieved from its Context to inflate our layout file `R.layout.activity_main` into an
+     * [ActivityMainBinding] instance which we use to initialize our field [binding], and
+     * set our content view to the [ActivityMainBinding.getRoot] of [binding] (the outermost
+     * [View] of [binding] in the layout file associated with [ActivityMainBinding]).
+     *
+     * We call [ViewCompat.setOnApplyWindowInsetsListener] to take over the policy for applying
+     * window insets to the `root` [View] of [binding], with the `listener` argument a lambda that
+     * accepts the [View] passed the lambda in variable `v` and the [WindowInsetsCompat] passed the
+     * lambda in variable `windowInsets`. It initializes its [Insets] variable `insets` to the
+     * [WindowInsetsCompat.getInsets] of `windowInsets` with [WindowInsetsCompat.Type.systemBars] as
+     * the argument, then it updates the layout parameters of `v` to be a
+     * [ViewGroup.MarginLayoutParams] with the left margin set to `insets.left`, the right margin
+     * set to `insets.right`, the top margin set to `insets.top`, and the bottom margin set to
+     * `insets.bottom`. Finally it returns [WindowInsetsCompat.CONSUMED] to the caller (so that the
+     * window insets will not keep passing down to descendant views).
+     *
+     * Next we call the [setSupportActionBar] method with the [ActivityMainBinding.toolbar] property
+     * of [binding] to set that [Toolbar] to act as the ActionBar for this Activity window. We set
+     * the [View.OnClickListener] of the [FloatingActionButton] pointed to by the
+     * [ActivityMainBinding.fabOpenDirectory] property of [binding] to a lambda that calls our
+     * [openDirectory] method to have it launch an [Intent.ACTION_OPEN_DOCUMENT_TREE] activity to
+     * allow the user to choose a directory to work with.
      *
      * Next we call our method [setUpButtons] to have it configure the "Up" affordance and the
      * [FloatingActionButton] given the current state of the back stack (if we have a directory
@@ -83,9 +98,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val rootView = binding.root
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v: View, windowInsets: WindowInsetsCompat ->
+            val insets: Insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             // Apply the insets as a margin to the view.
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 leftMargin = insets.left
@@ -171,8 +185,7 @@ class MainActivity : AppCompatActivity() {
      */
     private val resultLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            @Suppress("RemoveRedundantQualifierName")
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == RESULT_OK) {
                 // There are no request codes
                 val data: Intent? = result.data
                 data?.data.also { directoryUri ->
