@@ -33,10 +33,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import com.android.samples.filemanager.databinding.ActivityFileExplorerBinding
+import com.google.android.material.appbar.MaterialToolbar
 import java.io.File
 
 /**
@@ -101,16 +103,29 @@ class FileExplorerActivity : AppCompatActivity() {
     private lateinit var adapter: ArrayAdapter<String>
 
     /**
-     * Called when the activity is starting. First we call our super's implementaton of `onCreate`.
-     * We then initialize our [ActivityFileExplorerBinding] field [binding] by having the
+     * Called when the activity is starting. First we call [enableEdgeToEdge] to enable edge to
+     * edge display, then we call our super's implementation of `onCreate`, and initialize our
+     * [ActivityFileExplorerBinding] field [binding] by having the
      * [ActivityFileExplorerBinding.inflate] method use the [LayoutInflater] instance that this
      * Window retrieved from its [Context] to inflate and bind to its associated layout file
-     * (layout/activity_file_explorer.xml). We then have the `MaterialToolbar` in [binding] with
-     * ID `R.id.toolbar` inflate the menu resource with ID `R.menu.file_manager_menu` into itself
-     * (it consists of a single `item` with the title "Settings"). Next we set our content view to
-     * the outermost View in the associated layout file of [binding] (its `root` property). Finally
-     * we call our [setupUi] method to have it finish the initialization and configuration of the
-     * views in [binding].
+     * (layout/activity_file_explorer.xml).
+     *
+     * We then call [ViewCompat.setOnApplyWindowInsetsListener] to take over the policy for
+     * applying window insets to the [ActivityFileExplorerBinding.getRoot] root [View] of [binding]
+     * with the `listener` argument a lambda that accepts the [View] passed the lambda in variable
+     * `v` and the [WindowInsetsCompat] passed the lambda in variable `windowInsets`. It initializes
+     * its [Insets] variable `insets` to the [WindowInsetsCompat.getInsets] of `windowInsets` with
+     * [WindowInsetsCompat.Type.systemBars] as the argument, then it updates the layout parameters
+     * of `v` to be a [ViewGroup.MarginLayoutParams] with the left margin set to `insets.left`,
+     * the right margin set to `insets.right`, the top margin set to `insets.top`, and the bottom
+     * margin set to `insets.bottom`. Finally it returns [WindowInsetsCompat.CONSUMED] to the caller
+     * (so that the window insets will not keep passing down to descendant views).
+     *
+     * Next we have the [MaterialToolbar] in [binding] with ID `R.id.toolbar` inflate the menu
+     * resource with ID `R.menu.file_manager_menu` into itself (it consists of a single `item` with
+     * the title "Settings"). Next we set our content view to the outermost View in the associated
+     * layout file of [binding] (its `root` property). Finally we call our [setupUi] method to have
+     * it finish the initialization and configuration of the views in [binding].
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use this.
      */
@@ -119,9 +134,8 @@ class FileExplorerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ActivityFileExplorerBinding.inflate(layoutInflater)
-        val rootView = binding.root
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v: View, windowInsets: WindowInsetsCompat ->
+            val insets: Insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             // Apply the insets as a margin to the view.
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 leftMargin = insets.left
