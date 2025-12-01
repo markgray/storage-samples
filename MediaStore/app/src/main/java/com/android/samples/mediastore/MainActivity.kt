@@ -46,6 +46,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -103,53 +104,67 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
         ) { result: ActivityResult ->
-            @Suppress("RemoveRedundantQualifierName")
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == RESULT_OK) {
                 viewModel.deletePendingImage()
             }
         }
 
     /**
-     * Called when the activity is starting. First we call our super's implementation of `onCreate`,
-     * then we initialize our [ActivityMainBinding] field [binding] to the view binding that the
+     * Called when the activity is starting. First we call [enableEdgeToEdge] to enable edge to edge
+     * display, then we call our super's implementation of `onCreate`, and initialize our
+     * [ActivityMainBinding] field [binding] to the view binding that the
      * [DataBindingUtil.setContentView] method returns when it sets the Activity's content view to
-     * the layout file `R.layout.activity_main` and returns the associated binding. We initialize our
-     * [GalleryAdapter] variable `val galleryAdapter` to a new instance whose constructor argument is
-     * a lambda which calls our [deleteImage] method with the [MediaStoreImage] parameter passed to
-     * it (the [ImageViewHolder] used for each image in our [RecyclerView] sets the `OnClickListener`
-     * of the [ImageView] it holds to a lambda which retrieves the [MediaStoreImage] stored as the
-     * `tag` of its root view and calls this lambda with it). Our [deleteImage] method will show an
-     * [AlertDialog] which asks the user if they want to delete the file, and will call the
-     * [MainActivityViewModel.deleteImage] method of [viewModel] with the [MediaStoreImage] if the
-     * positive button is clicked.
+     * the layout file `R.layout.activity_main` and returns the associated binding.
+     *
+     * We call [ViewCompat.setOnApplyWindowInsetsListener] to take over the policy for applying
+     * window insets to the [ActivityMainBinding.root] root view of [binding] with the `listener`
+     * argument a lambda that accepts the [View] passed the lambda in variable `v` and the
+     * [WindowInsetsCompat] passed the lambda in variable `windowInsets`. It initializes its
+     * [Insets] variable `insets` to the [WindowInsetsCompat.getInsets] of `windowInsets` with
+     * [WindowInsetsCompat.Type.systemBars] as the argument, then it updates the layout parameters
+     * of `v` to be a [ViewGroup.MarginLayoutParams] with the left margin set to `insets.left`, the
+     * right margin set to `insets.right`, the top margin set to `insets.top`, and the bottom margin
+     * set to `insets.bottom`. Finally it returns [WindowInsetsCompat.CONSUMED] to the caller (so
+     * that the window insets will not keep passing down to descendant views).
+     *
+     * We initialize our [GalleryAdapter] variable `val galleryAdapter` to a new instance whose
+     * constructor argument is a lambda which calls our [deleteImage] method with the
+     * [MediaStoreImage] parameter passed to it (the [ImageViewHolder] used for each image in our
+     * [RecyclerView] sets the `OnClickListener` of the [ImageView] it holds to a lambda which
+     * retrieves the [MediaStoreImage] stored as the `tag` of its root view and calls this lambda
+     * with it). Our [deleteImage] method will show an [AlertDialog] which asks the user if they
+     * want to delete the file, and will call the [MainActivityViewModel.deleteImage] method of
+     * [viewModel] with the [MediaStoreImage] if the positive button is clicked.
      *
      * Next we use the [also] extension function on the [ActivityMainBinding.gallery] property of
-     * [binding] (the [RecyclerView]) to set its `layoutManager` to a new instance of [GridLayoutManager]
-     * with 3 columns, and to set its `adapter` to `galleryAdapter`.
+     * [binding] (the [RecyclerView]) to set its `layoutManager` to a new instance of
+     * [GridLayoutManager] with 3 columns, and to set its `adapter` to `galleryAdapter`.
      *
      * We add an observer to the [MainActivityViewModel.images] field of [viewModel] whose lambda
-     * calls the [ListAdapter.submitList] method of `galleryAdapter` with the [List] of [MediaStoreImage]
-     * objects passed it to have it diffed against the current dataset, and then displayed in its
-     * associated [RecyclerView].
+     * calls the [ListAdapter.submitList] method of `galleryAdapter` with the [List] of
+     * [MediaStoreImage] objects passed it to have it diffed against the current dataset, and then
+     * displayed in its associated [RecyclerView].
      *
-     * We add an observer to the [MainActivityViewModel.permissionNeededForDelete] field of [viewModel]
-     * whose lambda will launch our [ActivityResultLauncher] field [requestPermissionToDelete] with
-     * an [IntentSenderRequest] built from the [IntentSender] passed it when it transitions to a
-     * non-`null` value. [requestPermissionToDelete] will launch the activity suggested by the
-     * [IntentSender] to allow the user to grant permission to delete the image file in question,
-     * and its callback will interpret the [ActivityResult] returned from that activity and delete
-     * the image file if the activity returns [Activity.RESULT_OK] as the result code.
+     * We add an observer to the [MainActivityViewModel.permissionNeededForDelete] field of
+     * [viewModel] whose lambda will launch our [ActivityResultLauncher] field
+     * [requestPermissionToDelete] with an [IntentSenderRequest] built from the [IntentSender]
+     * passed it when it transitions to a non-`null` value. [requestPermissionToDelete] will launch
+     * the activity suggested by the [IntentSender] to allow the user to grant permission to delete
+     * the image file in question, and its callback will interpret the [ActivityResult] returned
+     * from that activity and delete the image file if the activity returns [Activity.RESULT_OK] as
+     * the result code.
      *
      * We set the [View.OnClickListener] of the [ActivityMainBinding.openAlbum] button of [binding]
      * to a lambda which calls our [openMediaStore] method and the [View.OnClickListener] of the
      * [ActivityMainBinding.grantPermissionButton] button of [binding] to a lambda which calls our
      * [openMediaStore] method.
      *
-     * If our [haveStoragePermission] method returns `false` ([Manifest.permission.READ_EXTERNAL_STORAGE]
-     * permission has not been granted to our app) we set the visibility of the `LinearView` property
-     * [ActivityMainBinding.welcomeView] of [binding] to [View.VISIBLE] (it contains the button for
-     * asking for permission and an explanation of why it is necessary), otherwise we call our
-     * [showImages] method to have it retrieve the images using the `MediaStore` API.
+     * If our [haveStoragePermission] method returns `false`
+     * ([Manifest.permission.READ_EXTERNAL_STORAGE] permission has not been granted to our app) we
+     * set the visibility of the `LinearView` property [ActivityMainBinding.welcomeView] of
+     * [binding] to [View.VISIBLE] (it contains the button for asking for permission and an
+     * explanation of why it is necessary), otherwise we call our [showImages] method to have it
+     * retrieve the images using the `MediaStore` API.
      *
      * @param savedInstanceState we do not override [onSaveInstanceState] so do not use.
      */
@@ -157,9 +172,8 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        val rootView = binding.root
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v: View, windowInsets: WindowInsetsCompat ->
+            val insets: Insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             // Apply the insets as a margin to the view.
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 leftMargin = insets.left
