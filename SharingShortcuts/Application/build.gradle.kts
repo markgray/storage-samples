@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.activity:activity-ktx:1.12.0")
+    implementation("androidx.activity:activity-ktx:1.12.1")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.sharetarget:sharetarget:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
