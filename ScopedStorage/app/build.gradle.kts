@@ -42,7 +42,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.activity:activity-ktx:1.12.1")
+    implementation("androidx.activity:activity-ktx:1.12.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
